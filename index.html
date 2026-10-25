@@ -1,0 +1,1652 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Schrankblick</title>
+<meta name="description" content="Dein Kleiderschrank, immer dabei: Teile erfassen, Wäsche-Status, Outfits für die Woche und Verkaufen auf Vinted.">
+<meta name="theme-color" content="#f4f4f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f0f0e" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Schrankblick">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+/* Layout: one calm phone column like a boutique lookbook. Serif headlines, quiet monochrome surfaces, moss green as the single accent, a floating glass tab bar. */
+:root {
+  --bg: #f4f4f1;
+  --surface: #ffffff;
+  --surface-2: #ecece8;
+  --surface-3: #e3e3de;
+  --ink: #141413;
+  --muted: #6c6c66;
+  --faint: #a2a29b;
+  --line: rgba(20, 20, 19, .08);
+  --line-strong: rgba(20, 20, 19, .16);
+  --accent: #56622f;
+  --accent-ink: #ffffff;
+  --accent-soft: #e7ead9;
+  --inv-bg: #141413;
+  --inv-fg: #f4f4f1;
+  --inv-muted: rgba(244, 244, 241, .62);
+  --inv-line: rgba(244, 244, 241, .14);
+  --glass: rgba(255, 255, 255, .78);
+  --scrim: rgba(18, 18, 16, .32);
+  --danger: #b73a2c;
+  --st-schrank: #4b7a57;
+  --st-waesche: #3c6c95;
+  --st-reinigung: #7b5aa0;
+  --st-verliehen: #a5701c;
+  --st-schrank-soft: #e3eee5;
+  --st-waesche-soft: #e1eaf3;
+  --st-reinigung-soft: #ece5f4;
+  --st-verliehen-soft: #f4ebdb;
+  --garment-stroke: rgba(0, 0, 0, .22);
+  --shadow: 0 1px 2px rgba(20, 20, 19, .04), 0 8px 24px rgba(20, 20, 19, .05);
+  --shadow-float: 0 10px 40px rgba(20, 20, 19, .14), 0 2px 6px rgba(20, 20, 19, .06);
+  --font-display: "Instrument Serif", "Iowan Old Style", "Times New Roman", serif;
+  --font-body: "Geist", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --font-label: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r-lg: 24px;
+  --r: 18px;
+  --r-sm: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f0f0e; --surface: #191918; --surface-2: #222220; --surface-3: #2c2c29;
+    --ink: #f1f1ec; --muted: #9c9c94; --faint: #66665f;
+    --line: rgba(241, 241, 236, .08); --line-strong: rgba(241, 241, 236, .16);
+    --accent: #bccb8a; --accent-ink: #151a08; --accent-soft: #262b18;
+    --inv-bg: #f1f1ec; --inv-fg: #141413; --inv-muted: rgba(20, 20, 19, .6); --inv-line: rgba(20, 20, 19, .12);
+    --glass: rgba(28, 28, 27, .78); --scrim: rgba(0, 0, 0, .55); --danger: #ef8270;
+    --st-schrank: #8cc79a; --st-waesche: #8bb8de; --st-reinigung: #c3a7e6; --st-verliehen: #e2b867;
+    --st-schrank-soft: #1c2b20; --st-waesche-soft: #1a2633; --st-reinigung-soft: #282036; --st-verliehen-soft: #30261a;
+    --garment-stroke: rgba(0, 0, 0, .35);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4); --shadow-float: 0 10px 40px rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f0f0e; --surface: #191918; --surface-2: #222220; --surface-3: #2c2c29;
+  --ink: #f1f1ec; --muted: #9c9c94; --faint: #66665f;
+  --line: rgba(241, 241, 236, .08); --line-strong: rgba(241, 241, 236, .16);
+  --accent: #bccb8a; --accent-ink: #151a08; --accent-soft: #262b18;
+  --inv-bg: #f1f1ec; --inv-fg: #141413; --inv-muted: rgba(20, 20, 19, .6); --inv-line: rgba(20, 20, 19, .12);
+  --glass: rgba(28, 28, 27, .78); --scrim: rgba(0, 0, 0, .55); --danger: #ef8270;
+  --st-schrank: #8cc79a; --st-waesche: #8bb8de; --st-reinigung: #c3a7e6; --st-verliehen: #e2b867;
+  --st-schrank-soft: #1c2b20; --st-waesche-soft: #1a2633; --st-reinigung-soft: #282036; --st-verliehen-soft: #30261a;
+  --garment-stroke: rgba(0, 0, 0, .35);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4); --shadow-float: 0 10px 40px rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}
+
+[hidden] { display: none !important; }
+html, body { background: var(--bg); color: var(--ink); }
+body { font-family: var(--font-body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; letter-spacing: -0.005em; }
+* { box-sizing: border-box; }
+button, input, select, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+svg { flex: none; }
+
+/* ---------- shell ---------- */
+.app {
+  max-width: 560px; margin: 0 auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  padding-block: 22px 128px;
+  display: flex; flex-direction: column; gap: 22px;
+}
+.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.top-l { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.eyebrow { font-family: var(--font-label); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.brand { font-family: var(--font-display); font-weight: 400; font-size: 44px; letter-spacing: -0.02em; line-height: .95; margin: 0; }
+.brand em { font-style: italic; color: var(--accent); }
+.fab { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--ink); color: var(--bg); display: grid; place-items: center; box-shadow: var(--shadow); transition: transform .15s ease; flex: none; }
+.fab:active { transform: scale(.94); }
+.fab svg { width: 22px; height: 22px; }
+
+/* ---------- type ---------- */
+.section-h { font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1.05; margin: 0; letter-spacing: -0.015em; text-wrap: balance; }
+.h3 { font-family: var(--font-body); font-size: 15px; font-weight: 600; margin: 0; display: flex; align-items: baseline; gap: 8px; }
+.h3 .n { font-family: var(--font-label); font-size: 11px; color: var(--muted); font-weight: 500; }
+.sub { color: var(--muted); font-size: 14px; margin: 4px 0 0; text-wrap: pretty; }
+.hint { font-size: 12.5px; color: var(--muted); margin: 0; line-height: 1.45; }
+.note { font-size: 13px; color: var(--muted); margin: 0; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.stack-sm { display: flex; flex-direction: column; gap: 10px; }
+
+/* ---------- banner ---------- */
+.banner { background: var(--accent-soft); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.banner p { margin: 0; font-size: 14px; }
+.banner .row { display: flex; gap: 8px; flex-wrap: wrap; }
+.banner .row .btn { flex: 1 1 160px; }
+
+/* ---------- buttons ---------- */
+.btn { border: 0; border-radius: 999px; min-height: 46px; padding: 11px 18px; font-weight: 600; font-size: 14.5px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: transform .12s ease, opacity .15s ease, background .15s ease; text-align: center; }
+.btn:active:not(:disabled) { transform: scale(.98); }
+.btn svg { width: 17px; height: 17px; }
+.btn-primary { background: var(--ink); color: var(--bg); }
+.btn-accent { background: var(--accent); color: var(--accent-ink); }
+.btn-ghost { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.btn-soft { background: var(--surface-2); color: var(--ink); }
+.btn-danger { background: transparent; color: var(--danger); min-height: 40px; font-weight: 500; font-size: 13.5px; }
+.btn-danger.armed { background: var(--danger); color: var(--bg); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn-wide { width: 100%; }
+.btn-sm { min-height: 36px; padding: 7px 14px; font-size: 13px; }
+a.btn { text-decoration: none; }
+
+/* ---------- today card ---------- */
+.today { background: var(--inv-bg); color: var(--inv-fg); border-radius: var(--r-lg); padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.today-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.today-top .eyebrow { color: var(--inv-muted); }
+.today h2 { font-family: var(--font-display); font-weight: 400; font-size: 28px; margin: 2px 0 0; line-height: 1.05; }
+.today h2 em { font-style: italic; }
+.today .link { background: none; border: 0; color: var(--inv-muted); font-size: 13px; font-weight: 500; padding: 0; white-space: nowrap; }
+.today .outfit .thumb { background: rgba(127, 127, 120, .16); }
+.today .mini span { color: var(--inv-muted); }
+.today .note { color: var(--inv-muted); }
+.today .btn-inv { background: var(--inv-fg); color: var(--inv-bg); }
+
+/* ---------- stats ---------- */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.stat { background: none; border: 0; padding: 14px 6px 12px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; position: relative; }
+.stat + .stat::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 1px; background: var(--line); }
+.stat b { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 11.5px; color: var(--muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.stat::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 4px; height: 4px; border-radius: 50%; background: transparent; transform: translateX(-50%); }
+.stat.is-on { background: var(--surface-2); }
+.stat.is-on::after { background: var(--ink); }
+
+/* ---------- chips ---------- */
+.toolbar { display: flex; flex-direction: column; gap: 10px; }
+.chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; }
+.chips::-webkit-scrollbar { display: none; }
+.app .chips:not(.wrap) { margin-inline: -20px; padding-inline: 20px; }
+.chips.wrap { flex-wrap: wrap; overflow: visible; }
+.chip { flex: none; border: 0; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); border-radius: 999px; padding: 8px 14px; font-size: 13.5px; font-weight: 500; transition: background .15s ease, color .15s ease; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); box-shadow: none; }
+
+/* ---------- wardrobe grid ---------- */
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; }
+@media (min-width: 480px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.tile { background: none; border: 0; padding: 0; text-align: left; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.tile .thumb { transition: transform .2s ease; }
+.tile:active .thumb { transform: scale(.98); }
+.thumb { position: relative; aspect-ratio: 4 / 5; max-width: 100%; width: 100%; border-radius: var(--r); background: var(--surface-2); overflow: hidden; display: grid; place-items: center; }
+.thumb svg.garment { width: 62%; height: 62%; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .10)); }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.thumb .pill { position: absolute; left: 8px; top: 8px; }
+.tile .name { font-weight: 600; font-size: 14px; line-height: 1.3; overflow-wrap: anywhere; padding-inline: 2px; }
+.tile .meta { font-size: 12.5px; color: var(--muted); margin-top: -6px; padding-inline: 2px; font-variant-numeric: tabular-nums; }
+.tile.is-dim .thumb > svg.garment, .tile.is-dim .thumb > img { opacity: .4; }
+.tile-add { aspect-ratio: 4 / 5; max-width: 100%; border-radius: var(--r); border: 1.5px dashed var(--line-strong); background: transparent; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-weight: 500; font-size: 13.5px; }
+.tile-add svg { width: 26px; height: 26px; }
+
+/* ---------- status pill ---------- */
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 9px 4px 8px; font-size: 11px; font-weight: 600; background: var(--glass); color: var(--ink); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); white-space: nowrap; }
+.pill i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.pill.st-schrank i { background: var(--st-schrank); }
+.pill.st-waesche i { background: var(--st-waesche); }
+.pill.st-reinigung i { background: var(--st-reinigung); }
+.pill.st-verliehen i { background: var(--st-verliehen); }
+.pill.solid { background: var(--surface-2); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.st-schrank { color: var(--st-schrank); }
+.st-waesche { color: var(--st-waesche); }
+.st-reinigung { color: var(--st-reinigung); }
+.st-verliehen { color: var(--st-verliehen); }
+.pill.st-schrank, .pill.st-waesche, .pill.st-reinigung, .pill.st-verliehen { color: var(--ink); }
+
+.empty { border: 1.5px dashed var(--line-strong); border-radius: var(--r); padding: 26px 18px; text-align: center; color: var(--muted); font-size: 14px; }
+
+/* ---------- segmented ---------- */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--surface-2); border-radius: 999px; padding: 4px; gap: 2px; }
+.seg button { border: 0; background: transparent; border-radius: 999px; padding: 9px 6px; font-size: 13.5px; font-weight: 500; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background .15s ease, color .15s ease; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .1); font-weight: 600; }
+
+/* ---------- week ---------- */
+.week { display: flex; flex-direction: column; gap: 10px; }
+.day { background: var(--surface); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow); }
+.day-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.day-name { font-family: var(--font-display); font-size: 24px; line-height: 1; display: flex; align-items: center; gap: 10px; }
+.today-tag { font-family: var(--font-label); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; background: var(--accent); color: var(--accent-ink); padding: 4px 8px; border-radius: 999px; }
+.day-tools { display: flex; gap: 6px; align-items: center; }
+.occ { border: 0; background: var(--surface-2); border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+.occ svg { width: 12px; height: 12px; opacity: .6; }
+.icon-btn { border: 0; background: var(--surface-2); border-radius: 50%; width: 34px; height: 34px; display: grid; place-items: center; padding: 0; transition: transform .3s ease; }
+.icon-btn:active { transform: rotate(-90deg); }
+.icon-btn svg { width: 16px; height: 16px; }
+.day.is-today { background: var(--inv-bg); color: var(--inv-fg); }
+.day.is-today .occ, .day.is-today .icon-btn { background: rgba(127, 127, 120, .2); color: var(--inv-fg); }
+.day.is-today .mini .thumb { background: rgba(127, 127, 120, .16); }
+.day.is-today .mini span, .day.is-today .note { color: var(--inv-muted); }
+.day.is-today .btn-ghost { background: var(--inv-fg); color: var(--inv-bg); box-shadow: none; }
+.outfit { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+.outfit::-webkit-scrollbar { display: none; }
+.mini { flex: none; width: 76px; display: flex; flex-direction: column; gap: 6px; background: none; border: 0; padding: 0; text-align: left; color: inherit; }
+.mini .thumb { border-radius: 14px; aspect-ratio: 4 / 5; }
+.mini span { font-size: 11.5px; color: var(--muted); line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.mini.warn .thumb { box-shadow: inset 0 0 0 2px var(--st-waesche); }
+.warn-line { font-size: 12.5px; color: var(--st-waesche); font-weight: 600; margin: 0; display: flex; gap: 6px; align-items: baseline; }
+.day.is-today .warn-line { color: inherit; opacity: .8; }
+
+/* ---------- lists ---------- */
+.list { display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.row-item { display: flex; align-items: center; gap: 14px; padding: 10px 12px 10px 10px; background: var(--surface); border: 0; color: inherit; font: inherit; }
+.list > .row-item + .row-item { border-top: 1px solid var(--line); }
+.row-item .thumb { width: 52px; flex: none; border-radius: 12px; aspect-ratio: 1; }
+.row-item .txt { flex: 1; min-width: 0; }
+.row-item .txt b { display: block; font-size: 14.5px; font-weight: 600; overflow-wrap: anywhere; }
+.row-item .txt span { font-size: 12.5px; color: var(--muted); }
+.row-item .btn { min-height: 36px; padding: 7px 14px; font-size: 13px; }
+.lrow { width: 100%; text-align: left; }
+
+.carelabel { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 12px; background: var(--surface); border-radius: var(--r-lg); padding: 20px; box-shadow: var(--shadow); }
+.carelabel .big { font-family: var(--font-display); font-size: 72px; line-height: .85; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+.carelabel .sym { width: 56px; height: 56px; color: var(--st-waesche); background: var(--st-waesche-soft); border-radius: 50%; display: grid; place-items: center; }
+.carelabel .sym svg { width: 28px; height: 28px; }
+.vision { font-size: 13px; color: var(--muted); margin: 0; background: var(--surface-2); border-radius: var(--r); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.vision svg { width: 20px; height: 20px; color: var(--accent); margin-top: 1px; }
+
+/* ---------- tab bar ---------- */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; pointer-events: none;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+}
+.tabbar-in {
+  pointer-events: auto; max-width: 420px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 6px;
+  background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6);
+  border-radius: 999px; box-shadow: var(--shadow-float), inset 0 0 0 1px var(--line);
+}
+.tab { background: none; border: 0; border-radius: 999px; padding: 8px 4px 7px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); position: relative; transition: background .2s ease, color .2s ease; }
+.tab svg { width: 21px; height: 21px; }
+.tab[aria-current="page"] { color: var(--bg); background: var(--ink); }
+.tab .count { position: absolute; top: 3px; right: calc(50% - 22px); background: var(--st-waesche); color: #fff; font-size: 10px; font-weight: 700; border-radius: 999px; min-width: 17px; height: 17px; display: grid; place-items: center; padding: 0 4px; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 2px var(--surface); }
+
+/* ---------- sheet ---------- */
+.scrim { position: fixed; inset: 0; background: var(--scrim); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); z-index: 40; display: flex; align-items: flex-end; justify-content: center; animation: fade .2s ease; }
+.sheet {
+  background: var(--bg); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
+  border-radius: 28px 28px 0 0;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  padding-top: 10px; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 18px;
+  animation: up .32s cubic-bezier(.2, .8, .2, 1);
+}
+@keyframes up { from { transform: translateY(40px); opacity: .4; } }
+@keyframes fade { from { opacity: 0; } }
+@media (min-width: 600px) { .scrim { align-items: center; } .sheet { border-radius: 28px; max-height: 86vh; } }
+.grab { width: 38px; height: 5px; border-radius: 5px; background: var(--line-strong); margin: 0 auto; flex: none; }
+.sheet h2 { font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1.05; margin: 0; letter-spacing: -0.015em; overflow-wrap: anywhere; }
+.sheet .hero { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 16px; align-items: end; }
+.sheet .hero .thumb { border-radius: var(--r); background: var(--surface-2); }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 0; font-size: 14px; background: var(--surface); border-radius: var(--r); padding: 4px 16px; margin: 0; box-shadow: var(--shadow); }
+.kv dt, .kv dd { padding: 10px 0; border-top: 1px solid var(--line); }
+.kv dt:first-of-type, .kv dd:first-of-type { border-top: 0; }
+.kv dt { color: var(--muted); padding-right: 16px; }
+.kv dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; text-align: right; }
+.status-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.status-opt { border: 0; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); border-radius: 14px; padding: 12px; display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 13.5px; text-align: left; }
+.status-opt svg { width: 20px; height: 20px; }
+.status-opt span { color: var(--ink); }
+.status-opt[aria-pressed="true"] { box-shadow: inset 0 0 0 2px currentColor; }
+.status-opt.st-schrank[aria-pressed="true"] { background: var(--st-schrank-soft) !important; }
+.status-opt.st-waesche[aria-pressed="true"] { background: var(--st-waesche-soft) !important; }
+.status-opt.st-reinigung[aria-pressed="true"] { background: var(--st-reinigung-soft) !important; }
+.status-opt.st-verliehen[aria-pressed="true"] { background: var(--st-verliehen-soft) !important; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.actions .btn { flex: 1 1 140px; }
+
+/* ---------- forms ---------- */
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.field > label, .field > .lbl { font-family: var(--font-label); font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.field input[type=text], .tag-input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font-size: 15px; transition: box-shadow .15s ease; }
+.field input[type=text]:focus, .ta:focus, .tag-input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
+.photo-pick { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 16px; align-items: center; }
+.photo-pick .thumb { border-radius: var(--r); }
+.photo-pick .col { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.file-btn { position: relative; overflow: hidden; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.sw { width: 32px; height: 32px; border-radius: 50%; border: 0; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); padding: 0; transition: transform .15s ease; }
+.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ink); transform: scale(1.06); }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(100px + env(safe-area-inset-bottom, 0px)); z-index: 60; background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 999px; font-size: 14px; font-weight: 500; max-width: min(90vw, 440px); width: max-content; text-align: center; box-shadow: var(--shadow-float); animation: toastin .25s ease; }
+@keyframes toastin { from { opacity: 0; transform: translate(-50%, 8px); } }
+.spin { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: sp .8s linear infinite; }
+@keyframes sp { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ---------- sell ---------- */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: var(--surface-2); padding: 4px; border-radius: 999px; }
+.stp { border: 0; background: transparent; border-radius: 999px; padding: 8px 6px; font-size: 13px; font-weight: 500; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.stp span { font-family: var(--font-label); font-size: 10.5px; opacity: .7; }
+.stp[aria-current="step"] { color: var(--ink); background: var(--surface); box-shadow: 0 1px 3px rgba(0, 0, 0, .1); font-weight: 600; }
+.ph-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.ph { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ph .img { position: relative; aspect-ratio: 4 / 5; max-width: 100%; border-radius: 14px; overflow: hidden; background: var(--surface-2); }
+.ph .img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ph-x { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, .55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: #fff; font-size: 17px; line-height: 1; display: grid; place-items: center; padding: 0; }
+.cover-tag { position: absolute; left: 6px; bottom: 6px; font-family: var(--font-label); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; background: var(--glass); color: var(--ink); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); padding: 4px 7px; border-radius: 999px; }
+.ph-cover { border: 0; background: none; color: var(--accent); font-size: 12px; font-weight: 600; padding: 0; text-align: left; }
+.ph-note { font-size: 11.5px; color: var(--muted); margin: 0; line-height: 1.3; overflow-wrap: anywhere; }
+.ph-add { aspect-ratio: 4 / 5; max-width: 100%; border: 1.5px dashed var(--line-strong); border-radius: 14px; display: grid; place-items: center; text-align: center; color: var(--muted); font-weight: 500; font-size: 13px; position: relative; background: transparent; cursor: pointer; }
+.ph-add input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.panel { background: var(--surface); border-radius: var(--r-lg); padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; box-shadow: var(--shadow); }
+.score { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.score b { font-family: var(--font-display); font-weight: 400; font-size: 48px; font-variant-numeric: tabular-nums; line-height: .9; }
+.score b small { font-size: 22px; color: var(--muted); }
+.checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.checks li { display: flex; gap: 10px; align-items: flex-start; }
+.checks .ok, .checks .todo { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none; margin-top: 1px; }
+.checks .ok { color: var(--st-schrank); background: var(--st-schrank-soft); }
+.checks .todo { color: var(--st-verliehen); background: var(--st-verliehen-soft); }
+.ta { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font: inherit; line-height: 1.5; resize: vertical; }
+.cond-list { display: flex; flex-direction: column; gap: 6px; }
+.cond { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 12px 14px; text-align: left; display: flex; flex-direction: column; gap: 2px; }
+.cond b { font-size: 14px; font-weight: 600; }
+.cond span { font-size: 12.5px; color: var(--muted); }
+.cond[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--ink); }
+.collage-prev { width: 100%; max-width: 320px; border-radius: 14px; display: block; box-shadow: var(--shadow); }
+.price { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.field .price input[type=text] { max-width: 140px; font-family: var(--font-display); font-size: 32px; padding: 6px 14px; }
+.lst-entwurf { color: var(--muted); }
+.lst-entwurf i { background: var(--faint); }
+.lst-online i { background: var(--st-waesche); }
+.lst-verkauft i { background: var(--st-schrank); }
+.copyrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.copyrow .btn { flex: 1 1 120px; }
+.steps-howto { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.howto { margin: 0; padding: 0; list-style: none; counter-reset: h; display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.howto li { counter-increment: h; display: grid; grid-template-columns: 30px minmax(0, 1fr); column-gap: 12px; padding: 14px 16px; }
+.howto li + li { border-top: 1px solid var(--line); }
+.howto li::before { content: counter(h); grid-row: span 2; font-family: var(--font-display); font-size: 28px; line-height: 1; color: var(--accent); }
+.howto b { font-size: 14.5px; font-weight: 600; }
+.howto span { font-size: 13px; color: var(--muted); }
+.panel a:not(.btn) { color: var(--accent); }
+.back { background: none; border: 0; padding: 6px 0; font-weight: 500; font-size: 14px; color: var(--muted); display: inline-flex; align-items: center; gap: 4px; }
+.back svg { width: 18px; height: 18px; }
+
+body { margin: 0; }
+img { max-width: 100%; }
+.app { padding-top: calc(22px + env(safe-area-inset-top, 0px)); }
+.top-r { display: flex; gap: 8px; align-items: center; }
+.fab.fab-soft { background: var(--surface); color: var(--ink); box-shadow: var(--shadow), inset 0 0 0 1px var(--line); }
+.set-group { display: flex; flex-direction: column; gap: 10px; }
+.set-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.set-row .btn { flex: 1 1 150px; }
+.key-input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font-family: var(--font-label); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="top-l">
+      <span class="eyebrow" id="kw">KW</span>
+      <h1 class="brand">Schrank<em>blick</em></h1>
+    </div>
+    <div class="top-r">
+    <button class="fab fab-soft" data-act="settings" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button>
+    <button class="fab" data-act="open-add" aria-label="Teil hinzufügen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+  </header>
+  <div id="banner"></div>
+  <main id="view"></main>
+</div>
+
+<nav class="tabbar" aria-label="Bereiche">
+  <div class="tabbar-in">
+    <button class="tab" data-act="tab" data-v="schrank" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2a2 2 0 1 1 2 2c-.8 0-2 .5-2 1.8"/><path d="M12 10 3 16.5h18Z"/></svg>
+      Schrank
+    </button>
+    <button class="tab" data-act="tab" data-v="woche">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>
+      Woche
+    </button>
+    <button class="tab" data-act="tab" data-v="waesche">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5 5 19h14l2-12.5"/><path d="M4 10c1.3-1.2 2.7-1.2 4 0s2.7 1.2 4 0 2.7-1.2 4 0 2.7 1.2 4 0"/></svg>
+      Wäsche
+      <span class="count" id="laundryCount" hidden>0</span>
+    </button>
+    <button class="tab" data-act="tab" data-v="verkaufen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12.5 11.5 4.5H19.5V12.5L11.5 20.5Z"/><circle cx="15.5" cy="8.5" r="1.4"/></svg>
+      Verkaufen
+    </button>
+  </div>
+</nav>
+
+<div class="scrim" id="scrim" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="shim.js"></script>
+<script>
+(() => {
+"use strict";
+
+const CATS = { top: "Oberteil", bottom: "Hose & Rock", dress: "Kleid", jacket: "Jacke", shoes: "Schuhe", acc: "Accessoire" };
+const CAT_ORDER = ["top", "bottom", "dress", "jacket", "shoes", "acc"];
+const STATUS = {
+  schrank: { label: "Im Schrank", short: "Schrank" },
+  waesche: { label: "In der Wäsche", short: "Wäsche" },
+  reinigung: { label: "In der Reinigung", short: "Reinigung" },
+  verliehen: { label: "Verliehen", short: "Verliehen" }
+};
+const OCC = { buero: "Büro", freizeit: "Freizeit", schule: "Schule", sport: "Sport", abend: "Abend" };
+const OCC_KEYS = Object.keys(OCC);
+const WEATHER = { kalt: "Kalt", mild: "Mild", warm: "Warm" };
+const COLORS = [
+  ["Schwarz", "#1e1f24"], ["Weiß", "#f6f6f3"], ["Grau", "#9b9ea6"], ["Navy", "#253563"], ["Blau", "#4f7cc9"],
+  ["Denim", "#5876a3"], ["Beige", "#d8c6a5"], ["Braun", "#7a5236"], ["Grün", "#4e7a56"], ["Oliv", "#6e7147"],
+  ["Rot", "#b5322f"], ["Bordeaux", "#6e1f2e"], ["Rosa", "#e3a3b4"], ["Gelb", "#e2c04a"]
+];
+const COLOR_HEX = Object.fromEntries(COLORS);
+const DAYS = [["mo", "Montag"], ["di", "Dienstag"], ["mi", "Mittwoch"], ["do", "Donnerstag"], ["fr", "Freitag"], ["sa", "Samstag"], ["so", "Sonntag"]];
+const DAY_DEFAULT_OCC = { mo: "buero", di: "buero", mi: "buero", do: "buero", fr: "buero", sa: "freizeit", so: "freizeit" };
+const LAUNDRY_CATS = new Set(["top", "bottom", "dress"]);
+const ART_URL = location.href.split("#")[0];
+let pendingTag = (() => { const h = (location.hash || "").replace(/^#/, ""); return /^[A-Za-z0-9._~-]+$/.test(h) ? h : null; })();
+function handleTag() {
+  if (!pendingTag) return;
+  const it = byId(pendingTag);
+  if (!it) return;
+  pendingTag = null;
+  itemSheet(it.id, true);
+}
+
+const iso = d => d.toISOString().slice(0, 10);
+const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return iso(d); };
+const todayIso = () => iso(new Date());
+const todayKey = () => DAYS[(new Date().getDay() + 6) % 7][0];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const newId = () => "it" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+function isoWeek(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const y0 = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d - y0) / 86400000 + 1) / 7);
+}
+
+const EXAMPLES = [
+  { id: "ex01", name: "Weißes Hemd", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(6) },
+  { id: "ex02", name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3) },
+  { id: "ex03", name: "Graues T-Shirt", cat: "top", color: "Grau", occasions: ["freizeit", "sport", "schule"], status: "waesche", wears: 22, lastWorn: daysAgo(1) },
+  { id: "ex04", name: "Hellblaues Hemd", cat: "top", color: "Blau", occasions: ["buero"], status: "schrank", wears: 7, lastWorn: daysAgo(9) },
+  { id: "ex05", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2) },
+  { id: "ex06", name: "Beige Chino", cat: "bottom", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 11, lastWorn: daysAgo(5) },
+  { id: "ex07", name: "Schwarze Anzughose", cat: "bottom", color: "Schwarz", occasions: ["buero", "abend"], status: "schrank", wears: 8, lastWorn: daysAgo(12) },
+  { id: "ex08", name: "Laufshorts", cat: "bottom", color: "Schwarz", occasions: ["sport"], status: "schrank", wears: 18, lastWorn: daysAgo(4) },
+  { id: "ex09", name: "Bordeaux Kleid", cat: "dress", color: "Bordeaux", occasions: ["abend"], status: "schrank", wears: 2, lastWorn: daysAgo(74) },
+  { id: "ex10", name: "Navy Blazer", cat: "jacket", color: "Navy", occasions: ["buero", "abend"], status: "reinigung", wears: 10, lastWorn: daysAgo(8) },
+  { id: "ex11", name: "Olivgrüne Feldjacke", cat: "jacket", color: "Oliv", occasions: ["freizeit", "schule"], status: "schrank", wears: 16, lastWorn: daysAgo(3) },
+  { id: "ex12", name: "Weiße Sneaker", cat: "shoes", color: "Weiß", occasions: ["freizeit", "schule", "buero"], status: "schrank", wears: 40, lastWorn: daysAgo(1) },
+  { id: "ex13", name: "Braune Lederschuhe", cat: "shoes", color: "Braun", occasions: ["buero", "abend"], status: "schrank", wears: 19, lastWorn: daysAgo(6) },
+  { id: "ex14", name: "Laufschuhe", cat: "shoes", color: "Blau", occasions: ["sport"], status: "schrank", wears: 25, lastWorn: daysAgo(4) },
+  { id: "ex15", name: "Ledergürtel", cat: "acc", color: "Braun", occasions: ["buero", "abend"], status: "verliehen", wears: 12, lastWorn: daysAgo(40), lentTo: "Bruder" },
+  { id: "ex16", name: "Gelber Hoodie", cat: "top", color: "Gelb", occasions: ["freizeit"], status: "schrank", wears: 1, lastWorn: daysAgo(63) }
+].map(it => ({ ...it, createdAt: daysAgo(120) }));
+
+function emptyPlan() {
+  const days = {};
+  for (const [k] of DAYS) days[k] = { occ: DAY_DEFAULT_OCC[k], items: [], note: "" };
+  return { weather: "mild", days };
+}
+
+const state = {
+  mode: "local",
+  uid: null,
+  items: EXAMPLES.map(x => ({ ...x })),
+  usingExamples: true,
+  plan: emptyPlan(),
+  planLoaded: false,
+  tab: "schrank",
+  fCat: "all",
+  fStatus: "all",
+  aiBusy: false,
+  armedDelete: null
+};
+let db = null, assets = null, sample = null, sampleImages = false, itemsCol = null, planRef = null;
+
+/* ---------- drawing ---------- */
+const PATHS = {
+  top: '<path d="M30 18 42 12q8 9 16 0l12 6 16 16-10 10-6-6v50H30V38l-6 6-10-10Z"/>',
+  bottom: '<path d="M30 10h40l4 80H56L50 42 44 90H26Z"/>',
+  dress: '<path d="M40 8h20l2 24 18 58H20l18-58Z"/>',
+  jacket: '<path d="M30 14 44 10l6 22 6-22 14 4 18 26v44H78l-2-34-4-4v44H28V46l-4 4-2 34H12V40Z"/><path d="M50 32v58" fill="none"/>',
+  shoes: '<path d="M10 62q2-16 18-18l16-2q6 14 26 18 18 4 20 14v6H10Z"/>',
+  acc: '<path d="M20 42h60l-6 46H26Z"/><path d="M36 42q0-22 14-22t14 22" fill="none"/>'
+};
+function garmentSvg(it) {
+  const fill = COLOR_HEX[it.color] || "#9b9ea6";
+  return `<svg class="garment" viewBox="0 0 100 100" aria-hidden="true"><g fill="${fill}" stroke="var(--garment-stroke)" stroke-width="1.6" stroke-linejoin="round">${PATHS[it.cat] || PATHS.top}</g></svg>`;
+}
+function thumb(it) {
+  const u = it.photo ? SB.blobs.url(it.photo) : ""; const img = u ? `<img src="${esc(u)}" alt="" loading="lazy" onerror="this.remove()">` : "";
+  return garmentSvg(it) + img;
+}
+const STATUS_ICON = {
+  schrank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2a2 2 0 1 1 2 2c-.8 0-2 .5-2 1.8"/><path d="M12 10 3 16.5h18Z"/></svg>',
+  waesche: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5 5 19h14l2-12.5"/><path d="M4 10c1.3-1.2 2.7-1.2 4 0s2.7 1.2 4 0 2.7-1.2 4 0 2.7 1.2 4 0"/></svg>',
+  reinigung: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><text x="12" y="16.2" text-anchor="middle" font-size="11" font-weight="700" font-family="sans-serif" fill="currentColor" stroke="none">P</text></svg>',
+  verliehen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h14M13 7l5 5-5 5"/></svg>'
+};
+const pill = s => `<span class="pill st-${s}"><i></i>${STATUS[s].short}</span>`;
+const ICON_SPARK = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5c.4 4.6 2.9 7.1 7.5 7.5-4.6.4-7.1 2.9-7.5 7.5-.4-4.6-2.9-7.1-7.5-7.5 4.6-.4 7.1-2.9 7.5-7.5Z"/><path d="M19 15.5c.2 2 1.3 3.1 3.3 3.3-2 .2-3.1 1.3-3.3 3.3-.2-2-1.3-3.1-3.3-3.3 2-.2 3.1-1.3 3.3-3.3Z" opacity=".6"/></svg>';
+const ICON_CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
+const ICON_BACK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
+const ICON_PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+const ICON_NFC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8.5 8.5a5 5 0 0 1 0 7M12 6a8.5 8.5 0 0 1 0 12M15.5 3.5a12 12 0 0 1 0 17"/><circle cx="5" cy="12" r="1.2" fill="currentColor"/></svg>';
+const ICON_REROLL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>';
+
+/* ---------- derived ---------- */
+const byId = id => state.items.find(i => i.id === id);
+const isForgotten = it => {
+  const ref = it.lastWorn || it.createdAt;
+  if (!ref) return false;
+  return (Date.now() - new Date(ref).getTime()) / 86400000 > 30;
+};
+function sortItems(list) {
+  return [...list].sort((a, b) => CAT_ORDER.indexOf(a.cat) - CAT_ORDER.indexOf(b.cat) || a.name.localeCompare(b.name, "de"));
+}
+function lastWornText(it) {
+  if (!it.lastWorn) return "Noch nie getragen";
+  const d = Math.round((new Date(todayIso()) - new Date(it.lastWorn)) / 86400000);
+  if (d <= 0) return "Heute getragen";
+  if (d === 1) return "Gestern getragen";
+  return `Vor ${d} Tagen getragen`;
+}
+
+/* ---------- persistence ---------- */
+const persistent = () => state.mode === "db" && !state.usingExamples;
+
+async function patchItem(id, patch) {
+  const it = byId(id);
+  if (!it) return;
+  if (!persistent()) { Object.assign(it, patch); render(); return; }
+  Object.assign(it, patch); render();
+  try { await itemsCol.doc(id).update(patch); }
+  catch (e) { toast(dbErrorText(e)); }
+}
+async function addItem(data) {
+  const id = newId();
+  const item = { ...data, id, createdAt: todayIso(), wears: 0, lastWorn: null };
+  if (state.mode !== "db") {
+    if (state.usingExamples) { state.items = []; state.usingExamples = false; }
+    state.items.push(item); render(); return;
+  }
+  if (state.usingExamples) { state.items = []; state.usingExamples = false; state.plan = emptyPlan(); }
+  state.items.push(item); render();
+  const { id: _omit, ...body } = item;
+  try { await itemsCol.doc(id).set(body); }
+  catch (e) { toast(dbErrorText(e)); }
+}
+async function removeItem(id) {
+  const it = byId(id);
+  state.items = state.items.filter(i => i.id !== id);
+  for (const k in state.plan.days) state.plan.days[k].items = state.plan.days[k].items.filter(x => x !== id);
+  render();
+  if (!persistent()) return;
+  try {
+    await itemsCol.doc(id).delete();
+    if (it?.photo && assets) await assets.delete(it.photo).catch(() => {});
+    await savePlan();
+  } catch (e) { toast(dbErrorText(e)); }
+}
+async function savePlan() {
+  if (!persistent()) return;
+  try { await planRef.set(JSON.parse(JSON.stringify(state.plan))); }
+  catch (e) { toast(dbErrorText(e)); }
+}
+async function adoptExamples() {
+  if (state.mode !== "db") { toast("Speichern klappt gerade nicht."); return; }
+  const list = state.items.map(x => ({ ...x }));
+  state.usingExamples = false; render();
+  try {
+    await Promise.all(list.map(({ id, ...body }) => itemsCol.doc(id).set(body)));
+    await savePlan();
+    toast("Beispielschrank übernommen. Ändere oder lösche Teile jederzeit.");
+  } catch (e) { toast(dbErrorText(e)); }
+}
+function dbErrorText(e) {
+  if (e?.code === "quota_exceeded") return "Speicher voll. Lösche ein paar Teile und versuch es erneut.";
+  if (e?.code === "invalid_argument") return "Speichern nicht möglich: Du hast für diese App nur Leserechte.";
+  return "Speichern hat gerade nicht geklappt. Bitte gleich nochmal versuchen.";
+}
+
+/* ---------- outfit logic ---------- */
+function generateOutfit(occ, weather, used) {
+  const pool = state.items.filter(i => i.status === "schrank" && (!i.occasions?.length || i.occasions.includes(occ)));
+  const pick = cat => {
+    const c = pool.filter(i => i.cat === cat);
+    if (!c.length) return null;
+    c.sort((a, b) => (used.has(a.id) - used.has(b.id)) || (a.wears || 0) - (b.wears || 0) || Math.random() - 0.5);
+    const top3 = c.slice(0, Math.min(3, c.length)).filter(i => !used.has(i.id));
+    const choice = (top3.length ? top3 : c)[Math.floor(Math.random() * (top3.length || 1))];
+    return choice.id;
+  };
+  const ids = [];
+  const hasDress = pool.some(i => i.cat === "dress" && !used.has(i.id));
+  if (hasDress && (occ === "abend" ? Math.random() < 0.6 : Math.random() < 0.15)) ids.push(pick("dress"));
+  else { ids.push(pick("top")); ids.push(pick("bottom")); }
+  if (weather !== "warm") ids.push(pick("jacket"));
+  ids.push(pick("shoes"));
+  return ids.filter(Boolean);
+}
+function fillWeekLocal(onlyDay) {
+  const used = new Set();
+  for (const [k] of DAYS) {
+    const day = state.plan.days[k];
+    if (onlyDay && k !== onlyDay) { day.items.forEach(i => { if (byId(i)?.cat !== "shoes") used.add(i); }); continue; }
+    day.items = generateOutfit(day.occ, state.plan.weather, used);
+    day.items.forEach(i => { if (byId(i)?.cat !== "shoes") used.add(i); });
+    day.note = "";
+  }
+}
+
+async function planWithAI() {
+  if (!sample) { fillWeekLocal(); render(); savePlan(); return; }
+  const avail = state.items.filter(i => i.status === "schrank").map(i => ({ id: i.id, name: i.name, cat: CATS[i.cat], farbe: i.color, anlaesse: (i.occasions || []).map(o => OCC[o]), getragen: i.wears || 0, zuletzt: i.lastWorn || "nie" }));
+  if (avail.length < 3) { toast("Für Vorschläge brauche ich mindestens 3 saubere Teile im Schrank."); return; }
+  const anl = DAYS.map(([k, n]) => `${n}: ${OCC[state.plan.days[k].occ]}`).join(", ");
+  const prompt = `Du bist Stylist in einer Kleiderschrank-App. Stelle für jeden der 7 Tage dieser Woche ein Outfit NUR aus den verfügbaren Teilen unten zusammen.
+Wetter diese Woche: ${WEATHER[state.plan.weather]}.
+Anlässe: ${anl}.
+Regeln: Pro Outfit entweder ein Kleid ODER ein Oberteil plus Hose/Rock, dazu Schuhe. Bei kaltem oder mildem Wetter eine Jacke, wenn vorhanden. Teile müssen zum Anlass passen. Farben sollen harmonieren. Oberteile und Hosen nicht an zwei Tagen hintereinander. Selten oder lange nicht getragene Teile bevorzugen.
+Verfügbare Teile (JSON): ${JSON.stringify(avail)}
+Antworte nur mit JSON in genau dieser Form: {"days":[{"day":"mo","items":["id1","id2"],"note":"kurzer Grund, höchstens 10 Wörter, auf Deutsch"}]} mit day aus mo, di, mi, do, fr, sa, so.`;
+  state.aiBusy = true; render();
+  try {
+    const res = await sample.json(prompt, { cache: false });
+    const valid = new Set(avail.map(a => a.id));
+    let n = 0;
+    for (const d of (res?.days || [])) {
+      const day = state.plan.days[String(d.day).toLowerCase()];
+      if (!day) continue;
+      day.items = (Array.isArray(d.items) ? d.items : []).map(String).filter(id => valid.has(id));
+      day.note = typeof d.note === "string" ? d.note.slice(0, 120) : "";
+      n++;
+    }
+    if (!n) throw { code: "invalid_json" };
+    toast("Woche geplant. Tippe ↻ an einem Tag für eine Alternative.");
+    savePlan();
+  } catch (e) {
+    if (e?.code === "not_granted" || e?.code === "sampling_disabled" || e?.code === "not_declared" || e?.code === "capability_disabled" || e?.code === "capability_removed") {
+      sample = null;
+      fillWeekLocal(); savePlan();
+      toast("KI nicht freigegeben. Ich habe die Woche nach einfachen Regeln geplant.");
+    } else if (e?.code === "rate_limited") toast("Gerade zu viele Anfragen. Versuch es in ein paar Minuten nochmal.");
+    else toast("Der Vorschlag hat nicht geklappt. Bitte nochmal tippen.");
+  } finally { state.aiBusy = false; render(); }
+}
+
+async function wornToday() {
+  const day = state.plan.days[todayKey()];
+  const ids = day.items.filter(id => byId(id));
+  if (!ids.length) { toast("Für heute ist noch kein Outfit geplant."); return; }
+  const today = todayIso();
+  let toLaundry = 0;
+  for (const id of ids) {
+    const it = byId(id);
+    const patch = { wears: (it.wears || 0) + 1, lastWorn: today };
+    if (LAUNDRY_CATS.has(it.cat)) { patch.status = "waesche"; toLaundry++; }
+    await patchItem(id, patch);
+  }
+  toast(`${ids.length} Teile als getragen markiert, ${toLaundry} davon in die Wäsche.`);
+}
+
+/* ---------- render ---------- */
+function render() {
+  const now = new Date(); document.getElementById("kw").textContent = now.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" }) + " · KW " + isoWeek(now);
+  document.querySelectorAll(".tab").forEach(t => { if (t.dataset.v === state.tab) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current"); });
+  const lc = state.items.filter(i => i.status === "waesche").length;
+  const lcEl = document.getElementById("laundryCount");
+  lcEl.textContent = lc; lcEl.hidden = !lc;
+  renderBanner();
+  const v = document.getElementById("view");
+  v.innerHTML = state.tab === "schrank" ? viewSchrank() : state.tab === "woche" ? viewWoche() : state.tab === "verkaufen" ? viewVerkaufen() : viewWaesche();
+}
+
+function renderBanner() {
+  const b = document.getElementById("banner");
+  if (state.tab === "verkaufen") { b.innerHTML = ""; return; }
+  if (state.usingExamples) {
+    const canSave = state.mode === "db";
+    b.innerHTML = `<div class="banner"><p><b>Das ist ein Beispielschrank.</b> Probier alles aus. Gespeichert wird erst, wenn du ihn übernimmst oder dein erstes eigenes Teil hinzufügst.</p>
+      <div class="row">${canSave ? '<button class="btn btn-primary" data-act="adopt">Als Start übernehmen</button>' : ""}<button class="btn btn-ghost" data-act="open-add">Eigenes Teil hinzufügen</button></div></div>`;
+  } else if (state.mode !== "db") {
+    b.innerHTML = `<div class="banner"><p>Demo-Modus: Änderungen werden nicht gespeichert.</p></div>`;
+  } else b.innerHTML = "";
+}
+
+function viewSchrank() {
+  const all = state.items;
+  const clean = all.filter(i => i.status === "schrank").length;
+  const laundry = all.filter(i => i.status === "waesche" || i.status === "reinigung").length;
+  const forgotten = all.filter(isForgotten).length;
+  let list = all;
+  if (state.fCat !== "all") list = list.filter(i => i.cat === state.fCat);
+  if (state.fStatus === "forgotten") list = list.filter(isForgotten);
+  else if (state.fStatus !== "all") list = list.filter(i => i.status === state.fStatus);
+  list = sortItems(list);
+  const stat = (k, n, label) => `<button class="stat${state.fStatus === k ? " is-on" : ""}" data-act="fstatus" data-v="${k}" aria-pressed="${state.fStatus === k}"><b>${n}</b><span>${label}</span></button>`;
+  const catChips = [["all", "Alle"], ...CAT_ORDER.map(c => [c, CATS[c]])].map(([k, l]) => `<button class="chip" data-act="fcat" data-v="${k}" aria-pressed="${state.fCat === k}">${l}</button>`).join("");
+  const tiles = list.map(it => `<button class="tile${it.status !== "schrank" ? " is-dim" : ""}" data-act="open-item" data-v="${it.id}">
+      <div class="thumb">${thumb(it)}${pill(it.status)}</div>
+      <div class="name">${esc(it.name)}</div>
+      <div class="meta">${CATS[it.cat]} · ${it.wears || 0}× getragen</div></button>`).join("");
+  const addTile = `<button class="tile-add" data-act="open-add">${ICON_PLUS}Neues Teil</button>`;
+  const tk = todayKey();
+  const todayItems = (state.plan.days[tk]?.items || []).map(byId).filter(Boolean);
+  const dayName = DAYS.find(d => d[0] === tk)[1];
+  const todayCard = `<section class="today" aria-label="Outfit für heute">
+      <div class="today-top"><div><span class="eyebrow">Heute · ${dayName} · ${OCC[state.plan.days[tk]?.occ] || ""}</span><h2>${todayItems.length ? "Dein <em>Outfit</em>" : "Noch <em>nichts</em> geplant"}</h2></div><button class="link" data-act="tab" data-v="woche">Woche ›</button></div>
+      ${todayItems.length ? `<div class="outfit">${todayItems.map(it => `<button class="mini${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div>
+      <button class="btn btn-inv btn-wide" data-act="worn-today">Heute getragen</button>` : `<p class="note">Lass dir die Woche aus sauberen Teilen zusammenstellen.</p><button class="btn btn-inv btn-wide" data-act="tab" data-v="woche">Woche planen</button>`}
+    </section>`;
+  const filtered = state.fCat !== "all" || state.fStatus !== "all";
+  return `<div class="stack" style="gap:22px">
+    ${filtered ? "" : todayCard}
+    <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Vergessen")}</div>
+    <div class="toolbar">
+      <div class="chips" role="group" aria-label="Kategorie">${catChips}</div>
+    </div>
+    ${state.fStatus === "forgotten" ? '<p class="sub" style="margin:0">Seit über 30 Tagen nicht getragen. Gute Kandidaten für die nächste Woche oder zum Weitergeben.</p>' : ""}
+    ${tiles ? `<div class="grid">${tiles}${filtered ? "" : addTile}</div>` : `<div class="empty">Keine Teile in dieser Auswahl.</div>`}
+  </div>`;
+}
+
+function viewWoche() {
+  const tk = todayKey();
+  const seg = Object.entries(WEATHER).map(([k, l]) => `<button data-act="weather" data-v="${k}" aria-pressed="${state.plan.weather === k}">${l}</button>`).join("");
+  const days = DAYS.map(([k, name]) => {
+    const d = state.plan.days[k];
+    const items = d.items.map(byId).filter(Boolean);
+    const dirty = items.filter(i => i.status !== "schrank");
+    const minis = items.map(it => `<button class="mini${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("");
+    return `<section class="day${k === tk ? " is-today" : ""}">
+      <div class="day-head">
+        <div class="day-name">${name}${k === tk ? '<span class="today-tag">Heute</span>' : ""}</div>
+        <div class="day-tools">
+          <button class="occ" data-act="occ" data-v="${k}" aria-label="Anlass ändern, jetzt ${OCC[d.occ]}">${OCC[d.occ]}${ICON_CHEV}</button>
+          <button class="icon-btn" data-act="reroll" data-v="${k}" aria-label="Anderes Outfit für ${name}">${ICON_REROLL}</button>
+        </div>
+      </div>
+      ${minis ? `<div class="outfit">${minis}</div>` : '<p class="note">Noch kein Outfit. Tippe ↻ oder plane die ganze Woche.</p>'}
+      ${d.note ? `<p class="note">${esc(d.note)}</p>` : ""}
+      ${dirty.length ? `<p class="warn-line">${dirty.map(i => esc(i.name)).join(", ")}: ${dirty.length === 1 ? "ist" : "sind"} gerade nicht im Schrank.</p>` : ""}
+      ${k === tk && minis ? '<button class="btn btn-ghost" data-act="worn-today">Heute getragen</button>' : ""}
+    </section>`;
+  }).join("");
+  return `<div class="stack">
+    <div><h2 class="section-h">Deine <em>Woche</em></h2><p class="sub">Nur aus Teilen, die gerade sauber im Schrank hängen. Anlass antippen zum Ändern.</p></div>
+    <div class="field"><span class="lbl">Wetter</span><div class="seg" role="group" aria-label="Wetter">${seg}</div></div>
+    <button class="btn btn-accent btn-wide" data-act="plan-ai" ${state.aiBusy ? "disabled" : ""}>${state.aiBusy ? '<span class="spin"></span> Die KI stellt Outfits zusammen…' : (sample ? ICON_SPARK + " Woche mit KI planen" : "Woche automatisch planen")}</button>
+    <div class="week">${days}</div>
+  </div>`;
+}
+
+function viewWaesche() {
+  const group = s => sortItems(state.items.filter(i => i.status === s));
+  const row = (it, btns) => `<div class="row-item"><button class="thumb" style="border:0;padding:0" data-act="open-item" data-v="${it.id}" aria-label="${esc(it.name)} öffnen">${thumb(it)}</button>
+    <div class="txt"><b>${esc(it.name)}</b><span>${CATS[it.cat]}${it.lentTo ? " · an " + esc(it.lentTo) : ""}</span></div>${btns}</div>`;
+  const back = it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Sauber</button>`;
+  const w = group("waesche"), r = group("reinigung"), l = group("verliehen");
+  const sec = (title, list, btn, emptyTxt) => `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">${title} <span class="n">${list.length}</span></h3>${list.length ? `<div class="list">${list.map(it => row(it, btn(it))).join("")}</div>` : `<div class="empty">${emptyTxt}</div>`}</div>`;
+  return `<div class="stack" style="gap:20px">
+    <div><h2 class="section-h">Wäsche &amp; <em>Co.</em></h2><p class="sub">Was hier liegt, plant die Woche nicht ein.</p></div>
+    <div class="carelabel"><div><div class="big">${w.length}</div><p class="sub">${w.length === 1 ? "Teil" : "Teile"} im Wäschekorb · ${r.length} in der Reinigung · ${l.length} verliehen</p></div><div class="sym">${STATUS_ICON.waesche}</div></div>
+    ${w.length ? `<button class="btn btn-primary btn-wide" data-act="laundry-done">Waschgang fertig: alle ${w.length} in den Schrank</button>` : ""}
+    ${sec("Wäschekorb", w, back, "Wäschekorb ist leer.")}
+    ${sec("Reinigung", r, it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Abgeholt</button>`, "Nichts in der Reinigung.")}
+    ${sec("Verliehen", l, it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Zurück</button>`, "Nichts verliehen.")}
+    <p class="vision">${ICON_NFC}<span>Später: Mit einem NFC-Etikett im Kleidungsstück reicht ein Antippen am Wäschekorb, statt hier zu tippen.</span></p>
+  </div>`;
+}
+
+/* ---------- sheets ---------- */
+const scrim = document.getElementById("scrim"), sheet = document.getElementById("sheet");
+let sheetOnClose = null;
+function openSheet(html, onClose) { sheet.innerHTML = '<div class="grab"></div>' + html; scrim.hidden = false; sheetOnClose = onClose || null; sheet.querySelector("button, input")?.focus({ preventScroll: true }); }
+function closeSheet() { scrim.hidden = true; sheet.innerHTML = ""; state.armedDelete = null; if (sheetOnClose) sheetOnClose(); sheetOnClose = null; }
+scrim.addEventListener("click", e => { if (e.target === scrim) closeSheet(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !scrim.hidden) closeSheet(); });
+
+function itemSheet(id, fromTag) {
+  const it = byId(id); if (!it) return;
+  const tagUrl = ART_URL + "#" + it.id;
+  const quick = fromTag ? `<div class="banner"><p><b>Per Etikett geöffnet.</b> Mit einem Tipp erledigt:</p>${it.status === "schrank"
+    ? `<button class="btn btn-primary btn-wide" data-act="worn-wash" data-v="${it.id}">Getragen, ab in die Wäsche</button>`
+    : `<button class="btn btn-primary btn-wide" data-act="set-status" data-v="${it.id}" data-s="schrank">Sauber, zurück in den Schrank</button>`}</div>` : "";
+  const opts = Object.keys(STATUS).map(s => `<button class="status-opt st-${s}" style="background:var(--surface)" data-act="set-status" data-v="${it.id}" data-s="${s}" aria-pressed="${it.status === s}">${STATUS_ICON[s]}<span>${STATUS[s].label}</span></button>`).join("");
+  openSheet(`${quick}
+    <div class="hero"><div class="thumb">${thumb(it)}</div>
+      <div style="min-width:0;display:flex;flex-direction:column;gap:10px;align-items:flex-start"><h2>${esc(it.name)}</h2><span class="pill solid st-${it.status}"><i></i>${STATUS[it.status].label}</span></div></div>
+    <dl class="kv">
+      <dt>Kategorie</dt><dd>${CATS[it.cat]}</dd>
+      <dt>Farbe</dt><dd>${esc(it.color)}</dd>
+      <dt>Anlass</dt><dd>${(it.occasions || []).map(o => OCC[o]).join(", ") || "–"}</dd>
+      <dt>Getragen</dt><dd>${it.wears || 0}× · ${lastWornText(it)}</dd>
+    </dl>
+    <div class="field"><span class="lbl">Wo ist es gerade?</span><div class="status-grid">${opts}</div></div>
+    <div class="actions">
+      <button class="btn btn-ghost" data-act="worn" data-v="${it.id}">Heute getragen</button>
+      ${LAUNDRY_CATS.has(it.cat) ? `<button class="btn btn-ghost" data-act="worn-wash" data-v="${it.id}">Getragen + Wäsche</button>` : ""}
+      <button class="btn btn-ghost" data-act="sell-item" data-v="${it.id}">Verkaufen</button>
+    </div>
+    <div class="field"><span class="lbl">NFC-Etikett</span>
+      <div style="display:flex;gap:8px"><input type="text" id="tagUrl" readonly value="${esc(tagUrl)}" class="tag-input" style="flex:1;min-width:0;font-family:var(--font-label);font-size:12px"><button class="btn btn-ghost" data-act="copy-tag">Kopieren</button></div>
+      <p class="hint">Diesen Link mit einer App wie „NFC Tools“ auf das Etikett schreiben. Danach öffnet Antippen mit dem Handy genau dieses Teil.${state.usingExamples ? " Bei Beispielteilen klappt das nur zum Ausprobieren." : ""}</p></div>
+    <button class="btn btn-danger${state.armedDelete === it.id ? " armed" : ""}" data-act="delete" data-v="${it.id}">${state.armedDelete === it.id ? "Wirklich löschen? Nochmal tippen" : "Teil löschen"}</button>
+  `);
+}
+
+let addDraft = null;
+function addSheet() {
+  addDraft = { name: "", cat: "top", color: "Schwarz", occasions: ["freizeit"], file: null, preview: null };
+  drawAdd();
+}
+function drawAdd(focusName) {
+  const d = addDraft;
+  const fake = { cat: d.cat, color: d.color };
+  const prev = d.preview ? `<img src="${d.preview}" alt="Foto-Vorschau">` : "";
+  const catChips = CAT_ORDER.map(c => `<button type="button" class="chip" data-act="d-cat" data-v="${c}" aria-pressed="${d.cat === c}">${CATS[c]}</button>`).join("");
+  const occChips = OCC_KEYS.map(o => `<button type="button" class="chip" data-act="d-occ" data-v="${o}" aria-pressed="${d.occasions.includes(o)}">${OCC[o]}</button>`).join("");
+  const sw = COLORS.map(([n, h]) => `<button type="button" class="sw" style="background:${h}" data-act="d-color" data-v="${n}" aria-pressed="${d.color === n}" aria-label="${n}" title="${n}"></button>`).join("");
+  openSheet(`
+    <h2>Neues Teil</h2>
+    <form id="addForm" style="display:flex;flex-direction:column;gap:18px">
+      <div class="photo-pick">
+        <div class="thumb">${garmentSvg(fake)}${prev}</div>
+        <div class="col">
+          <span class="btn btn-ghost btn-sm file-btn">${d.file ? "Anderes Foto" : "Foto aufnehmen oder wählen"}<input type="file" id="photoInput" accept="image/*" aria-label="Foto wählen"></span>
+          ${d.file && sampleImages ? `<button type="button" class="btn btn-accent btn-sm" data-act="d-ai" id="aiBtn">${ICON_SPARK} Mit KI erkennen</button>` : ""}
+          <p class="hint">Foto ist optional und bleibt auf deinem Handy. Ohne Foto zeigt die App eine Skizze in der Farbe.</p>
+        </div>
+      </div>
+      <div class="field"><label for="nameInput">Name</label><input type="text" id="nameInput" maxlength="40" placeholder="z. B. Navy Strickpullover" value="${esc(d.name)}" required></div>
+      <div class="field"><span class="lbl">Kategorie</span><div class="chips wrap">${catChips}</div></div>
+      <div class="field"><span class="lbl">Farbe · ${esc(d.color)}</span><div class="swatches">${sw}</div></div>
+      <div class="field"><span class="lbl">Passt zu</span><div class="chips wrap">${occChips}</div></div>
+      <button class="btn btn-primary btn-wide" type="submit" id="saveBtn">In den Schrank legen</button>
+    </form>`, () => { if (addDraft?.preview) URL.revokeObjectURL(addDraft.preview); addDraft = null; });
+  const nameInput = document.getElementById("nameInput");
+  nameInput.addEventListener("input", () => { addDraft.name = nameInput.value; });
+  if (focusName) nameInput.focus();
+  document.getElementById("photoInput").addEventListener("change", ev => {
+    const f = ev.target.files?.[0]; if (!f) return;
+    if (addDraft.preview) URL.revokeObjectURL(addDraft.preview);
+    addDraft.file = f; addDraft.preview = URL.createObjectURL(f);
+    drawAdd();
+  });
+  document.getElementById("addForm").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const name = addDraft.name.trim();
+    if (!name) { nameInput.focus(); toast("Gib dem Teil einen Namen."); return; }
+    const btn = document.getElementById("saveBtn"); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Speichere…';
+    let photo = null;
+    if (addDraft.file && assets && state.mode === "db") {
+      try { const small = await shrink(addDraft.file); const up = await assets.upload(small, { type: "image/jpeg" }); photo = up.id; }
+      catch (e) { toast(e?.code === "too_large" ? "Foto zu groß, das Teil wird ohne Foto gespeichert." : "Foto konnte nicht gespeichert werden, das Teil wird ohne Foto angelegt."); }
+    }
+    const data = { name, cat: addDraft.cat, color: addDraft.color, occasions: [...addDraft.occasions], status: "schrank" };
+    if (photo) data.photo = photo;
+    closeSheet();
+    state.fCat = "all"; state.fStatus = "all"; state.tab = "schrank";
+    await addItem(data);
+    toast(`„${name}“ hängt jetzt im Schrank.`);
+  });
+}
+async function shrink(file, max = 1000) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise(r => c.toBlob(b => r(b || file), "image/jpeg", 0.82));
+  } catch { return file; }
+}
+async function recognize() {
+  const btn = document.getElementById("aiBtn");
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Erkenne…'; }
+  const prompt = `Das Foto zeigt ein Kleidungsstück oder Accessoire. Antworte nur mit JSON:
+{"name": "kurzer deutscher Name, 2-3 Wörter, z.B. Navy Strickpullover", "cat": eins von ${JSON.stringify(CAT_ORDER)} (top=Oberteil, bottom=Hose oder Rock, dress=Kleid, jacket=Jacke oder Mantel, shoes=Schuhe, acc=Accessoire), "color": eins von ${JSON.stringify(COLORS.map(c => c[0]))}, "occasions": Teilmenge von ${JSON.stringify(OCC_KEYS)}}`;
+  try {
+    const r = await sample.json(prompt, { images: [await shrink(addDraft.file)], modelTier: "quick" });
+    if (!addDraft) return;
+    if (typeof r?.name === "string" && r.name.trim()) addDraft.name = r.name.trim().slice(0, 40);
+    if (CATS[r?.cat]) addDraft.cat = r.cat;
+    if (COLOR_HEX[r?.color]) addDraft.color = r.color;
+    if (Array.isArray(r?.occasions)) { const o = r.occasions.filter(x => OCC[x]); if (o.length) addDraft.occasions = o; }
+    drawAdd();
+    toast("Erkannt. Prüf kurz die Angaben und speichere.");
+  } catch (e) {
+    if (["not_granted", "images_unavailable", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(e?.code)) { sampleImages = false; }
+    toast(e?.code === "not_granted" ? "KI-Erkennung nicht freigegeben. Trag die Angaben einfach selbst ein." : "Erkennung hat nicht geklappt. Trag die Angaben selbst ein.");
+    if (addDraft) drawAdd();
+  }
+}
+
+/* ---------- verkaufen ---------- */
+const CONDITIONS = [
+  ["neu_etikett", "Neu mit Etikett", "Nie getragen, Etikett noch dran"],
+  ["neu", "Neu ohne Etikett", "Nie getragen, ohne Etikett"],
+  ["sehr_gut", "Sehr gut", "Kaum getragen, keine sichtbaren Mängel"],
+  ["gut", "Gut", "Getragen, leichte Gebrauchsspuren"],
+  ["ok", "Zufriedenstellend", "Sichtbare Mängel, ehrlich beschrieben"]
+];
+const COND = Object.fromEntries(CONDITIONS.map(c => [c[0], c[1]]));
+const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+const LSTATUS = { entwurf: "Entwurf", online: "Online", verkauft: "Verkauft" };
+const VINTED_NEW = "https://www.vinted.de/items/new";
+const sell = { draft: null, step: 1, busy: null, armDel: false, armRm: false };
+const photoBlobs = new Map(), photoUrls = new Map();
+let listingsCol = null, downloadsNs = null;
+state.listings = [];
+
+const nowIso = () => new Date().toISOString();
+const shortDate = s => { if (!s) return ""; const d = new Date(s); return isNaN(d) ? "" : d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" }); };
+const fmtEur = n => (Number(n) || 0).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+const arr = a => Array.isArray(a) ? a.map(x => String(x)).filter(Boolean).slice(0, 8) : [];
+const newKey = p => p + Math.random().toString(36).slice(2, 10);
+
+function photoSrc(p) { if (!p) return ""; if (photoUrls.has(p.k)) return photoUrls.get(p.k); if (p.asset) return SB.blobs.url(p.asset); return ""; }
+async function photoBlob(p) {
+  if (photoBlobs.has(p.k)) return photoBlobs.get(p.k);
+  if (p.asset) { try { const b = await SB.blobs.get(p.asset); if (b) { photoBlobs.set(p.k, b); return b; } } catch {} }
+  return null;
+}
+function aiFail(e, what) {
+  const c = e?.code;
+  if (c === "bad_key") return toast("Der KI-Schlüssel stimmt nicht. Prüf ihn in den Einstellungen.");
+  if (c === "network") return toast("Keine Verbindung zur KI. Bist du online?");
+  if (c === "rate_limited") return toast("Gerade zu viele Anfragen. Bitte in ein paar Minuten nochmal.");
+  if (c === "image_rejected") return toast("Ein Foto konnte nicht gelesen werden. Versuch es mit anderen Fotos.");
+  if (c === "cancelled") return;
+  toast(`${what} hat nicht geklappt. Bitte nochmal tippen.`);
+}
+
+function newDraft(itemId) {
+  const it = itemId ? byId(itemId) : null;
+  const d = {
+    id: newKey("ls"), itemId: it?.id || null, name: it?.name || "", cat: it?.cat || "", color: it?.color || "",
+    photos: [], check: null, collage: null, style: null,
+    answers: { brand: "", size: "", condition: "", defects: "", material: "", measures: "", originalPrice: "" },
+    freeText: "", result: null, status: "entwurf", updatedAt: nowIso()
+  };
+  if (it?.photo) d.photos.push({ k: "a" + it.photo, asset: it.photo, shared: true });
+  sell.draft = d; sell.step = 1; sell.armDel = sell.armRm = false;
+  state.tab = "verkaufen"; render(); window.scrollTo({ top: 0 });
+}
+function openListing(id) {
+  const l = state.listings.find(x => x.id === id); if (!l) return;
+  sell.draft = JSON.parse(JSON.stringify(l));
+  sell.draft.answers = { brand: "", size: "", condition: "", defects: "", material: "", measures: "", originalPrice: "", ...(sell.draft.answers || {}) };
+  sell.draft.photos = sell.draft.photos || [];
+  sell.step = sell.draft.result ? 3 : 1; sell.armDel = sell.armRm = false;
+  render(); window.scrollTo({ top: 0 });
+}
+
+async function addSellPhotos(files) {
+  const d = sell.draft; if (!d || !files?.length) return;
+  const room = Math.max(0, 20 - d.photos.length);
+  const list = [...files].slice(0, room);
+  if (!list.length) { toast("20 Fotos reichen für jedes Inserat."); return; }
+  sell.busy = "photos"; render();
+  for (const f of list) {
+    const b = await shrink(f, 1600);
+    const k = newKey("p");
+    photoBlobs.set(k, b); photoUrls.set(k, URL.createObjectURL(b));
+    d.photos.push({ k });
+  }
+  if (d.check) d.check.stale = true;
+  sell.busy = null; render();
+}
+
+async function checkPhotos() {
+  const d = sell.draft;
+  if (!d.photos.length) return toast("Füge zuerst Fotos hinzu.");
+  if (!sample || !sampleImages) return localCheck(d);
+  const lim = await sample.limits().catch(() => null);
+  const max = lim?.images?.maxCount || 5;
+  const sel = d.photos.slice(0, max);
+  sell.busy = "check"; render();
+  try {
+    const blobs = [];
+    const keys = [];
+    for (const p of sel) { const b = await photoBlob(p); if (b) { blobs.push(b); keys.push(p.k); } }
+    if (!blobs.length) throw { code: "image_rejected" };
+    const prompt = `Du prüfst ${blobs.length} Fotos für ein Vinted-Inserat (Foto 1 bis ${blobs.length} in dieser Reihenfolge). Der Nutzer hat insgesamt ${d.photos.length} Fotos.
+Checkliste für gute Vinted-Fotos: mindestens 4 bis 6 Fotos; Tageslicht, kein Blitz; ruhiger, neutraler Hintergrund; ganzes Teil von vorne und von hinten; Nahaufnahme vom Marken- und vom Größenetikett; Nahaufnahmen von Details und eventuellen Mängeln; scharf, keine Filter, echte Farben; eigene Fotos, keine Katalogbilder.
+Antworte nur mit JSON in dieser Form:
+{"punkte": Zahl 0-10, "passt": ["kurz, was schon gut ist"], "fehlt": ["konkrete Aufnahme oder Verbesserung, die fehlt"], "fotos": [{"nr": 1, "hinweis": "höchstens 10 Wörter"}], "titelfoto": Nummer des besten Fotos für den ersten Eindruck, "erkannt": {"art": "z. B. Strickpullover", "kategorie": eins von ${JSON.stringify(CAT_ORDER)}, "farbe": eins von ${JSON.stringify(COLORS.map(c => c[0]))}, "marke": "nur wenn auf einem Etikett lesbar, sonst leer", "groesse": "nur wenn lesbar, sonst leer", "material": "nur wenn lesbar, sonst leer", "maengel": ["sichtbare Mängel"]}}
+Alles auf Deutsch, freundlich und knapp.`;
+    const r = await sample.json(prompt, { images: blobs, cache: false });
+    const notes = {};
+    (Array.isArray(r?.fotos) ? r.fotos : []).forEach(f => { const k = keys[(Number(f?.nr) || 0) - 1]; if (k && f?.hinweis) notes[k] = String(f.hinweis).slice(0, 90); });
+    const e = r?.erkannt || {};
+    d.check = { score: Math.max(0, Math.min(10, Math.round(Number(r?.punkte) || 0))), ok: arr(r?.passt), fix: arr(r?.fehlt), notes, checked: blobs.length, seen: e, stale: false };
+    if (!d.name && e.art) d.name = String(e.art).slice(0, 40);
+    if (!d.cat && CATS[e.kategorie]) d.cat = e.kategorie;
+    if (!d.color && COLOR_HEX[e.farbe]) d.color = e.farbe;
+    const A = d.answers;
+    if (!A.brand && e.marke) A.brand = String(e.marke).slice(0, 40);
+    if (!A.size && e.groesse) A.size = String(e.groesse).slice(0, 12);
+    if (!A.material && e.material) A.material = String(e.material).slice(0, 60);
+    if (!A.defects && Array.isArray(e.maengel) && e.maengel.length) A.defects = e.maengel.map(String).join(", ").slice(0, 160);
+    const ci = (Number(r?.titelfoto) || 0) - 1;
+    const ck = keys[ci];
+    if (ci > 0 && ck) { const i = d.photos.findIndex(p => p.k === ck); if (i > 0) d.photos.unshift(d.photos.splice(i, 1)[0]); }
+  } catch (e) { aiFail(e, "Die Prüfung"); }
+  finally { sell.busy = null; render(); }
+}
+
+/* ---------- ohne KI: feste Regeln ---------- */
+function localCheck(d) {
+  const n = d.photos.length;
+  const ok = [], fix = [];
+  if (n >= 4) ok.push(`${n} Fotos, das reicht für ein gutes Inserat`); else fix.push(`Noch ${4 - n} Foto${4 - n === 1 ? "" : "s"} mehr: mindestens 4 sind gut`);
+  if (n >= 6) ok.push("Genug Fotos für Details und Etiketten");
+  fix.push("Ganzes Teil von vorne und von hinten, bei Tageslicht");
+  fix.push("Nahaufnahme vom Marken- und Größenetikett");
+  fix.push("Mängel ehrlich zeigen, das spart Rückfragen");
+  d.check = { score: Math.min(10, Math.max(1, Math.round(n * 1.5))), ok, fix, notes: {}, checked: n, seen: {}, stale: false, local: true };
+  render();
+}
+function localParse(d, t) {
+  const A = d.answers, low = t.toLowerCase();
+  const kind = t.match(/\b(strickjacke|strickpullover|pullover|pulli|hoodie|sweatshirt|t-shirt|shirt|hemd|bluse|top|jeans|hose|chino|shorts|rock|kleid|jacke|mantel|blazer|weste|sneaker|stiefel|schuhe|tasche|gürtel|schal|mütze)\b/i);
+  if (kind && !d.name) d.name = kind[1].charAt(0).toUpperCase() + kind[1].slice(1).toLowerCase();
+  const size = t.match(/\b(XXS|XS|S|M|L|XL|XXL|3XL)\b/) || t.match(/gr(?:ö|oe)(?:ß|ss)e\s*:?\s*([\w\/]+)/i) || t.match(/\bW\d{2}\s*\/?\s*L\d{2}\b/i);
+  if (size && !A.size) A.size = (size[1] || size[0]).toUpperCase().slice(0, 12);
+  const price = t.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:€|euro|eur)\b/i) || t.match(/(?:€)\s*(\d+(?:[.,]\d{1,2})?)/);
+  if (price && !A.originalPrice) A.originalPrice = price[1];
+  const brand = t.match(/\b(?:von|marke)\s+([A-ZÄÖÜ0-9][\w&.\-]*(?:\s[A-ZÄÖÜ][\w&.\-]*)?)/);
+  if (brand && !A.brand) A.brand = brand[1].slice(0, 40);
+  if (!A.condition) {
+    if (/mit etikett|etikett (noch )?dran/.test(low)) A.condition = "neu_etikett";
+    else if (/nie getragen|ungetragen|neu\b/.test(low)) A.condition = "neu";
+    else if (/kaum getragen|ein(mal)?|zweimal|wenig getragen|wie neu/.test(low)) A.condition = "sehr_gut";
+    else if (/getragen|gebrauchsspur/.test(low)) A.condition = "gut";
+  }
+  const def = t.match(/[^.,;]*(fleck|loch|riss|pilling|knötchen|verfärb|fehlt|kaputt)[^.,;]*/i);
+  if (def && !A.defects) A.defects = def[0].trim().slice(0, 200);
+  const mat = t.match(/\b(\d{1,3}\s*%\s*)?(baumwolle|wolle|merino|kaschmir|leinen|seide|polyester|viskose|leder|denim)\b/i);
+  if (mat && !A.material) A.material = mat[0].replace(/^\w/, c => c.toUpperCase()).slice(0, 60);
+}
+function localListing(d) {
+  const A = d.answers;
+  const art = d.name || "Teil";
+  const cond = COND[A.condition] || "";
+  const parts = [A.brand, art, d.color, A.size && "Gr. " + A.size, cond];
+  let titel = "";
+  for (const p of parts.filter(Boolean)) { const next = titel ? titel + " " + p : p; if (next.length <= 60) titel = next; }
+  const base = { top: 30, bottom: 40, dress: 45, jacket: 70, shoes: 60, acc: 25 };
+  const neu = parseFloat(String(A.originalPrice || "").replace(",", ".")) || base[d.cat] || 35;
+  const share = { neu_etikett: .45, neu: .4, sehr_gut: .3, gut: .22, ok: .12 }[A.condition] || .25;
+  const ziel = Math.max(3, Math.round(neu * share));
+  const inserat = Math.max(ziel + 1, Math.round(ziel * 1.12));
+  const schnell = Math.max(2, Math.round(ziel * .8));
+  const details = [A.brand && "Marke: " + A.brand, A.material && "Material: " + A.material, A.size && "Größe: " + A.size, A.measures && "Maße: " + A.measures, cond && "Zustand: " + cond + (A.defects && A.defects !== "Keine Mängel" ? " (" + A.defects + ")" : ", keine Mängel")].filter(Boolean).join("\n");
+  const tags = ["#" + (A.brand || "secondhand").replace(/\s+/g, "").toLowerCase(), "#" + art.split(" ").pop().toLowerCase(), d.color ? "#" + d.color.toLowerCase() : "", "#preloved", "#nachhaltig"].filter(Boolean).join(" ");
+  return {
+    titel,
+    beschreibung: `${art}${A.brand ? " von " + A.brand : ""}${d.color ? " in " + d.color : ""}. Ein schönes Teil, das bei mir leider zu selten getragen wird.\n\n${details}\n\nSchneller Versand, Bündelrabatt möglich. Fragen gern per Nachricht.\n\n${tags}`,
+    kategorie: "",
+    preis: { inserat, ziel, schnell },
+    begruendung: A.originalPrice ? `Faustregel: etwa ${Math.round(share * 100)} % vom Neupreis bei Zustand „${cond || "gut"}“, mit etwas Luft zum Verhandeln.` : "Ohne Neupreis geschätzt. Trag den Neupreis ein, dann wird der Vorschlag genauer.",
+    suchbegriff: [A.brand, art].filter(Boolean).join(" ").slice(0, 60)
+  };
+}
+
+/* collage */
+function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function drawFit(x, img, X, Y, w, h, cover) {
+  const s = cover ? Math.max(w / img.width, h / img.height) : Math.min(w / img.width, h / img.height);
+  const iw = img.width * s, ih = img.height * s;
+  x.drawImage(img, X + (w - iw) / 2, Y + (h - ih) / 2, iw, ih);
+}
+function fitText(x, t, maxW) { let s = String(t || ""); if (x.measureText(s).width <= maxW) return s; while (s.length > 1 && x.measureText(s + "…").width > maxW) s = s.slice(0, -1); return s.trim() + "…"; }
+function sketchSrc(it) {
+  const fill = COLOR_HEX[it.color] || "#9b9ea6";
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="400" height="400"><g fill="${fill}" stroke="#2a2f3d" stroke-width="2.4" stroke-linejoin="round">${PATHS[it.cat] || PATHS.top}</g></svg>`;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+function fallbackPicks(d) {
+  const neutral = ["Schwarz", "Weiß", "Grau", "Navy", "Beige", "Denim"];
+  const want = d.cat === "bottom" ? ["top", "shoes", "jacket"] : d.cat === "shoes" ? ["top", "bottom", "jacket"] : d.cat === "dress" ? ["jacket", "shoes", "acc"] : d.cat === "jacket" ? ["top", "bottom", "shoes"] : ["bottom", "shoes", "jacket"];
+  const out = [];
+  for (const c of want) {
+    const cand = state.items.filter(i => i.cat === c && i.id !== d.itemId).sort((a, b) => neutral.includes(b.color) - neutral.includes(a.color));
+    if (cand[0]) out.push(cand[0]);
+  }
+  return out;
+}
+async function drawCollage(d, picks, tip) {
+  try { await Promise.all([document.fonts.load('400 58px "Instrument Serif"'), document.fonts.load('600 26px "Geist"'), document.fonts.load('500 22px "Geist Mono"')]); } catch {}
+  const W = 1080, H = 1350, c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const x = c.getContext("2d");
+  x.fillStyle = "#f4f4f1"; x.fillRect(0, 0, W, H);
+  const slots = picks.map(it => ({ it }));
+  let pi = 1;
+  while (slots.length < 3 && pi < d.photos.length) slots.push({ p: d.photos[pi++] });
+  const mainW = slots.length ? 640 : 1000;
+  const main = await loadImg(photoSrc(d.photos[0]));
+  x.save(); rr(x, 40, 40, mainW, 1100, 28); x.clip(); drawFit(x, main, 40, 40, mainW, 1100, true); x.restore();
+  const sx = 704, sw = 336, gap = 22, sh = (1100 - 2 * gap) / 3;
+  for (let i = 0; i < slots.length; i++) {
+    const sy = 40 + i * (sh + gap), s = slots[i];
+    x.save(); rr(x, sx, sy, sw, sh, 22); x.fillStyle = "#ffffff"; x.fill(); x.clip();
+    if (s.p) {
+      const im = await loadImg(photoSrc(s.p)).catch(() => null);
+      if (im) drawFit(x, im, sx, sy, sw, sh, true);
+    } else {
+      const it = s.it;
+      const im = it.photo && SB.blobs.url(it.photo) ? await loadImg(SB.blobs.url(it.photo)).catch(() => null) : null;
+      if (im) drawFit(x, im, sx, sy, sw, sh - 56, true);
+      else { const sk = await loadImg(sketchSrc(it)).catch(() => null); if (sk) drawFit(x, sk, sx + 48, sy + 18, sw - 96, sh - 90, false); }
+      x.fillStyle = "#141413"; x.font = '600 24px "Geist", sans-serif'; x.textAlign = "center";
+      x.fillText(fitText(x, it.name, sw - 32), sx + sw / 2, sy + sh - 22);
+    }
+    x.restore();
+  }
+  x.textAlign = "left";
+  x.fillStyle = "#6c6c66"; x.font = '500 22px "Geist Mono", monospace';
+  x.fillText(slots.some(s => s.it) ? "STYLING-IDEE" : "DETAILS", 44, 1196);
+  x.fillStyle = "#141413"; x.font = '400 58px "Instrument Serif", serif';
+  x.fillText(fitText(x, tip, 990), 44, 1258);
+  const meta = [d.answers.brand, d.answers.size && "Gr. " + d.answers.size, COND[d.answers.condition]].filter(Boolean).join(" · ");
+  if (meta) { x.fillStyle = "#6c6c66"; x.font = '500 30px "Geist", sans-serif'; x.fillText(fitText(x, meta, 990), 44, 1308); }
+  return await new Promise(r => c.toBlob(b => r(b), "image/jpeg", 0.9));
+}
+async function makeCollage() {
+  const d = sell.draft;
+  if (!d.photos.length) return toast("Füge zuerst mindestens ein Foto hinzu.");
+  sell.busy = "collage"; render();
+  try {
+    const pool = state.items.filter(i => i.id !== d.itemId && (!d.cat || i.cat !== d.cat));
+    let picks = [], tip = "";
+    if (sample && pool.length) {
+      try {
+        const art = { art: d.name || d.check?.seen?.art || "", kategorie: CATS[d.cat] || "", farbe: d.color || d.check?.seen?.farbe || "", marke: d.answers.brand };
+        const r = await sample.json(`Verkaufsartikel: ${JSON.stringify(art)}
+Teile im Kleiderschrank: ${JSON.stringify(pool.slice(0, 60).map(i => ({ id: i.id, name: i.name, kategorie: CATS[i.cat], farbe: i.color })))}
+Wähle 2 bis 3 Teile, die mit dem Verkaufsartikel ein stimmiges Outfit ergeben, jedes aus einer anderen Kategorie und nicht aus der Kategorie des Artikels.
+Antworte nur mit JSON: {"ids": ["..."], "tipp": "Styling-Tipp auf Deutsch, höchstens 6 Wörter, z. B. Lässig mit Jeans und Sneakern"}`, { modelTier: "quick", cache: false });
+        const seen = new Set();
+        picks = (Array.isArray(r?.ids) ? r.ids : []).map(String).map(byId).filter(it => it && !seen.has(it.cat) && seen.add(it.cat)).slice(0, 3);
+        tip = String(r?.tipp || "").slice(0, 60);
+      } catch (e) { if (e?.code === "rate_limited") toast("Gerade zu viele Anfragen, ich nehme eine einfache Auswahl."); }
+    }
+    if (picks.length < 2) picks = fallbackPicks(d);
+    if (!tip) tip = picks.length ? "So lässt es sich kombinieren" : (d.name || "Alle Details auf einen Blick");
+    const blob = await drawCollage(d, picks, tip);
+    if (!blob) throw new Error("canvas");
+    if (d.collage?.k && photoUrls.has(d.collage.k)) URL.revokeObjectURL(photoUrls.get(d.collage.k));
+    const k = newKey("c");
+    photoBlobs.set(k, blob); photoUrls.set(k, URL.createObjectURL(blob));
+    d.collage = { k }; d.style = { ids: picks.map(p => p.id), tip };
+  } catch (e) { toast("Die Collage konnte nicht erstellt werden. Prüf, ob alle Fotos geladen sind."); }
+  finally { sell.busy = null; render(); }
+}
+async function saveCollage() {
+  const d = sell.draft; if (!d?.collage) return;
+  if (!downloadsNs) return toast("Speichern geht hier nicht. Halte den Finger auf das Bild und sichere es.");
+  const b = await photoBlob(d.collage);
+  if (!b) return toast("Die Collage ist nicht mehr da. Erstell sie bitte neu.");
+  try { await downloadsNs.save({ filename: `styling-${(d.name || "collage").toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").replace(/^-|-$/g, "") || "collage"}.jpg`, data: b }); toast("Collage gespeichert."); }
+  catch (e) { if (e?.code !== "declined") toast("Speichern hat nicht geklappt. Halte den Finger auf das Bild und sichere es."); }
+}
+
+async function parseFreeText() {
+  const d = sell.draft, t = (d.freeText || "").trim();
+  if (!t) return toast("Schreib oder sprich zuerst ein paar Sätze zum Teil.");
+  if (!sample) { localParse(d, t); render(); return toast("Angaben übernommen. Prüf kurz, ob alles stimmt."); }
+  sell.busy = "parse"; render();
+  try {
+    const r = await sample.json(`Jemand beschreibt ein Kleidungsstück, das er auf Vinted verkaufen will. Der Text ist eventuell per Spracheingabe diktiert und enthält Tippfehler.
+Text: """${t.slice(0, 3000)}"""
+Antworte nur mit JSON: {"art": "", "marke": "", "groesse": "", "zustand": eins von ["neu_etikett","neu","sehr_gut","gut","ok"] oder "", "maengel": "", "material": "", "masse": "", "neupreis": "Zahl in Euro oder leer"}
+Leere Strings für alles, was nicht erwähnt wird. Nichts erfinden.`, { modelTier: "quick", cache: false });
+    const A = d.answers, s = v => (v == null ? "" : String(v).trim());
+    if (s(r?.art)) d.name = s(r.art).slice(0, 40);
+    if (s(r?.marke)) A.brand = s(r.marke).slice(0, 40);
+    if (s(r?.groesse)) A.size = s(r.groesse).slice(0, 12);
+    if (COND[r?.zustand]) A.condition = r.zustand;
+    if (s(r?.maengel)) A.defects = s(r.maengel).slice(0, 200);
+    if (s(r?.material)) A.material = s(r.material).slice(0, 60);
+    if (s(r?.masse)) A.measures = s(r.masse).slice(0, 80);
+    if (s(r?.neupreis)) A.originalPrice = s(r.neupreis).replace(/[^\d.,]/g, "").slice(0, 8);
+    toast("Angaben übernommen. Prüf kurz, ob alles stimmt.");
+  } catch (e) { aiFail(e, "Das Ausfüllen"); }
+  finally { sell.busy = null; render(); }
+}
+
+async function generateListing() {
+  const d = sell.draft, A = d.answers;
+  if (!A.condition || !A.size.trim()) { sell.step = 2; render(); return toast("Wähle zuerst Größe und Zustand."); }
+  if (!sample) { d.result = localListing(d); sell.step = 3; await saveListing(true); render(); return toast("Inserat fertig und als Entwurf gespeichert."); }
+  sell.busy = "gen"; render();
+  const it = d.itemId ? byId(d.itemId) : null;
+  const info = { art: d.name || d.check?.seen?.art || "", kategorie: CATS[d.cat] || "", farbe: d.color || "", marke: A.brand, groesse: A.size, zustand: COND[A.condition], maengel: A.defects || "keine angegeben", material: A.material, masse: A.measures, neupreis_euro: A.originalPrice, mal_getragen: it ? it.wears || 0 : "unbekannt" };
+  try {
+    const r = await sample.json(`Du bist Experte für Secondhand-Mode auf Vinted Deutschland. Erstelle ein Inserat für diesen Artikel:
+${JSON.stringify(info)}
+Auf den Fotos erkannt: ${JSON.stringify(d.check?.seen || {})}
+
+Preis: Du hast keinen Zugriff auf aktuelle Vinted-Preise, also schätze vorsichtig nach Erfahrungswerten für den Anteil vom Neupreis: Fast Fashion (z. B. Zara, H&M) neuwertig 20–35 %, gut 10–25 %; Sportmarken (Nike, Adidas) 35–55 % bzw. 20–40 %; Premium (z. B. COS, Arket) 50–65 % bzw. 30–50 %; Luxus 50–80 % bzw. 35–60 %; Zufriedenstellend deutlich darunter. Ohne Neupreis schätze den üblichen Neupreis der Marke. Der Inseratspreis liegt etwa 10–15 % über dem Zielpreis, damit Platz zum Verhandeln bleibt. Preise auf ,00 oder ,90 enden lassen.
+Titel: Marke + Art + Farbe + Größe + Zustand, höchstens 60 Zeichen, keine Emojis.
+Beschreibung auf Deutsch in drei kurzen Absätzen: 1) ein bis zwei Sätze, warum das Teil schön ist; 2) Details: Marke, Material, Größe, Maße falls bekannt, Zustand und Mängel ehrlich; 3) schneller Versand, Bündelrabatt möglich, Fragen gern per Nachricht. Erfinde nichts, was nicht angegeben oder auf den Fotos erkannt wurde.
+Antworte nur mit JSON:
+{"titel": "", "beschreibung": "", "hashtags": ["#...", 5 bis 8 Suchbegriffe], "kategorie": "Vinted-Kategoriepfad, z. B. Herren > Kleidung > Pullover & Sweater", "preis": {"inserat": Zahl, "ziel": Zahl, "schnell": Zahl}, "begruendung": "ein Satz zur Preisschätzung", "suchbegriff": "2 bis 4 Wörter, um auf Vinted vergleichbare Artikel zu finden"}`, { cache: false });
+    const tags = arr(r?.hashtags).map(t => t.startsWith("#") ? t : "#" + t.replace(/\s+/g, "")).join(" ");
+    const p = r?.preis || {};
+    d.result = {
+      titel: String(r?.titel || d.name || "").slice(0, 80),
+      beschreibung: String(r?.beschreibung || "").trim() + (tags ? "\n\n" + tags : ""),
+      kategorie: String(r?.kategorie || "").slice(0, 120),
+      preis: { inserat: Number(p.inserat) || 0, ziel: Number(p.ziel) || 0, schnell: Number(p.schnell) || 0 },
+      begruendung: String(r?.begruendung || "").slice(0, 240),
+      suchbegriff: String(r?.suchbegriff || [A.brand, d.name].filter(Boolean).join(" ")).slice(0, 60)
+    };
+    sell.step = 3;
+    await saveListing(true);
+    toast("Inserat fertig und als Entwurf gespeichert.");
+  } catch (e) { aiFail(e, "Das Inserat"); }
+  finally { sell.busy = null; render(); }
+}
+
+async function saveListing(silent) {
+  const d = sell.draft; if (!d) return;
+  d.updatedAt = nowIso();
+  if (state.mode === "db" && listingsCol) {
+    if (assets) {
+      for (const p of [...d.photos, ...(d.collage ? [d.collage] : [])]) {
+        if (p.asset) continue;
+        const b = photoBlobs.get(p.k); if (!b) continue;
+        try { const up = await assets.upload(b, { type: "image/jpeg" }); p.asset = up.id; p.own = true; } catch {}
+      }
+    }
+    const { id, ...body } = JSON.parse(JSON.stringify(d));
+    try { await listingsCol.doc(id).set(body); if (!silent) toast("Entwurf gespeichert."); }
+    catch (e) { toast(dbErrorText(e)); }
+  } else {
+    const copy = JSON.parse(JSON.stringify(d));
+    const i = state.listings.findIndex(l => l.id === d.id);
+    if (i >= 0) state.listings[i] = copy; else state.listings.unshift(copy);
+    if (!silent) toast("Entwurf gemerkt.");
+  }
+}
+async function deleteListing() {
+  const d = sell.draft; if (!d) return;
+  const own = [...d.photos, ...(d.collage ? [d.collage] : [])].filter(p => p.own && p.asset);
+  state.listings = state.listings.filter(l => l.id !== d.id);
+  sell.draft = null; render();
+  if (state.mode === "db" && listingsCol) {
+    try { await listingsCol.doc(d.id).delete(); for (const p of own) await assets?.delete(p.asset).catch(() => {}); }
+    catch (e) { toast(dbErrorText(e)); return; }
+  }
+  toast("Inserat gelöscht.");
+}
+function copyText(text, fallbackId, label) {
+  const done = () => toast(`${label} kopiert. Jetzt bei Vinted einfügen.`);
+  const fb = () => { const el = document.getElementById(fallbackId); if (el) { el.focus(); el.select?.(); } toast(`${label} markiert. Jetzt kopieren.`); };
+  try { navigator.clipboard.writeText(text).then(done, fb); } catch { fb(); }
+}
+
+function listingThumb(l) {
+  const p = (l.photos || [])[0];
+  const src = photoSrc(p);
+  const it = l.itemId ? byId(l.itemId) : null;
+  return (it ? garmentSvg(it) : garmentSvg({ cat: l.cat || "top", color: l.color || "Grau" })) + (src ? `<img src="${esc(src)}" alt="" loading="lazy" onerror="this.remove()">` : "");
+}
+
+function viewVerkaufen() {
+  if (sell.draft) return viewDraft();
+  const forgotten = sortItems(state.items.filter(isForgotten)).slice(0, 4);
+  const rows = state.listings.map(l => `<button class="row-item lrow" data-act="open-listing" data-v="${esc(l.id)}">
+      <div class="thumb">${listingThumb(l)}</div>
+      <div class="txt"><b>${esc(l.result?.titel || l.name || "Ohne Titel")}</b><span>${l.result?.preis?.inserat ? fmtEur(l.result.preis.inserat) + " · " : ""}${shortDate(l.updatedAt)}</span></div>
+      <span class="pill solid lst-${esc(l.status || "entwurf")}"><i></i>${LSTATUS[l.status] || "Entwurf"}</span></button>`).join("");
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+    <div><h2 class="section-h">Verkaufen auf <em>Vinted</em></h2><p class="sub">Die App bereitet dein Inserat vor. Du fügst es nur noch bei Vinted ein.</p></div>
+    <ol class="howto">
+      <li><b>Fotos</b><span>aus der Galerie wählen, die App prüft sie und baut eine Styling-Collage</span></li>
+      <li><b>Kurz erzählen</b><span>Größe, Zustand, Marke, Mängel, gern per Spracheingabe</span></li>
+      <li><b>Inserat</b><span>Preisvorschlag, Titel und Beschreibung, als Entwurf gespeichert</span></li>
+    </ol>
+    <button class="btn btn-primary btn-wide" data-act="s-new">+ Neues Inserat</button>
+    ${forgotten.length ? `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Lange nicht getragen</h3><p class="sub">Seit über 30 Tagen im Schrank. Vielleicht freut sich jemand anderes darüber.</p>
+      <div class="list">${forgotten.map(it => `<div class="row-item"><div class="thumb">${thumb(it)}</div><div class="txt"><b>${esc(it.name)}</b><span>${lastWornText(it)}</span></div><button class="btn btn-ghost" data-act="sell-item" data-v="${it.id}">Verkaufen</button></div>`).join("")}</div></div>` : ""}
+    <div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Deine Inserate <span class="n">${state.listings.length}</span></h3>
+      ${rows ? `<div class="list">${rows}</div>` : `<div class="empty">Noch keine Inserate. Starte mit „Neues Inserat“ oder tippe bei einem Teil im Schrank auf „Verkaufen“.</div>`}</div>
+  </div>`;
+}
+
+function viewDraft() {
+  const d = sell.draft, s = sell.step, b = sell.busy;
+  const steps = [[1, "Fotos"], [2, "Angaben"], [3, "Inserat"]].map(([n, l]) => `<button class="stp" data-act="s-step" data-v="${n}" aria-current="${s === n ? "step" : "false"}"><span>${n}</span>${l}</button>`).join("");
+  const head = `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><button class="back" data-act="s-back">${ICON_BACK}Übersicht</button><span class="pill solid lst-${esc(d.status)}"><i></i>${LSTATUS[d.status] || "Entwurf"}</span></div>
+    <div class="steps">${steps}</div>`;
+  let body = "";
+  if (s === 1) {
+    const notes = d.check?.notes || {};
+    const tiles = d.photos.map((p, i) => `<div class="ph"><div class="img"><img src="${esc(photoSrc(p))}" alt="Foto ${i + 1}">${i === 0 ? '<span class="cover-tag">Titelfoto</span>' : ""}<button class="ph-x" data-act="s-delphoto" data-v="${esc(p.k)}" aria-label="Foto ${i + 1} entfernen">×</button></div>
+      ${i > 0 ? `<button class="ph-cover" data-act="s-cover" data-v="${esc(p.k)}">Als Titelfoto</button>` : ""}${notes[p.k] ? `<p class="ph-note">${esc(notes[p.k])}</p>` : ""}</div>`).join("");
+    const c = d.check;
+    const checkPanel = c ? `<div class="panel">
+        <div class="score"><b>${c.score}<small>/10</small></b><span class="sub">Foto-Check${c.checked < d.photos.length ? ` · die ersten ${c.checked} Fotos geprüft` : ""}${c.stale ? " · neue Fotos noch nicht geprüft" : ""}</span></div>
+        <ul class="checks">${c.ok.map(t => `<li><span class="ok">✓</span><span>${esc(t)}</span></li>`).join("")}${c.fix.map(t => `<li><span class="todo">→</span><span>${esc(t)}</span></li>`).join("")}</ul>
+      </div>` : "";
+    const canCheck = true;
+    body = `<div><h2 class="section-h">Fotos</h2><p class="sub">Wähle 4 bis 20 Fotos aus deiner Galerie: vorne, hinten, Marken- und Größenetikett, Details und Mängel. Tageslicht und ein ruhiger Hintergrund wirken am besten.</p></div>
+      <div class="ph-grid">${tiles}<label class="ph-add">${b === "photos" ? '<span class="spin"></span>' : "+ Fotos<br>hinzufügen"}<input type="file" id="sellPhotos" accept="image/*" multiple aria-label="Fotos wählen"></label></div>
+      <button class="btn btn-accent btn-wide" data-act="s-check" ${b || !d.photos.length || !canCheck ? "disabled" : ""}>${b === "check" ? '<span class="spin"></span> Fotos werden geprüft…' : (c ? ICON_SPARK + " Nochmal prüfen" : ICON_SPARK + " Fotos prüfen lassen")}</button>
+      ${!(sample && sampleImages) ? '<p class="hint">Ohne KI prüft die App nach einer festen Checkliste. Mit eigenem KI-Schlüssel (Einstellungen) schaut sie sich die Fotos wirklich an.</p>' : ""}
+      ${checkPanel}
+      <div class="panel">
+        <h3 class="h3">Styling-Collage</h3>
+        <p class="sub">Dein Teil neben passenden Stücken aus deinem Schrank. Lade sie als letztes Foto hoch: Käufer sehen sofort, wie man es trägt.</p>
+        ${d.collage ? `<img class="collage-prev" src="${esc(photoSrc(d.collage))}" alt="Styling-Collage${d.style?.tip ? ": " + esc(d.style.tip) : ""}">` : ""}
+        <div class="copyrow">
+          <button class="btn btn-ghost" data-act="s-collage" ${b || !d.photos.length ? "disabled" : ""}>${b === "collage" ? '<span class="spin"></span> Baue Collage…' : (d.collage ? "Neu zusammenstellen" : "Collage erstellen")}</button>
+          ${d.collage && downloadsNs ? `<button class="btn btn-ghost" data-act="s-savecollage">In Fotos sichern</button>` : ""}
+        </div>
+        ${d.collage && !downloadsNs ? '<p class="hint">Zum Sichern den Finger länger auf das Bild halten.</p>' : ""}
+      </div>
+      <button class="btn btn-primary btn-wide" data-act="s-step" data-v="2">Weiter zu den Angaben</button>`;
+  } else if (s === 2) {
+    const A = d.answers;
+    const sizeChips = SIZES.map(z => `<button class="chip" data-act="s-size" data-v="${z}" aria-pressed="${A.size === z}">${z}</button>`).join("");
+    const conds = CONDITIONS.map(([k, l, t]) => `<button class="cond" data-act="s-cond" data-v="${k}" aria-pressed="${A.condition === k}"><b>${l}</b><span>${t}</span></button>`).join("");
+    body = `<div><h2 class="section-h">Kurz <em>erzählen</em></h2><p class="sub">Erzähl in ein paar Sätzen, was du über das Teil weißt. Die App füllt die Felder darunter aus.</p></div>
+      <div class="field"><label for="sellFree">Deine Beschreibung</label>
+        <textarea class="ta" id="sellFree" data-d="freeText" rows="4" placeholder="z. B. Pulli von COS, Größe M, Wolle, zweimal getragen, kleiner Fleck am linken Ärmel, hat 89 Euro gekostet">${esc(d.freeText)}</textarea>
+        <p class="hint">Sprechen statt tippen: Auf der Handytastatur das Mikrofon antippen und einfach erzählen.</p></div>
+      <button class="btn btn-accent btn-wide" data-act="s-parse" ${b ? "disabled" : ""}>${b === "parse" ? '<span class="spin"></span> Lese mit…' : ICON_SPARK + " Daraus die Felder ausfüllen"}</button>
+      <div class="panel">
+        <div class="field"><label for="sName">Was ist es?</label><input type="text" id="sName" data-d="name" maxlength="40" placeholder="z. B. Strickpullover" value="${esc(d.name)}"></div>
+        <div class="field"><label for="sBrand">Marke</label><input type="text" id="sBrand" data-f="brand" maxlength="40" placeholder="z. B. COS" value="${esc(A.brand)}"></div>
+        <div class="field"><label for="sSize">Größe</label><div class="chips wrap">${sizeChips}</div><input type="text" id="sSize" data-f="size" maxlength="12" placeholder="oder z. B. 38, W32/L32, 42 (Schuhe)" value="${esc(A.size)}"></div>
+        <div class="field"><span class="lbl">Zustand</span><div class="cond-list">${conds}</div></div>
+        <div class="field"><label for="sDef">Mängel</label><input type="text" id="sDef" data-f="defects" maxlength="200" placeholder="z. B. kleiner Fleck am Ärmel" value="${esc(A.defects)}"><div class="chips wrap"><button class="chip" data-act="s-nodef" aria-pressed="${A.defects === "Keine Mängel"}">Keine Mängel</button></div></div>
+        <div class="field"><label for="sMat">Material</label><input type="text" id="sMat" data-f="material" maxlength="60" placeholder="z. B. 100 % Baumwolle" value="${esc(A.material)}"></div>
+        <div class="field"><label for="sMeas">Maße (optional)</label><input type="text" id="sMeas" data-f="measures" maxlength="80" placeholder="z. B. Brustbreite 52 cm, Länge 68 cm" value="${esc(A.measures)}"></div>
+        <div class="field"><label for="sPrice">Neupreis in € (optional)</label><input type="text" id="sPrice" data-f="originalPrice" inputmode="decimal" maxlength="8" placeholder="z. B. 89" value="${esc(A.originalPrice)}"></div>
+      </div>
+      <button class="btn btn-primary btn-wide" data-act="s-gen" ${b ? "disabled" : ""}>${b === "gen" ? '<span class="spin"></span> Schreibe dein Inserat…' : ICON_SPARK + " Inserat schreiben lassen"}</button>`;
+  } else {
+    const r = d.result;
+    if (!r) {
+      body = `<div class="empty">Noch kein Inserat. Füll die Angaben aus und lass es schreiben.</div>
+        <button class="btn btn-primary btn-wide" data-act="s-gen" ${b ? "disabled" : ""}>${b === "gen" ? '<span class="spin"></span> Schreibe dein Inserat…' : ICON_SPARK + " Inserat schreiben lassen"}</button>`;
+    } else {
+      const it = d.itemId ? byId(d.itemId) : null;
+      const cmp = `https://www.vinted.de/catalog?search_text=${encodeURIComponent(r.suchbegriff || "")}`;
+      const segs = Object.entries(LSTATUS).map(([k, l]) => `<button data-act="s-status" data-v="${k}" aria-pressed="${d.status === k}">${l}</button>`).join("");
+      body = `<div><h2 class="section-h">Dein <em>Inserat</em></h2><p class="sub">Alles lässt sich direkt hier ändern. Änderungen mit „Entwurf speichern“ sichern.</p></div>
+        <div class="panel">
+          <div class="field"><label for="rTitle">Titel <span id="titleCount" style="float:right;text-transform:none;letter-spacing:0">${r.titel.length}/60</span></label><input type="text" id="rTitle" data-r="titel" maxlength="80" value="${esc(r.titel)}"></div>
+          <div class="field"><label for="rDesc">Beschreibung</label><textarea class="ta" id="rDesc" data-r="beschreibung" rows="11">${esc(r.beschreibung)}</textarea></div>
+          ${r.kategorie ? `<dl class="kv"><dt>Kategorie</dt><dd>${esc(r.kategorie)}</dd><dt>Größe</dt><dd>${esc(d.answers.size)}</dd><dt>Zustand</dt><dd>${esc(COND[d.answers.condition] || "")}</dd>${d.answers.brand ? `<dt>Marke</dt><dd>${esc(d.answers.brand)}</dd>` : ""}</dl>` : ""}
+        </div>
+        <div class="panel">
+          <div class="field"><label for="rPrice">Preis in €</label><div class="price"><input type="text" id="rPrice" data-p="inserat" inputmode="decimal" value="${esc(String(r.preis.inserat).replace(".", ","))}"><span class="sub">Ziel ca. ${fmtEur(r.preis.ziel)} · schneller Verkauf ${fmtEur(r.preis.schnell)}</span></div></div>
+          ${r.begruendung ? `<p class="note">${esc(r.begruendung)}</p>` : ""}
+          <p class="hint">Schätzung ohne Live-Daten von Vinted. Schau dir vor dem Einstellen ähnliche Artikel an: <a href="${esc(cmp)}" target="_blank" rel="noopener">Vergleichbare auf Vinted ansehen</a></p>
+        </div>
+        <div class="copyrow">
+          <button class="btn btn-ghost" data-act="s-copy" data-v="titel">Titel kopieren</button>
+          <button class="btn btn-ghost" data-act="s-copy" data-v="beschreibung">Text kopieren</button>
+          <button class="btn btn-ghost" data-act="s-copy" data-v="preis">Preis kopieren</button>
+        </div>
+        <div class="panel">
+          <h3 class="h3">So stellst du es ein</h3>
+          <ol class="steps-howto">
+            <li>Vinted öffnen und „Artikel verkaufen“ wählen.</li>
+            <li>Fotos aus der Galerie hochladen, Titelfoto zuerst${d.collage ? ", Collage zuletzt" : ""}.</li>
+            <li>Titel und Beschreibung von hier einfügen.</li>
+            <li>Kategorie, Marke, Größe und Zustand wie oben auswählen.</li>
+            <li>Preis eintragen und veröffentlichen.</li>
+          </ol>
+          <a class="btn btn-primary btn-wide" href="${VINTED_NEW}" target="_blank" rel="noopener">Vinted öffnen</a>
+        </div>
+        <div class="copyrow">
+          <button class="btn btn-ghost" data-act="s-save">Entwurf speichern</button>
+          <button class="btn btn-ghost" data-act="s-gen" ${b ? "disabled" : ""}>${b === "gen" ? '<span class="spin"></span> Schreibe…' : "Neu schreiben lassen"}</button>
+        </div>
+        <div class="field"><span class="lbl">Status</span><div class="seg" role="group" aria-label="Status">${segs}</div></div>
+        ${d.status === "verkauft" && it ? `<button class="btn btn-danger${sell.armRm ? " armed" : ""}" data-act="s-rmitem">${sell.armRm ? "Wirklich aus dem Schrank löschen? Nochmal tippen" : "Verkauft: aus dem Schrank entfernen"}</button>` : ""}`;
+    }
+  }
+  return `<div style="display:flex;flex-direction:column;gap:14px">${head}${body}
+    <button class="btn btn-danger${sell.armDel ? " armed" : ""}" data-act="s-del">${sell.armDel ? "Inserat wirklich löschen? Nochmal tippen" : "Inserat löschen"}</button></div>`;
+}
+
+/* ---------- toast ---------- */
+let toastT = null;
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3400);
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const act = el.dataset.act, v = el.dataset.v;
+  switch (act) {
+    case "tab": state.tab = v; render(); window.scrollTo({ top: 0 }); break;
+    case "fcat": state.fCat = v; render(); break;
+    case "fstatus": state.fStatus = state.fStatus === v ? "all" : v; render(); break;
+    case "open-item": state.armedDelete = null; itemSheet(v); break;
+    case "set-status": {
+      const s = el.dataset.s;
+      await patchItem(v, s === "verliehen" ? { status: s } : { status: s, lentTo: null });
+      if (!scrim.hidden && sheet.querySelector(".status-grid")) itemSheet(v);
+      break;
+    }
+    case "worn": case "worn-wash": {
+      const it = byId(v); if (!it) break;
+      const patch = { wears: (it.wears || 0) + 1, lastWorn: todayIso() };
+      if (act === "worn-wash") patch.status = "waesche";
+      await patchItem(v, patch); closeSheet(); itemSheet(v);
+      toast(act === "worn-wash" ? "Getragen und ab in die Wäsche." : "Als heute getragen markiert.");
+      break;
+    }
+    case "delete":
+      if (state.armedDelete !== v) { state.armedDelete = v; itemSheet(v); }
+      else { const n = byId(v)?.name; closeSheet(); await removeItem(v); toast(`„${n}“ gelöscht.`); }
+      break;
+    case "open-add": addSheet(); break;
+    case "adopt": adoptExamples(); break;
+    case "weather": state.plan.weather = v; render(); savePlan(); break;
+    case "occ": {
+      const d = state.plan.days[v];
+      d.occ = OCC_KEYS[(OCC_KEYS.indexOf(d.occ) + 1) % OCC_KEYS.length];
+      render(); savePlan(); break;
+    }
+    case "reroll": fillWeekLocal(v); render(); savePlan(); break;
+    case "plan-ai": planWithAI(); break;
+    case "worn-today": wornToday(); break;
+    case "laundry-done": {
+      const ids = state.items.filter(i => i.status === "waesche").map(i => i.id);
+      for (const id of ids) await patchItem(id, { status: "schrank" });
+      toast(`${ids.length} Teile sind wieder im Schrank.`);
+      break;
+    }
+    case "d-cat": addDraft.cat = v; drawAdd(); break;
+    case "d-color": addDraft.color = v; drawAdd(); break;
+    case "d-occ": {
+      const o = addDraft.occasions;
+      addDraft.occasions = o.includes(v) ? o.filter(x => x !== v) : [...o, v];
+      drawAdd(); break;
+    }
+    case "d-ai": recognize(); break;
+    case "s-new": newDraft(null); break;
+    case "sell-item": closeSheet(); newDraft(v); break;
+    case "open-listing": openListing(v); break;
+    case "s-back": sell.draft = null; render(); window.scrollTo({ top: 0 }); break;
+    case "s-step": sell.step = Number(v) || 1; sell.armDel = sell.armRm = false; render(); window.scrollTo({ top: 0 }); break;
+    case "s-delphoto": {
+      const d = sell.draft; d.photos = d.photos.filter(p => p.k !== v);
+      if (photoUrls.has(v) && !(d.collage && d.collage.k === v)) { URL.revokeObjectURL(photoUrls.get(v)); photoUrls.delete(v); photoBlobs.delete(v); }
+      render(); break;
+    }
+    case "s-cover": { const d = sell.draft; const i = d.photos.findIndex(p => p.k === v); if (i > 0) d.photos.unshift(d.photos.splice(i, 1)[0]); render(); break; }
+    case "s-check": checkPhotos(); break;
+    case "s-collage": makeCollage(); break;
+    case "s-savecollage": saveCollage(); break;
+    case "s-parse": parseFreeText(); break;
+    case "s-size": sell.draft.answers.size = v; render(); break;
+    case "s-cond": sell.draft.answers.condition = v; render(); break;
+    case "s-nodef": sell.draft.answers.defects = "Keine Mängel"; render(); break;
+    case "s-gen": generateListing(); break;
+    case "s-save": saveListing(false); break;
+    case "s-status": sell.draft.status = v; sell.armRm = false; render(); saveListing(true); toast(`Status: ${LSTATUS[v]}`); break;
+    case "s-copy": {
+      const r = sell.draft?.result; if (!r) break;
+      if (v === "titel") copyText(r.titel, "rTitle", "Titel");
+      else if (v === "beschreibung") copyText(r.beschreibung, "rDesc", "Beschreibung");
+      else copyText(String(r.preis.inserat).replace(".", ","), "rPrice", "Preis");
+      break;
+    }
+    case "s-del":
+      if (!sell.armDel) { sell.armDel = true; render(); }
+      else { sell.armDel = false; deleteListing(); }
+      break;
+    case "s-rmitem": {
+      const d = sell.draft; if (!d?.itemId) break;
+      if (!sell.armRm) { sell.armRm = true; render(); break; }
+      sell.armRm = false; const n = byId(d.itemId)?.name;
+      await removeItem(d.itemId); d.itemId = null; saveListing(true); render();
+      toast(`„${n}“ ist aus dem Schrank entfernt.`);
+      break;
+    }
+    case "copy-tag": {
+      const inp = document.getElementById("tagUrl");
+      try { await navigator.clipboard.writeText(inp.value); toast("Link kopiert."); }
+      catch { inp.focus(); inp.select(); toast("Link markiert. Jetzt kopieren."); }
+      break;
+    }
+  }
+});
+
+document.addEventListener("input", e => {
+  const t = e.target, d = sell.draft; if (!d || !t.dataset) return;
+  if (t.dataset.f) d.answers[t.dataset.f] = t.value;
+  else if (t.dataset.d) d[t.dataset.d] = t.value;
+  else if (t.dataset.r && d.result) {
+    d.result[t.dataset.r] = t.value;
+    if (t.dataset.r === "titel") { const c = document.getElementById("titleCount"); if (c) c.textContent = t.value.length + "/60"; }
+  } else if (t.dataset.p && d.result) { const n = parseFloat(t.value.replace(",", ".")); if (!isNaN(n)) d.result.preis[t.dataset.p] = n; }
+});
+document.addEventListener("change", e => { if (e.target.id === "sellPhotos") { addSellPhotos(e.target.files); } });
+
+/* ---------- boot ---------- */
+fillWeekLocal();
+render();
+
+let installEvt = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; });
+function settingsSheet(msg) {
+  const key = SB.aiKey();
+  const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  openSheet(`<h2>Einstellungen</h2>
+    ${msg ? `<div class="banner"><p>${esc(msg)}</p></div>` : ""}
+    ${standalone ? "" : `<div class="set-group"><span class="eyebrow">Als App installieren</span>
+      ${installEvt ? '<button class="btn btn-primary btn-wide" data-act="install">App installieren</button>' : ""}
+      <p class="hint"><b>iPhone:</b> In Safari unten auf Teilen tippen, dann „Zum Home-Bildschirm“.<br><b>Android:</b> In Chrome oben rechts das Menü öffnen, dann „App installieren“.</p></div>`}
+    <div class="set-group"><span class="eyebrow">Deine Daten</span>
+      <p class="hint">Alles bleibt nur auf diesem Gerät. Nichts wird hochgeladen. Mach ab und zu eine Sicherung, falls du das Handy wechselst oder den Browser leerst.</p>
+      <div class="set-row">
+        <button class="btn btn-ghost" data-act="backup">Sicherung speichern</button>
+        <label class="btn btn-ghost file-btn">Sicherung laden<input type="file" id="restoreInput" accept="application/json,.json" aria-label="Sicherung wählen"></label>
+      </div>
+      <div class="set-row">
+        <button class="btn btn-soft" data-act="load-examples">Beispielschrank zeigen</button>
+        <button class="btn btn-danger${state.armedWipe ? " armed" : ""}" data-act="wipe">${state.armedWipe ? "Wirklich alles löschen? Nochmal tippen" : "Alles löschen"}</button>
+      </div></div>
+    <div class="set-group"><span class="eyebrow">KI (optional, nur für dich)</span>
+      <p class="hint">Ohne Schlüssel arbeitet die App mit festen Regeln. Mit einem eigenen Claude-API-Schlüssel von console.anthropic.com erkennt sie Fotos, plant die Woche und schreibt Inserate. Jede Anfrage kostet dich ein paar Cent. Der Schlüssel bleibt auf diesem Gerät. Gib ihn nicht an Freunde weiter.</p>
+      <input class="key-input" type="password" id="aiKeyInput" autocomplete="off" placeholder="sk-ant-…" value="${esc(key)}">
+      <div class="set-row"><button class="btn btn-ghost" data-act="save-key">Schlüssel speichern</button>${key ? '<button class="btn btn-danger" data-act="clear-key">Schlüssel entfernen</button>' : ""}</div></div>
+    <p class="hint">Schrankblick · Test-Version ${APP_VERSION}</p>`, () => { state.armedWipe = false; });
+  document.getElementById("restoreInput").addEventListener("change", async ev => {
+    const f = ev.target.files?.[0]; if (!f) return;
+    try { await SB.importAll(f); state.usingExamples = !SB.hasData(); closeSheet(); toast("Sicherung geladen."); }
+    catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
+  });
+}
+const APP_VERSION = "0.1";
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  switch (el.dataset.act) {
+    case "settings": state.armedWipe = false; settingsSheet(); break;
+    case "install": if (installEvt) { installEvt.prompt(); installEvt = null; closeSheet(); } break;
+    case "backup": {
+      try { const b = await SB.exportAll(); await SB.downloads.save({ filename: `schrankblick-sicherung-${todayIso()}.json`, data: b }); toast("Sicherung erstellt."); }
+      catch (err) { if (err?.code !== "declined") toast("Sicherung hat nicht geklappt."); }
+      break;
+    }
+    case "load-examples":
+      if (SB.hasData()) { toast("Du hast schon eigene Teile. Lösch erst alles, um den Beispielschrank zu sehen."); break; }
+      state.items = EXAMPLES.map(x => ({ ...x })); state.usingExamples = true; fillWeekLocal(); closeSheet(); state.tab = "schrank"; render(); break;
+    case "wipe":
+      if (!state.armedWipe) { state.armedWipe = true; settingsSheet(); break; }
+      state.armedWipe = false; await SB.wipe(); state.items = EXAMPLES.map(x => ({ ...x })); state.usingExamples = true; state.plan = emptyPlan(); fillWeekLocal(); state.listings = []; sell.draft = null;
+      closeSheet(); render(); toast("Alles gelöscht. Du siehst wieder den Beispielschrank."); break;
+    case "save-key": {
+      const v = document.getElementById("aiKeyInput").value.trim();
+      SB.setAiKey(v); sample = SB.makeSample(); sampleImages = !!sample; render(); settingsSheet(v ? "KI-Schlüssel gespeichert." : "Kein Schlüssel eingetragen."); break;
+    }
+    case "clear-key": SB.setAiKey(""); sample = null; sampleImages = false; render(); settingsSheet("KI-Schlüssel entfernt."); break;
+  }
+});
+
+(async function init() {
+  await SB.blobs.preload();
+  sample = SB.makeSample(); sampleImages = !!sample;
+  assets = SB.assets; downloadsNs = SB.downloads;
+  db = SB.db; state.mode = "db";
+  itemsCol = SB.db.items; planRef = SB.db.plan; listingsCol = SB.db.listings;
+  listingsCol.onSnapshot(snap => {
+    state.listings = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
+    if (state.tab === "verkaufen" && !sell.draft) render();
+  });
+  itemsCol.onSnapshot(snap => {
+    if (snap.empty) { if (!state.usingExamples) state.items = []; }
+    else { state.usingExamples = false; state.items = snap.docs.map(d => ({ id: d.id, ...d.data() })); }
+    render(); handleTag();
+  });
+  planRef.onSnapshot(snap => {
+    if (snap.exists) {
+      const p = snap.data();
+      if (p && p.days) {
+        state.plan = JSON.parse(JSON.stringify(p));
+        for (const [k] of DAYS) if (!state.plan.days[k]) state.plan.days[k] = { occ: DAY_DEFAULT_OCC[k], items: [], note: "" };
+      }
+    } else if (!state.usingExamples && !state.planLoaded) state.plan = emptyPlan();
+    state.planLoaded = true; render();
+  });
+  render();
+})();
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+})();
+</script>
+</body>
+</html>
