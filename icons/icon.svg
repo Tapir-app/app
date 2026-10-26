@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9ecd9"/><stop offset="1" stop-color="#d7dcbd"/>
+    </linearGradient>
+    <clipPath id="body"><path id="bp" d="M150 232
+      C 176 200, 228 186, 290 188
+      C 360 190, 420 214, 428 276
+      C 434 318, 420 346, 402 356
+      L 402 382 C 402 392, 394 398, 384 398 L 370 398 C 360 398, 354 392, 354 382 L 352 362
+      L 250 362 L 248 382 C 248 392, 240 398, 230 398 L 216 398 C 206 398, 200 392, 200 382 L 198 346
+      C 184 334, 174 320, 166 306
+      C 156 308, 144 314, 134 322
+      C 124 330, 112 326, 113 314
+      C 116 294, 130 276, 140 262
+      C 144 252, 146 242, 150 232 Z"/></clipPath>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g id="tap" transform="translate(256 290) scale(1.18) translate(-266 -292)">
+  <ellipse cx="270" cy="404" rx="150" ry="12" fill="#56622f" opacity=".14"/>
+  <g clip-path="url(#body)">
+    <use href="#bp" fill="#1b1c18"/>
+    <path d="M258 168 C 298 186, 330 186, 368 170 C 372 240, 364 310, 348 380 L 258 380 C 268 330, 266 250, 258 168 Z" fill="#f4f4ec"/>
+  </g>
+  <ellipse cx="186" cy="214" rx="15" ry="22" transform="rotate(-18 186 214)" fill="#1b1c18"/>
+  <ellipse cx="186" cy="217" rx="6" ry="11" transform="rotate(-18 186 217)" fill="#5d6040"/>
+  <circle cx="170" cy="252" r="5.5" fill="#f4f4ec"/>
+  </g>
+</svg>
