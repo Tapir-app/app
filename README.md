@@ -17,4 +17,8 @@ Dateien in ein öffentliches Repository legen → Settings → Pages → Branch 
 - `sw.js` – Offline-Betrieb
 - `manifest.webmanifest`, `icons/` – App-Symbol und Installation
 
+## Feedback und Warteliste einstellen
+Oben in `index.html` steht `const CONTACT = { email, feedbackForm, waitlistForm }`. Leer = Feedback und Wartelisten-Anmeldung gehen über das Teilen-Menü des Handys (WhatsApp, Mail …). Mit E-Mail-Adresse oder Formular-Link gehen sie direkt dorthin.
+Nutzungszahlen zählt die App nur lokal auf dem Gerät (`schrankblick:meta`). Sie werden nur mitgeschickt, wenn Tester:innen Feedback senden und das Häkchen drin lassen. Keine Tracker.
+
 Bei Änderungen in `sw.js` die `VERSION` hochzählen, damit Handys die neue Version laden.

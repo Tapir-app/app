@@ -393,6 +393,31 @@ img { max-width: 100%; }
 .set-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .set-row .btn { flex: 1 1 150px; }
 .key-input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font-family: var(--font-label); font-size: 13px; }
+/* sb-0.3: feedback, backup reminder, quick capture */
+@media (max-width: 400px) { .brand { font-size: 36px; } .top-r { gap: 6px; } .top-r .fab { width: 42px; height: 42px; } .top-r .fab svg { width: 20px; height: 20px; } }
+.toast { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.toast-act { border: 0; background: none; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; padding: 4px 2px; flex: none; }
+.quickbar { display: flex; align-items: center; gap: 10px; background: var(--st-waesche-soft); border-radius: var(--r); padding: 8px 8px 8px 14px; }
+.quickbar > svg { width: 22px; height: 22px; color: var(--st-waesche); flex: none; }
+.quickbar > span { flex: 1; min-width: 0; font-size: 14px; font-weight: 500; }
+.quickbar .btn { min-height: 38px; padding: 7px 14px; font-size: 13px; }
+.q-list { display: flex; flex-direction: column; gap: 12px; }
+.q-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.q-img { width: 72px; height: 90px; border-radius: 12px; overflow: hidden; background: var(--surface-2); }
+.q-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.q-f { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.q-sel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; }
+.q-f input, .q-f select, .wl-row input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 12px; padding: 10px 12px; width: 100%; min-width: 0; font-size: 15px; }
+.q-f select { padding: 9px 8px; font-size: 14px; }
+.q-f input:focus, .q-f select:focus, .wl-row input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
+.wl-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.wl-row input { flex: 1 1 180px; }
+.wl-row .btn { flex: 1 1 150px; }
+.fb-check { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.4; }
+.fb-check input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--accent); }
+.fb-stats { font-size: 12.5px; color: var(--muted); background: var(--surface-2); border-radius: 12px; padding: 10px 12px; margin: 0; white-space: pre-wrap; line-height: 1.5; }
+details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer; padding: 4px 0; }
+.ok-line { font-size: 13.5px; color: var(--accent); font-weight: 600; margin: 0; }
 </style>
 </head>
 <body>
@@ -403,6 +428,7 @@ img { max-width: 100%; }
       <h1 class="brand">Schrank<em>blick</em></h1>
     </div>
     <div class="top-r">
+    <button class="fab fab-soft" data-act="feedback" aria-label="Feedback geben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M4.5 6.75A2.75 2.75 0 0 1 7.25 4h9.5a2.75 2.75 0 0 1 2.75 2.75v6.5A2.75 2.75 0 0 1 16.75 16H10.5l-4.25 3.5V16a2.75 2.75 0 0 1-1.75-2.75Z"/><path d="M8.75 8.75h6.5M8.75 11.75h4"/></svg></button>
     <button class="fab fab-soft" data-act="settings" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.5h8.5M17.5 7.5H20M4 16.5h2.5M11.5 16.5H20"/><circle class="d" cx="15" cy="7.5" r="2.5"/><circle class="d" cx="9" cy="16.5" r="2.5"/></svg></button>
     <button class="fab" data-act="open-add" aria-label="Teil hinzufügen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg></button>
     </div>
@@ -468,6 +494,7 @@ function handleTag() {
   const it = byId(pendingTag);
   if (!it) return;
   pendingTag = null;
+  count("nfc");
   itemSheet(it.id, true);
 }
 
@@ -526,6 +553,50 @@ const state = {
 };
 let db = null, assets = null, sample = null, sampleImages = false, itemsCol = null, planRef = null;
 
+/* ---------- contact (Dede trägt hier ein, wohin Feedback und Warteliste gehen) ---------- */
+const CONTACT = {
+  email: "",          // z. B. hallo@tapiro.de – dann geht Feedback auch per E-Mail
+  feedbackForm: "",   // optional: Link zu einem längeren Fragebogen
+  waitlistForm: ""    // optional: Link zu einem Wartelisten-Formular (bekommt ?email=… angehängt)
+};
+
+/* ---------- local usage counting: nur Zählwerte, nur auf dem Gerät, nichts wird gesendet ---------- */
+const META_KEY = "schrankblick:meta";
+const meta = (() => {
+  let m = {};
+  try { m = JSON.parse(localStorage.getItem(META_KEY) || "{}") || {}; } catch {}
+  return Object.assign({ firstOpen: null, opens: 0, days: 0, lastDay: null, counts: {}, lastBackupAt: null, changes: 0, backupSnooze: null, fbAsked: null, fbSent: null, waitlist: null, lastOcc: null }, m);
+})();
+function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch {} }
+function count(ev) { meta.counts[ev] = (meta.counts[ev] || 0) + 1; saveMeta(); }
+function noteChange() { meta.changes = (meta.changes || 0) + 1; saveMeta(); }
+(() => {
+  const d = todayIso();
+  if (!meta.firstOpen) meta.firstOpen = d;
+  meta.opens++;
+  if (meta.lastDay !== d) { meta.days++; meta.lastDay = d; }
+  saveMeta();
+})();
+const TRACKED = {
+  "worn-today": "Outfit als getragen markiert", "worn": "Teil getragen", "worn-wash": "Getragen + Wäsche",
+  "plan-ai": "Woche automatisch geplant", "reroll": "Outfit neu gemischt", "occ": "Anlass geändert", "weather": "Wetter geändert",
+  "laundry-done": "Alles aus der Wäsche zurück", "cleaning-done": "Alles aus der Reinigung zurück", "set-status": "Status einzeln geändert",
+  "s-new": "Inserat begonnen", "sell-item": "Inserat begonnen", "s-check": "Foto-Check", "s-collage": "Collage erstellt", "s-gen": "Inserattext erstellt",
+  "copy-tag": "NFC-Link kopiert", "backup": "Sicherung gespeichert", "open-add": "Neues Teil geöffnet", "q-ai": "Schnellerfassung mit KI",
+  "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt"
+};
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const act = el.dataset.act;
+  const key = act === "tab" ? "tab:" + el.dataset.v : act;
+  if (TRACKED[key]) count(TRACKED[key] === TRACKED["sell-item"] ? "s-new" : key);
+}, true);
+let persistAsked = false;
+function askPersist() {
+  if (persistAsked) return; persistAsked = true;
+  try { navigator.storage?.persist?.().catch(() => {}); } catch {}
+}
+
 /* ---------- drawing ---------- */
 const PATHS = {
   top: '<path d="M37 13c4 5 22 5 26 0l15 5.5c3 1.1 5.2 3.4 6.3 6.4L91 41c.6 1.6-.2 3.3-1.8 3.9l-9.4 3.5c-1.6.6-3.3-.2-3.9-1.8L74 41v43c0 2.8-2.2 5-5 5H31c-2.8 0-5-2.2-5-5V41l-1.9 5.6c-.6 1.6-2.3 2.4-3.9 1.8l-9.4-3.5c-1.6-.6-2.4-2.3-1.8-3.9l6.7-16.1c1.1-3 3.3-5.3 6.3-6.4Z"/><path fill="none" stroke-linecap="round" d="M38.5 14.5c5 8 18 8 23 0"/><path fill="none" stroke-linecap="round" d="M26 41v-6M74 41v-6M30 83h40"/>',
@@ -582,7 +653,7 @@ async function patchItem(id, patch) {
   const it = byId(id);
   if (!it) return;
   if (!persistent()) { Object.assign(it, patch); render(); return; }
-  Object.assign(it, patch); render();
+  Object.assign(it, patch); render(); noteChange();
   try { await itemsCol.doc(id).update(patch); }
   catch (e) { toast(dbErrorText(e)); }
 }
@@ -594,7 +665,7 @@ async function addItem(data) {
     state.items.push(item); render(); return;
   }
   if (state.usingExamples) { state.items = []; state.usingExamples = false; state.plan = emptyPlan(); }
-  state.items.push(item); render();
+  state.items.push(item); render(); noteChange(); count("added"); askPersist();
   const { id: _omit, ...body } = item;
   try { await itemsCol.doc(id).set(body); }
   catch (e) { toast(dbErrorText(e)); }
@@ -605,6 +676,7 @@ async function removeItem(id) {
   for (const k in state.plan.days) state.plan.days[k].items = state.plan.days[k].items.filter(x => x !== id);
   render();
   if (!persistent()) return;
+  noteChange();
   try {
     await itemsCol.doc(id).delete();
     if (it?.photo && assets) await assets.delete(it.photo).catch(() => {});
@@ -619,7 +691,7 @@ async function savePlan() {
 async function adoptExamples() {
   if (state.mode !== "db") { toast("Speichern klappt gerade nicht."); return; }
   const list = state.items.map(x => ({ ...x }));
-  state.usingExamples = false; render();
+  state.usingExamples = false; render(); askPersist();
   try {
     await Promise.all(list.map(({ id, ...body }) => itemsCol.doc(id).set(body)));
     await savePlan();
@@ -734,7 +806,24 @@ function renderBanner() {
       <div class="row">${canSave ? '<button class="btn btn-primary" data-act="adopt">Als Start übernehmen</button>' : ""}<button class="btn btn-ghost" data-act="open-add">Eigenes Teil hinzufügen</button></div></div>`;
   } else if (state.mode !== "db") {
     b.innerHTML = `<div class="banner"><p>Demo-Modus: Änderungen werden nicht gespeichert.</p></div>`;
+  } else if (state.tab === "schrank") {
+    const r = reminder(), n = state.items.length;
+    if (r === "backup") b.innerHTML = `<div class="banner"><p><b>Zeit für eine Sicherung.</b> ${meta.lastBackupAt ? `Deine letzte ist ${daysSince(meta.lastBackupAt)} Tage alt.` : `Deine ${n} Teile liegen bisher nur auf diesem Handy.`} Wenn du den Browserverlauf löschst oder das Handy wechselst, wären sie weg. Speichere die Datei z. B. in iCloud, Google Drive oder schick sie dir selbst.</p>
+      <div class="row"><button class="btn btn-primary" data-act="backup">Jetzt sichern</button><button class="btn btn-ghost" data-act="backup-later">Später</button></div></div>`;
+    else if (r === "feedback") b.innerHTML = `<div class="banner"><p><b>Wie findest du Schrankblick bisher?</b> Eine Minute Feedback hilft enorm, die App besser zu machen.</p>
+      <div class="row"><button class="btn btn-primary" data-act="feedback">Feedback geben</button><button class="btn btn-ghost" data-act="feedback-later">Später</button></div></div>`;
+    else b.innerHTML = "";
   } else b.innerHTML = "";
+}
+const daysSince = isoStr => Math.max(0, Math.floor((Date.now() - Date.parse(isoStr)) / 86400000));
+function reminder() {
+  if (state.usingExamples || state.mode !== "db") return null;
+  const now = Date.now();
+  const snoozed = meta.backupSnooze && now < Date.parse(meta.backupSnooze);
+  const old = !meta.lastBackupAt || daysSince(meta.lastBackupAt) >= 7;
+  if (state.items.length >= 3 && (meta.changes || 0) >= 5 && old && !snoozed) return "backup";
+  if (!meta.fbSent && (meta.days >= 3 || meta.opens >= 6) && (!meta.fbAsked || daysSince(meta.fbAsked) >= 10)) return "feedback";
+  return null;
 }
 
 function viewSchrank() {
@@ -763,9 +852,12 @@ function viewSchrank() {
       <button class="btn btn-inv btn-wide" data-act="worn-today">Heute getragen</button>` : `<p class="note">Lass dir die Woche aus sauberen Teilen zusammenstellen.</p><button class="btn btn-inv btn-wide" data-act="tab" data-v="woche">Woche planen</button>`}
     </section>`;
   const filtered = state.fCat !== "all" || state.fStatus !== "all";
+  const wN = all.filter(i => i.status === "waesche").length;
+  const quickbar = !filtered && wN ? `<div class="quickbar">${STATUS_ICON.waesche}<span>${wN} ${wN === 1 ? "Teil" : "Teile"} im Wäschekorb</span><button class="btn btn-ghost" data-act="laundry-done">Alles zurück</button></div>` : "";
   return `<div class="stack" style="gap:22px">
     ${filtered ? "" : todayCard}
     <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Vergessen")}</div>
+    ${quickbar}
     <div class="toolbar">
       <div class="chips" role="group" aria-label="Kategorie">${catChips}</div>
     </div>
@@ -814,7 +906,8 @@ function viewWaesche() {
   return `<div class="stack" style="gap:20px">
     <div><h2 class="section-h">Wäsche &amp; <em>Co.</em></h2><p class="sub">Was hier liegt, plant die Woche nicht ein.</p></div>
     <div class="carelabel"><div><div class="big">${w.length}</div><p class="sub">${w.length === 1 ? "Teil" : "Teile"} im Wäschekorb · ${r.length} in der Reinigung · ${l.length} verliehen</p></div><div class="sym">${STATUS_ICON.waesche}</div></div>
-    ${w.length ? `<button class="btn btn-primary btn-wide" data-act="laundry-done">Waschgang fertig: alle ${w.length} in den Schrank</button>` : ""}
+    ${w.length ? `<button class="btn btn-primary btn-wide" data-act="laundry-done">Alles aus der Wäsche zurück (${w.length})</button>` : ""}
+    ${r.length > 1 ? `<button class="btn btn-ghost btn-wide" data-act="cleaning-done">Alles aus der Reinigung abgeholt (${r.length})</button>` : ""}
     ${sec("Wäschekorb", w, back, "Wäschekorb ist leer.")}
     ${sec("Reinigung", r, it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Abgeholt</button>`, "Nichts in der Reinigung.")}
     ${sec("Verliehen", l, it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Zurück</button>`, "Nichts verliehen.")}
@@ -861,7 +954,7 @@ function itemSheet(id, fromTag) {
 
 let addDraft = null;
 function addSheet() {
-  addDraft = { name: "", cat: "top", color: "Schwarz", occasions: ["freizeit"], file: null, preview: null };
+  addDraft = { name: "", cat: "top", color: "Schwarz", occasions: Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"], file: null, preview: null };
   drawAdd();
 }
 function drawAdd(focusName) {
@@ -882,11 +975,12 @@ function drawAdd(focusName) {
           <p class="hint">Foto ist optional und bleibt auf deinem Handy. Ohne Foto zeigt die App eine Skizze in der Farbe.</p>
         </div>
       </div>
+      ${d.file ? "" : `<div class="banner"><p><b>Viele Teile auf einmal?</b> Mach erst alle Fotos und wähl sie dann hier zusammen aus. Die App schätzt die Farbe, du tippst nur noch Namen und Kategorie.</p><span class="btn btn-ghost file-btn">Mehrere Fotos auswählen<input type="file" id="multiInput" accept="image/*" multiple aria-label="Mehrere Fotos wählen"></span></div>`}
       <div class="field"><label for="nameInput">Name</label><input type="text" id="nameInput" maxlength="40" placeholder="z. B. Navy Strickpullover" value="${esc(d.name)}" required></div>
       <div class="field"><span class="lbl">Kategorie</span><div class="chips wrap">${catChips}</div></div>
       <div class="field"><span class="lbl">Farbe · ${esc(d.color)}</span><div class="swatches">${sw}</div></div>
       <div class="field"><span class="lbl">Passt zu</span><div class="chips wrap">${occChips}</div></div>
-      <button class="btn btn-primary btn-wide" type="submit" id="saveBtn">In den Schrank legen</button>
+      <div class="set-row"><button class="btn btn-primary" type="submit" id="saveBtn">In den Schrank legen</button><button class="btn btn-ghost" type="submit" data-next="1">Speichern + nächstes</button></div>
     </form>`, () => { if (addDraft?.preview) URL.revokeObjectURL(addDraft.preview); addDraft = null; });
   const nameInput = document.getElementById("nameInput");
   nameInput.addEventListener("input", () => { addDraft.name = nameInput.value; });
@@ -895,10 +989,16 @@ function drawAdd(focusName) {
     const f = ev.target.files?.[0]; if (!f) return;
     if (addDraft.preview) URL.revokeObjectURL(addDraft.preview);
     addDraft.file = f; addDraft.preview = URL.createObjectURL(f);
+    if (!addDraft.colorTouched) guessColor(f).then(c => { if (c && addDraft && addDraft.file === f && !addDraft.colorTouched) { addDraft.color = c; drawAdd(); } });
     drawAdd();
+  });
+  document.getElementById("multiInput")?.addEventListener("change", ev => {
+    const fs = [...(ev.target.files || [])]; if (!fs.length) return;
+    closeSheet(); quickSheet(fs);
   });
   document.getElementById("addForm").addEventListener("submit", async ev => {
     ev.preventDefault();
+    const next = !!ev.submitter?.dataset?.next;
     const name = addDraft.name.trim();
     if (!name) { nameInput.focus(); toast("Gib dem Teil einen Namen."); return; }
     const btn = document.getElementById("saveBtn"); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Speichere…';
@@ -909,10 +1009,12 @@ function drawAdd(focusName) {
     }
     const data = { name, cat: addDraft.cat, color: addDraft.color, occasions: [...addDraft.occasions], status: "schrank" };
     if (photo) data.photo = photo;
+    meta.lastOcc = [...addDraft.occasions]; saveMeta();
     closeSheet();
     state.fCat = "all"; state.fStatus = "all"; state.tab = "schrank";
     await addItem(data);
     toast(`„${name}“ hängt jetzt im Schrank.`);
+    if (next) addSheet();
   });
 }
 async function shrink(file, max = 1000) {
@@ -925,11 +1027,14 @@ async function shrink(file, max = 1000) {
     return await new Promise(r => c.toBlob(b => r(b || file), "image/jpeg", 0.82));
   } catch { return file; }
 }
+function recognizePrompt() {
+  return `Das Foto zeigt ein Kleidungsstück oder Accessoire. Antworte nur mit JSON:
+{"name": "kurzer deutscher Name, 2-3 Wörter, z.B. Navy Strickpullover", "cat": eins von ${JSON.stringify(CAT_ORDER)} (top=Oberteil, bottom=Hose oder Rock, dress=Kleid, jacket=Jacke oder Mantel, shoes=Schuhe, acc=Accessoire), "color": eins von ${JSON.stringify(COLORS.map(c => c[0]))}, "occasions": Teilmenge von ${JSON.stringify(OCC_KEYS)}}`;
+}
 async function recognize() {
   const btn = document.getElementById("aiBtn");
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Erkenne…'; }
-  const prompt = `Das Foto zeigt ein Kleidungsstück oder Accessoire. Antworte nur mit JSON:
-{"name": "kurzer deutscher Name, 2-3 Wörter, z.B. Navy Strickpullover", "cat": eins von ${JSON.stringify(CAT_ORDER)} (top=Oberteil, bottom=Hose oder Rock, dress=Kleid, jacket=Jacke oder Mantel, shoes=Schuhe, acc=Accessoire), "color": eins von ${JSON.stringify(COLORS.map(c => c[0]))}, "occasions": Teilmenge von ${JSON.stringify(OCC_KEYS)}}`;
+  const prompt = recognizePrompt();
   try {
     const r = await sample.json(prompt, { images: [await shrink(addDraft.file)], modelTier: "quick" });
     if (!addDraft) return;
@@ -1446,10 +1551,25 @@ function viewDraft() {
 
 /* ---------- toast ---------- */
 let toastT = null;
-function toast(msg) {
+function toast(msg, action) {
   const t = document.getElementById("toast");
   t.textContent = msg; t.hidden = false;
-  clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3400);
+  if (action) {
+    const b = document.createElement("button");
+    b.className = "toast-act"; b.type = "button"; b.textContent = action.label;
+    b.addEventListener("click", ev => { ev.stopPropagation(); t.hidden = true; action.fn(); });
+    t.append(b);
+  }
+  clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, action ? 6500 : 3400);
+}
+async function bulkBack(from) {
+  const ids = state.items.filter(i => i.status === from).map(i => i.id);
+  if (!ids.length) return;
+  for (const id of ids) await patchItem(id, { status: "schrank" });
+  toast(`${ids.length} ${ids.length === 1 ? "Teil ist" : "Teile sind"} wieder im Schrank.`, {
+    label: "Rückgängig",
+    fn: async () => { for (const id of ids) await patchItem(id, { status: from }); toast("Rückgängig gemacht."); }
+  });
 }
 
 /* ---------- events ---------- */
@@ -1490,14 +1610,10 @@ document.addEventListener("click", async e => {
     case "reroll": fillWeekLocal(v); render(); savePlan(); break;
     case "plan-ai": planWithAI(); break;
     case "worn-today": wornToday(); break;
-    case "laundry-done": {
-      const ids = state.items.filter(i => i.status === "waesche").map(i => i.id);
-      for (const id of ids) await patchItem(id, { status: "schrank" });
-      toast(`${ids.length} Teile sind wieder im Schrank.`);
-      break;
-    }
+    case "laundry-done": bulkBack("waesche"); break;
+    case "cleaning-done": bulkBack("reinigung"); break;
     case "d-cat": addDraft.cat = v; drawAdd(); break;
-    case "d-color": addDraft.color = v; drawAdd(); break;
+    case "d-color": addDraft.color = v; addDraft.colorTouched = true; drawAdd(); break;
     case "d-occ": {
       const o = addDraft.occasions;
       addDraft.occasions = o.includes(v) ? o.filter(x => x !== v) : [...o, v];
@@ -1580,6 +1696,7 @@ function settingsSheet(msg) {
       <p class="hint"><b>iPhone:</b> In Safari unten auf Teilen tippen, dann „Zum Home-Bildschirm“.<br><b>Android:</b> In Chrome oben rechts das Menü öffnen, dann „App installieren“.</p></div>`}
     <div class="set-group"><span class="eyebrow">Deine Daten</span>
       <p class="hint">Alles bleibt nur auf diesem Gerät. Nichts wird hochgeladen. Mach ab und zu eine Sicherung, falls du das Handy wechselst oder den Browser leerst.</p>
+      <p class="hint"><b>Letzte Sicherung:</b> ${meta.lastBackupAt ? (daysSince(meta.lastBackupAt) === 0 ? "heute" : daysSince(meta.lastBackupAt) === 1 ? "gestern" : `vor ${daysSince(meta.lastBackupAt)} Tagen`) : "noch nie"}</p>
       <div class="set-row">
         <button class="btn btn-ghost" data-act="backup">Sicherung speichern</button>
         <label class="btn btn-ghost file-btn">Sicherung laden<input type="file" id="restoreInput" accept="application/json,.json" aria-label="Sicherung wählen"></label>
@@ -1592,21 +1709,31 @@ function settingsSheet(msg) {
       <p class="hint">Ohne Schlüssel arbeitet die App mit festen Regeln. Mit einem eigenen Claude-API-Schlüssel von console.anthropic.com erkennt sie Fotos, plant die Woche und schreibt Inserate. Jede Anfrage kostet dich ein paar Cent. Der Schlüssel bleibt auf diesem Gerät. Gib ihn nicht an Freunde weiter.</p>
       <input class="key-input" type="password" id="aiKeyInput" autocomplete="off" placeholder="sk-ant-…" value="${esc(key)}">
       <div class="set-row"><button class="btn btn-ghost" data-act="save-key">Schlüssel speichern</button>${key ? '<button class="btn btn-danger" data-act="clear-key">Schlüssel entfernen</button>' : ""}</div></div>
+    <div class="set-group"><span class="eyebrow">Feedback</span>
+      <p class="hint">Was gefällt dir, was nervt, was fehlt? Jede Rückmeldung hilft.</p>
+      <button class="btn btn-ghost btn-wide" data-act="feedback">Feedback geben</button></div>
+    ${waitlistBlock()}
     <p class="hint">Schrankblick · Test-Version ${APP_VERSION}</p>`, () => { state.armedWipe = false; });
+  bindWaitlist();
   document.getElementById("restoreInput").addEventListener("change", async ev => {
     const f = ev.target.files?.[0]; if (!f) return;
-    try { await SB.importAll(f); state.usingExamples = !SB.hasData(); closeSheet(); toast("Sicherung geladen."); }
+    try { await SB.importAll(f); state.usingExamples = !SB.hasData(); meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; saveMeta(); count("restore"); closeSheet(); toast("Sicherung geladen."); }
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.1";
+const APP_VERSION = "0.3";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
     case "settings": state.armedWipe = false; settingsSheet(); break;
     case "install": if (installEvt) { installEvt.prompt(); installEvt = null; closeSheet(); } break;
     case "backup": {
-      try { const b = await SB.exportAll(); await SB.downloads.save({ filename: `schrankblick-sicherung-${todayIso()}.json`, data: b }); toast("Sicherung erstellt."); }
+      try {
+        const b = await SB.exportAll(); await SB.downloads.save({ filename: `schrankblick-sicherung-${todayIso()}.json`, data: b });
+        meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; meta.backupSnooze = null; saveMeta();
+        toast("Sicherung erstellt. Heb die Datei gut auf."); render();
+        if (!scrim.hidden && sheet.querySelector("#restoreInput")) settingsSheet();
+      }
       catch (err) { if (err?.code !== "declined") toast("Sicherung hat nicht geklappt."); }
       break;
     }
@@ -1622,8 +1749,223 @@ document.addEventListener("click", async e => {
       SB.setAiKey(v); sample = SB.makeSample(); sampleImages = !!sample; render(); settingsSheet(v ? "KI-Schlüssel gespeichert." : "Kein Schlüssel eingetragen."); break;
     }
     case "clear-key": SB.setAiKey(""); sample = null; sampleImages = false; render(); settingsSheet("KI-Schlüssel entfernt."); break;
+    case "backup-later": meta.backupSnooze = new Date(Date.now() + 3 * 86400000).toISOString(); saveMeta(); render(); break;
+    case "feedback-later": meta.fbAsked = new Date().toISOString(); saveMeta(); render(); break;
+    case "feedback": feedbackSheet(); break;
+    case "fb-mood": fb.mood = el.dataset.v; drawFeedback(); break;
+    case "fb-keep": fb.keep = el.dataset.v; drawFeedback(); break;
+    case "fb-send": sendFeedback(); break;
+    case "waitlist": joinWaitlist(); break;
+    case "q-del": {
+      const i = Number(el.dataset.v); const r = quick?.rows[i]; if (!r) break;
+      URL.revokeObjectURL(r.preview); quick.rows.splice(i, 1);
+      if (!quick.rows.length) { closeSheet(); break; }
+      drawQuick(); break;
+    }
+    case "q-occ": { const o = quick.occasions, v = el.dataset.v; quick.occasions = o.includes(v) ? o.filter(x => x !== v) : [...o, v]; drawQuick(); break; }
+    case "q-ai": quickAI(); break;
+    case "q-save": saveQuick(); break;
   }
 });
+
+/* ---------- send text: Teilen-Menü (WhatsApp, Mail …), sonst E-Mail, sonst kopieren ---------- */
+async function sendText(text, subject) {
+  if (navigator.share) {
+    try { await navigator.share({ title: subject, text }); return true; }
+    catch (e) { if (e?.name === "AbortError") return false; }
+  }
+  if (CONTACT.email) { location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`; return true; }
+  try { await navigator.clipboard.writeText(text); toast("Text kopiert. Schick ihn per WhatsApp oder Mail an die Person, von der du die App hast."); return true; }
+  catch { toast("Senden klappt auf diesem Gerät nicht."); return false; }
+}
+
+/* ---------- feedback ---------- */
+const MOODS = [["1", "Eher nicht"], ["2", "Geht so"], ["3", "Gut"], ["4", "Sehr gut"]];
+const KEEP = [["ja", "Ja"], ["vielleicht", "Vielleicht"], ["nein", "Nein"]];
+let fb = null;
+function feedbackSheet() {
+  fb = fb || { mood: null, keep: null, text: "", stats: true };
+  meta.fbAsked = new Date().toISOString(); saveMeta(); count("feedback-open");
+  drawFeedback(); render();
+}
+function deviceKind() {
+  const ua = navigator.userAgent || "";
+  const kind = /iPhone|iPad|iPod/.test(ua) ? "iPhone/iPad" : /Android/.test(ua) ? "Android" : "Computer";
+  const app = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  return `${kind}, ${app ? "als App installiert" : "im Browser"}`;
+}
+function usageSummary() {
+  const own = state.usingExamples ? [] : state.items;
+  const lines = [
+    `Seit ${meta.firstOpen || "–"} an ${meta.days} ${meta.days === 1 ? "Tag" : "Tagen"} genutzt, ${meta.opens}× geöffnet`,
+    `Teile im Schrank: ${own.length} (davon ${own.filter(i => i.photo).length} mit Foto) · Inserate: ${state.listings?.length || 0}`,
+    `Hinzugefügt: ${meta.counts.added || 0}`
+  ];
+  for (const [k, label] of Object.entries(TRACKED)) if (meta.counts[k]) lines.push(`${label}: ${meta.counts[k]}`);
+  if (meta.counts.nfc) lines.push(`Per NFC-Etikett geöffnet: ${meta.counts.nfc}`);
+  lines.push(`Gerät: ${deviceKind()}`);
+  return lines.join("\n");
+}
+function drawFeedback() {
+  const chips = (list, cur, act) => list.map(([k, l]) => `<button type="button" class="chip" data-act="${act}" data-v="${k}" aria-pressed="${cur === k}">${l}</button>`).join("");
+  openSheet(`<h2>Dein <em>Feedback</em></h2>
+    <p class="hint">Dauert eine Minute. Ehrlich ist am hilfreichsten, auch Kritik.</p>
+    <div class="field"><span class="lbl">Wie gefällt dir die App?</span><div class="chips wrap">${chips(MOODS, fb.mood, "fb-mood")}</div></div>
+    <div class="field"><span class="lbl">Würdest du sie nutzen, wenn sie fertig ist?</span><div class="chips wrap">${chips(KEEP, fb.keep, "fb-keep")}</div></div>
+    <div class="field"><label for="fbText">Was war gut, was hat genervt, was fehlt dir?</label><textarea class="ta" id="fbText" rows="5" placeholder="z. B. Fotos machen dauert zu lange, Wochenplan finde ich super …">${esc(fb.text)}</textarea></div>
+    <label class="fb-check"><input type="checkbox" id="fbStats" ${fb.stats ? "checked" : ""}><span>Nutzungszahlen mitschicken. Nur Zählwerte, keine Namen, Fotos oder Teile. Die App zählt nur auf deinem Handy und sendet nie etwas von selbst.</span></label>
+    <details class="fb-more"><summary>Diese Zahlen würden mitgehen</summary><p class="fb-stats">${esc(usageSummary())}</p></details>
+    <button class="btn btn-primary btn-wide" data-act="fb-send">Feedback senden</button>
+    <p class="hint">Beim Senden öffnet sich das Teilen-Menü deines Handys. Wähl WhatsApp, Mail oder was du sonst nutzt.</p>
+    ${CONTACT.feedbackForm ? `<a class="btn btn-ghost btn-wide" href="${esc(CONTACT.feedbackForm)}" target="_blank" rel="noopener">Ausführlicher Fragebogen</a>` : ""}
+    ${waitlistBlock()}`);
+  const ta = document.getElementById("fbText");
+  ta.addEventListener("input", () => { fb.text = ta.value; });
+  document.getElementById("fbStats").addEventListener("change", e => { fb.stats = e.target.checked; });
+  bindWaitlist();
+}
+async function sendFeedback() {
+  if (!fb.mood && !fb.keep && !fb.text.trim()) { toast("Tipp kurz eine Bewertung an oder schreib ein paar Worte."); return; }
+  const lines = [`Schrankblick-Feedback (Test-Version ${APP_VERSION})`];
+  if (fb.mood) lines.push(`Gefällt mir: ${MOODS.find(m => m[0] === fb.mood)[1]}`);
+  if (fb.keep) lines.push(`Würde sie nutzen: ${KEEP.find(m => m[0] === fb.keep)[1]}`);
+  if (fb.text.trim()) lines.push("", fb.text.trim());
+  if (fb.stats) lines.push("", "Nutzung (nur Zählwerte):", usageSummary());
+  const ok = await sendText(lines.join("\n"), "Feedback zu Schrankblick");
+  if (!ok) return;
+  meta.fbSent = new Date().toISOString(); saveMeta(); count("feedback-sent");
+  fb = null; closeSheet(); render();
+  toast("Danke für dein Feedback!");
+}
+
+/* ---------- waitlist ---------- */
+function waitlistBlock() {
+  return `<div class="set-group"><span class="eyebrow">Benachrichtige mich</span>
+    ${meta.waitlist ? `<p class="ok-line">Du bist vorgemerkt. Danke!</p>` : `<p class="hint">Willst du Bescheid bekommen, wenn die fertige App da ist? Deine E-Mail wird nur dafür genutzt, nicht weitergegeben, und du kannst dich jederzeit abmelden.</p>
+    <div class="wl-row"><input type="email" id="wlEmail" inputmode="email" autocomplete="email" placeholder="deine@email.de" aria-label="E-Mail-Adresse"><button class="btn btn-primary" data-act="waitlist">Benachrichtige mich</button></div>`}
+  </div>`;
+}
+function bindWaitlist() {
+  document.getElementById("wlEmail")?.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); joinWaitlist(); } });
+}
+async function joinWaitlist() {
+  const inp = document.getElementById("wlEmail"); if (!inp) return;
+  const mail = inp.value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) { inp.focus(); toast("Bitte eine gültige E-Mail-Adresse eingeben."); return; }
+  let ok = false;
+  if (CONTACT.waitlistForm) {
+    const u = CONTACT.waitlistForm + (CONTACT.waitlistForm.includes("?") ? "&" : "?") + "email=" + encodeURIComponent(mail);
+    window.open(u, "_blank", "noopener"); ok = true;
+  } else ok = await sendText(`Bitte setz mich auf die Warteliste für Schrankblick: ${mail}`, "Warteliste Schrankblick");
+  if (!ok) return;
+  meta.waitlist = new Date().toISOString(); saveMeta(); count("waitlist");
+  toast("Danke! Du bekommst Bescheid, wenn es so weit ist.");
+  if (sheet.querySelector("#fbText")) drawFeedback(); else settingsSheet();
+}
+
+/* ---------- quick capture: mehrere Fotos auf einmal ---------- */
+async function guessColor(file) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const N = 36, c = document.createElement("canvas"); c.width = c.height = N;
+    const x = c.getContext("2d", { willReadFrequently: true });
+    const side = Math.min(bmp.width, bmp.height) * 0.5;
+    x.drawImage(bmp, (bmp.width - side) / 2, (bmp.height - side) / 2, side, side, 0, 0, N, N);
+    bmp.close?.();
+    const px = x.getImageData(0, 0, N, N).data;
+    const pal = COLORS.map(([n, h]) => [n, parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]);
+    const votes = {};
+    for (let i = 0; i < px.length; i += 4) {
+      const r = px[i], g = px[i + 1], b = px[i + 2];
+      let best = null, bd = Infinity;
+      for (const [n, R, G, B] of pal) { const rm = (r + R) / 2; const d = (2 + rm / 256) * (r - R) ** 2 + 4 * (g - G) ** 2 + (2 + (255 - rm) / 256) * (b - B) ** 2; if (d < bd) { bd = d; best = n; } }
+      votes[best] = (votes[best] || 0) + 1;
+    }
+    return Object.entries(votes).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  } catch { return null; }
+}
+let quick = null;
+async function quickSheet(files) {
+  const list = files.slice(0, 30);
+  openSheet(`<h2>Fotos werden <em>vorbereitet</em> …</h2><p class="hint"><span class="spin"></span> ${list.length} ${list.length === 1 ? "Foto" : "Fotos"}</p>`);
+  const occ = Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"];
+  const rows = [];
+  for (const f of list) rows.push({ file: f, preview: URL.createObjectURL(f), name: "", cat: "top", color: (await guessColor(f)) || "Schwarz" });
+  quick = { occasions: occ, rows, busy: false };
+  if (files.length > 30) toast("Maximal 30 Fotos auf einmal. Die ersten 30 sind drin.");
+  drawQuick();
+}
+function drawQuick() {
+  const q = quick; if (!q) return;
+  const catOpts = cur => CAT_ORDER.map(c => `<option value="${c}"${c === cur ? " selected" : ""}>${CATS[c]}</option>`).join("");
+  const colOpts = cur => COLORS.map(([n]) => `<option value="${n}"${n === cur ? " selected" : ""}>${n}</option>`).join("");
+  const rows = q.rows.map((r, i) => `<div class="q-row">
+      <div class="q-img"><img src="${r.preview}" alt="Foto ${i + 1}"></div>
+      <div class="q-f">
+        <input type="text" maxlength="40" data-q="name" data-i="${i}" placeholder="Name (optional)" value="${esc(r.name)}" aria-label="Name für Foto ${i + 1}">
+        <div class="q-sel"><select data-q="cat" data-i="${i}" aria-label="Kategorie">${catOpts(r.cat)}</select><select data-q="color" data-i="${i}" aria-label="Farbe">${colOpts(r.color)}</select></div>
+      </div>
+      <button type="button" class="icon-btn" data-act="q-del" data-v="${i}" aria-label="Foto ${i + 1} entfernen"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+    </div>`).join("");
+  const occChips = OCC_KEYS.map(o => `<button type="button" class="chip" data-act="q-occ" data-v="${o}" aria-pressed="${q.occasions.includes(o)}">${OCC[o]}</button>`).join("");
+  const n = q.rows.length;
+  openSheet(`<h2>Schnell <em>erfassen</em></h2>
+    <p class="hint">${n} ${n === 1 ? "Foto" : "Fotos"}. Die Farbe ist geschätzt. Prüf kurz die Kategorie. Ohne Namen nennt die App das Teil nach Kategorie und Farbe.</p>
+    ${sampleImages ? `<button class="btn btn-accent btn-wide" data-act="q-ai" ${q.busy ? "disabled" : ""}>${q.busy ? `<span class="spin"></span> ${esc(q.busy)}` : ICON_SPARK + " Alle mit KI erkennen"}</button>` : ""}
+    <div class="q-list">${rows}</div>
+    <div class="field"><span class="lbl">Passt zu (für alle)</span><div class="chips wrap">${occChips}</div></div>
+    <button class="btn btn-primary btn-wide" data-act="q-save" id="qSave" ${q.busy ? "disabled" : ""}>Alle ${n} in den Schrank legen</button>`,
+    () => { if (quick && !quick.saving) quick.rows.forEach(r => URL.revokeObjectURL(r.preview)); quick = null; });
+  sheet.querySelectorAll("[data-q]").forEach(el => {
+    const upd = () => { const r = quick?.rows[Number(el.dataset.i)]; if (r) r[el.dataset.q] = el.value; };
+    el.addEventListener("input", upd); el.addEventListener("change", upd);
+  });
+}
+async function quickAI() {
+  const q = quick; if (!q || !sample || q.busy) return;
+  let done = 0;
+  for (const r of q.rows) {
+    if (quick !== q) return;
+    q.busy = `Erkenne ${done + 1} von ${q.rows.length} …`; drawQuick();
+    try {
+      const res = await sample.json(recognizePrompt(), { images: [await shrink(r.file)], modelTier: "quick" });
+      if (typeof res?.name === "string" && res.name.trim() && !r.name.trim()) r.name = res.name.trim().slice(0, 40);
+      if (CATS[res?.cat]) r.cat = res.cat;
+      if (COLOR_HEX[res?.color]) r.color = res.color;
+    } catch (e) {
+      q.busy = false; drawQuick();
+      toast("KI-Erkennung hat nicht geklappt. Trag die Angaben einfach selbst ein."); return;
+    }
+    done++;
+  }
+  q.busy = false; drawQuick();
+  toast("Erkannt. Prüf kurz die Angaben und speichere.");
+}
+async function saveQuick() {
+  const q = quick; if (!q || !q.rows.length || q.saving) return;
+  q.saving = true;
+  const btn = document.getElementById("qSave");
+  const total = q.rows.length;
+  let i = 0;
+  for (const r of q.rows) {
+    i++;
+    if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spin"></span> Speichere ${i} von ${total} …`; }
+    let photo = null;
+    if (assets && state.mode === "db") {
+      try { photo = (await assets.upload(await shrink(r.file), { type: "image/jpeg" })).id; } catch {}
+    }
+    const name = r.name.trim() || `${CATS[r.cat]} ${r.color}`;
+    const data = { name, cat: r.cat, color: r.color, occasions: [...q.occasions], status: "schrank" };
+    if (photo) data.photo = photo;
+    await addItem(data);
+  }
+  count("quick-capture");
+  meta.lastOcc = [...q.occasions]; saveMeta();
+  q.rows.forEach(r => URL.revokeObjectURL(r.preview));
+  closeSheet();
+  state.fCat = "all"; state.fStatus = "all"; state.tab = "schrank"; render(); window.scrollTo({ top: 0 });
+  toast(`${total} ${total === 1 ? "Teil hängt" : "Teile hängen"} jetzt im Schrank.`);
+}
 
 (async function init() {
   await SB.blobs.preload();
