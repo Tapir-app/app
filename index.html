@@ -416,6 +416,29 @@ img { max-width: 100%; }
 .fb-check { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.4; }
 .fb-check input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--accent); }
 .fb-stats { font-size: 12.5px; color: var(--muted); background: var(--surface-2); border-radius: 12px; padding: 10px 12px; margin: 0; white-space: pre-wrap; line-height: 1.5; }
+.wx { font-family: var(--font-label); font-size: 11.5px; color: var(--muted); letter-spacing: .02em; }
+.wx b { color: var(--ink); font-weight: 500; }
+.wx-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.linkbtn { border: 0; background: none; padding: 4px 0; color: var(--accent); font-weight: 600; font-size: 13.5px; text-decoration: underline; text-underline-offset: 3px; }
+.overdue { color: var(--danger); font-weight: 600; }
+.cardlink { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; border: 0; text-align: left; background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); padding: 14px 16px; color: inherit; }
+.cardlink b { display: block; font-size: 14.5px; font-weight: 600; }
+.cardlink span { font-size: 12.5px; color: var(--muted); }
+.cardlink svg { width: 18px; height: 18px; transform: rotate(-90deg); flex: none; color: var(--muted); }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.kpi { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.kpi b { font-family: var(--font-display); font-weight: 400; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+.kpi.green { background: var(--accent-soft); box-shadow: none; }
+.rank { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.rank li { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+.rank li span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+.stepper { display: inline-flex; align-items: center; gap: 4px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); border-radius: 999px; padding: 3px; }
+.stepper button { width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--surface-2); font-size: 18px; line-height: 1; }
+.stepper b { min-width: 28px; text-align: center; font-variant-numeric: tabular-nums; }
+.lend-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 8px; }
+.lend-grid input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 12px 12px; width: 100%; min-width: 0; font-size: 15px; }
+.chips-q { display: flex; gap: 6px; flex-wrap: wrap; }
 details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer; padding: 4px 0; }
 .ok-line { font-size: 13.5px; color: var(--accent); font-weight: 600; margin: 0; }
 </style>
@@ -514,22 +537,22 @@ function isoWeek(date) {
 }
 
 const EXAMPLES = [
-  { id: "ex01", name: "Weißes Hemd", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(6) },
-  { id: "ex02", name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3) },
+  { id: "ex01", name: "Weißes Hemd", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(6), price: 49 },
+  { id: "ex02", name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3), rewears: 5 },
   { id: "ex03", name: "Graues T-Shirt", cat: "top", color: "Grau", occasions: ["freizeit", "sport", "schule"], status: "waesche", wears: 22, lastWorn: daysAgo(1) },
   { id: "ex04", name: "Hellblaues Hemd", cat: "top", color: "Blau", occasions: ["buero"], status: "schrank", wears: 7, lastWorn: daysAgo(9) },
-  { id: "ex05", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2) },
+  { id: "ex05", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2), price: 89, rewears: 18 },
   { id: "ex06", name: "Beige Chino", cat: "bottom", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 11, lastWorn: daysAgo(5) },
   { id: "ex07", name: "Schwarze Anzughose", cat: "bottom", color: "Schwarz", occasions: ["buero", "abend"], status: "schrank", wears: 8, lastWorn: daysAgo(12) },
   { id: "ex08", name: "Laufshorts", cat: "bottom", color: "Schwarz", occasions: ["sport"], status: "schrank", wears: 18, lastWorn: daysAgo(4) },
-  { id: "ex09", name: "Bordeaux Kleid", cat: "dress", color: "Bordeaux", occasions: ["abend"], status: "schrank", wears: 2, lastWorn: daysAgo(74) },
+  { id: "ex09", name: "Bordeaux Kleid", cat: "dress", color: "Bordeaux", occasions: ["abend"], status: "schrank", wears: 2, lastWorn: daysAgo(74), price: 120 },
   { id: "ex10", name: "Navy Blazer", cat: "jacket", color: "Navy", occasions: ["buero", "abend"], status: "reinigung", wears: 10, lastWorn: daysAgo(8) },
   { id: "ex11", name: "Olivgrüne Feldjacke", cat: "jacket", color: "Oliv", occasions: ["freizeit", "schule"], status: "schrank", wears: 16, lastWorn: daysAgo(3) },
-  { id: "ex12", name: "Weiße Sneaker", cat: "shoes", color: "Weiß", occasions: ["freizeit", "schule", "buero"], status: "schrank", wears: 40, lastWorn: daysAgo(1) },
+  { id: "ex12", name: "Weiße Sneaker", cat: "shoes", color: "Weiß", occasions: ["freizeit", "schule", "buero"], status: "schrank", wears: 40, lastWorn: daysAgo(1), price: 99 },
   { id: "ex13", name: "Braune Lederschuhe", cat: "shoes", color: "Braun", occasions: ["buero", "abend"], status: "schrank", wears: 19, lastWorn: daysAgo(6) },
   { id: "ex14", name: "Laufschuhe", cat: "shoes", color: "Blau", occasions: ["sport"], status: "schrank", wears: 25, lastWorn: daysAgo(4) },
-  { id: "ex15", name: "Ledergürtel", cat: "acc", color: "Braun", occasions: ["buero", "abend"], status: "verliehen", wears: 12, lastWorn: daysAgo(40), lentTo: "Bruder" },
-  { id: "ex16", name: "Gelber Hoodie", cat: "top", color: "Gelb", occasions: ["freizeit"], status: "schrank", wears: 1, lastWorn: daysAgo(63) }
+  { id: "ex15", name: "Ledergürtel", cat: "acc", color: "Braun", occasions: ["buero", "abend"], status: "verliehen", wears: 12, lastWorn: daysAgo(40), lentTo: "Bruder", lentUntil: daysAgo(2) },
+  { id: "ex16", name: "Gelber Hoodie", cat: "top", color: "Gelb", occasions: ["freizeit"], status: "schrank", wears: 1, lastWorn: daysAgo(63), price: 35 }
 ].map(it => ({ ...it, createdAt: daysAgo(120) }));
 
 function emptyPlan() {
@@ -575,6 +598,7 @@ function noteChange() { meta.changes = (meta.changes || 0) + 1; saveMeta(); }
   if (!meta.firstOpen) meta.firstOpen = d;
   meta.opens++;
   if (meta.lastDay !== d) { meta.days++; meta.lastDay = d; }
+  try { if (!meta.source && new URLSearchParams(location.search).get("von") === "einladung") meta.source = "einladung"; } catch {}
   saveMeta();
 })();
 const TRACKED = {
@@ -583,6 +607,8 @@ const TRACKED = {
   "laundry-done": "Alles aus der Wäsche zurück", "cleaning-done": "Alles aus der Reinigung zurück", "set-status": "Status einzeln geändert",
   "s-new": "Inserat begonnen", "sell-item": "Inserat begonnen", "s-check": "Foto-Check", "s-collage": "Collage erstellt", "s-gen": "Inserattext erstellt",
   "copy-tag": "NFC-Link kopiert", "backup": "Sicherung gespeichert", "open-add": "Neues Teil geöffnet", "q-ai": "Schnellerfassung mit KI",
+  "invite": "Freunde eingeladen", "stats": "Schrank in Zahlen angesehen", "stats-share": "Zahlen als Bild geteilt",
+  "lend-remind": "An Rückgabe erinnert", "lend-ics": "Rückgabe in Kalender", "wx-pick": "Ort fürs Wetter gewählt", "wash-every": "Waschrhythmus angepasst", "wash-all": "Doch alle gewaschen",
   "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt"
 };
 document.addEventListener("click", e => {
@@ -591,6 +617,55 @@ document.addEventListener("click", e => {
   const key = act === "tab" ? "tab:" + el.dataset.v : act;
   if (TRACKED[key]) count(TRACKED[key] === TRACKED["sell-item"] ? "s-new" : key);
 }, true);
+/* ---------- Wetter (Open-Meteo, ohne Konto; nur Ort auf Stadt-Ebene) ---------- */
+const localIso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+function weekDateOf(k) {
+  const now = new Date(), idx = DAYS.findIndex(d => d[0] === k), today = (now.getDay() + 6) % 7;
+  const d = new Date(now); d.setDate(now.getDate() + idx - today); return localIso(d);
+}
+const wxClass = t => t < 12 ? "kalt" : t <= 20 ? "mild" : "warm";
+function dayWx(k) { return meta.city && meta.wxCache?.days?.[weekDateOf(k)] || null; }
+function dayWeather(k) { const w = dayWx(k); return w ? wxClass(w.max) : state.plan.weather; }
+let wxLoading = false;
+async function loadWeather(force) {
+  const c = meta.city; if (!c || wxLoading) return;
+  if (!force && meta.wxCache && meta.wxCache.lat === c.lat && Date.now() - meta.wxCache.at < 3 * 3600e3) return;
+  wxLoading = true;
+  try {
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`);
+    const j = await r.json(); const days = {};
+    (j.daily?.time || []).forEach((t, i) => { days[t] = { max: Math.round(j.daily.temperature_2m_max[i]), min: Math.round(j.daily.temperature_2m_min[i]), rain: j.daily.precipitation_probability_max?.[i] ?? 0 }; });
+    meta.wxCache = { at: Date.now(), lat: c.lat, days }; saveMeta();
+    if (state.tab === "woche" && !sell.draft) render();
+  } catch {} finally { wxLoading = false; }
+}
+function wxText(w) { return `<b>${w.max}°</b>/${w.min}°${w.rain >= 30 ? ` · Regen ${w.rain} %` : ""}`; }
+
+/* ---------- öfter tragen, seltener waschen ---------- */
+// Faustregeln (Pflegehinweise, Levi's: Jeans erst nach ca. 10× waschen). In jedem Teil änderbar.
+const WASH_EVERY = { top: 2, bottom: 5, dress: 2, jacket: 10 };
+const washEvery = it => WASH_EVERY[it.cat] ? (it.washEvery || WASH_EVERY[it.cat]) : 0;
+// Schätzung pro gespartem Wäscheteil: 1 Waschgang 40 °C ≈ 0,5 kWh und ≈ 45 l Wasser, etwa 12 Teile pro Ladung,
+// Strommix DE 2024 ≈ 363 g CO2/kWh (Umweltbundesamt).
+const ECO = { perLoad: 12, kwh: 0.5, liter: 45, co2: 363 };
+function ecoSaved(items) {
+  const n = items.reduce((a, i) => a + (i.rewears || 0), 0), loads = n / ECO.perLoad;
+  return { n, loads, liter: Math.round(loads * ECO.liter), kwh: loads * ECO.kwh, co2: Math.round(loads * ECO.kwh * ECO.co2) };
+}
+const de1 = n => n.toLocaleString("de-DE", { maximumFractionDigits: 1 });
+const euro = n => n.toLocaleString("de-DE", { style: "currency", currency: "EUR", minimumFractionDigits: n < 10 ? 2 : 0, maximumFractionDigits: 2 });
+function wearPatch(it, mode) {
+  const p = { wears: (it.wears || 0) + 1, lastWorn: todayIso() };
+  const every = washEvery(it);
+  if (!every) return p;
+  const since = (it.sinceWash || 0) + 1;
+  if (mode === "wash" || (mode === "auto" && since >= every)) { p.status = "waesche"; p.sinceWash = 0; }
+  else { p.sinceWash = since; p.rewears = (it.rewears || 0) + 1; }
+  return p;
+}
+const isOverdue = it => it.status === "verliehen" && it.lentUntil && it.lentUntil < todayIso();
+const fmtDate = isoStr => new Date(isoStr + "T12:00:00").toLocaleDateString("de-DE", { day: "numeric", month: "short" });
+
 let persistAsked = false;
 function askPersist() {
   if (persistAsked) return; persistAsked = true;
@@ -705,7 +780,7 @@ function dbErrorText(e) {
 }
 
 /* ---------- outfit logic ---------- */
-function generateOutfit(occ, weather, used) {
+function generateOutfit(occ, weather, used, rain = 0) {
   const pool = state.items.filter(i => i.status === "schrank" && (!i.occasions?.length || i.occasions.includes(occ)));
   const pick = cat => {
     const c = pool.filter(i => i.cat === cat);
@@ -719,7 +794,7 @@ function generateOutfit(occ, weather, used) {
   const hasDress = pool.some(i => i.cat === "dress" && !used.has(i.id));
   if (hasDress && (occ === "abend" ? Math.random() < 0.6 : Math.random() < 0.15)) ids.push(pick("dress"));
   else { ids.push(pick("top")); ids.push(pick("bottom")); }
-  if (weather !== "warm") ids.push(pick("jacket"));
+  if (weather !== "warm" || rain >= 60) ids.push(pick("jacket"));
   ids.push(pick("shoes"));
   return ids.filter(Boolean);
 }
@@ -728,7 +803,7 @@ function fillWeekLocal(onlyDay) {
   for (const [k] of DAYS) {
     const day = state.plan.days[k];
     if (onlyDay && k !== onlyDay) { day.items.forEach(i => { if (byId(i)?.cat !== "shoes") used.add(i); }); continue; }
-    day.items = generateOutfit(day.occ, state.plan.weather, used);
+    day.items = generateOutfit(day.occ, dayWeather(k), used, dayWx(k)?.rain || 0);
     day.items.forEach(i => { if (byId(i)?.cat !== "shoes") used.add(i); });
     day.note = "";
   }
@@ -740,7 +815,7 @@ async function planWithAI() {
   if (avail.length < 3) { toast("Für Vorschläge brauche ich mindestens 3 saubere Teile im Schrank."); return; }
   const anl = DAYS.map(([k, n]) => `${n}: ${OCC[state.plan.days[k].occ]}`).join(", ");
   const prompt = `Du bist Stylist in einer Kleiderschrank-App. Stelle für jeden der 7 Tage dieser Woche ein Outfit NUR aus den verfügbaren Teilen unten zusammen.
-Wetter diese Woche: ${WEATHER[state.plan.weather]}.
+Wetter: ${meta.city && meta.wxCache ? DAYS.map(([k, n]) => { const w = dayWx(k); return w ? `${n} ${w.max}°C, Regen ${w.rain} %` : `${n} ${WEATHER[state.plan.weather]}`; }).join("; ") : WEATHER[state.plan.weather]}.
 Anlässe: ${anl}.
 Regeln: Pro Outfit entweder ein Kleid ODER ein Oberteil plus Hose/Rock, dazu Schuhe. Bei kaltem oder mildem Wetter eine Jacke, wenn vorhanden. Teile müssen zum Anlass passen. Farben sollen harmonieren. Oberteile und Hosen nicht an zwei Tagen hintereinander. Selten oder lange nicht getragene Teile bevorzugen.
 Verfügbare Teile (JSON): ${JSON.stringify(avail)}
@@ -774,15 +849,24 @@ async function wornToday() {
   const day = state.plan.days[todayKey()];
   const ids = day.items.filter(id => byId(id));
   if (!ids.length) { toast("Für heute ist noch kein Outfit geplant."); return; }
-  const today = todayIso();
-  let toLaundry = 0;
+  let toLaundry = 0; const kept = [];
   for (const id of ids) {
     const it = byId(id);
-    const patch = { wears: (it.wears || 0) + 1, lastWorn: today };
-    if (LAUNDRY_CATS.has(it.cat)) { patch.status = "waesche"; toLaundry++; }
+    const patch = wearPatch(it, "auto");
+    if (patch.status === "waesche") toLaundry++; else if (washEvery(it)) kept.push(id);
     await patchItem(id, patch);
   }
-  toast(`${ids.length} Teile als getragen markiert, ${toLaundry} davon in die Wäsche.`);
+  const parts = [];
+  if (toLaundry) parts.push(`${toLaundry} in die Wäsche`);
+  if (kept.length) parts.push(`${kept.length} ${kept.length === 1 ? "kann" : "können"} nochmal getragen werden, lüften reicht`);
+  const msg = `${ids.length} Teile getragen.` + (parts.length ? " " + parts.join(", ") + "." : "");
+  toast(msg, kept.length ? { label: "Doch waschen", fn: () => washAgain(kept) } : null);
+}
+
+async function washAgain(ids) {
+  count("wash-all");
+  for (const id of ids) { const it = byId(id); if (it) await patchItem(id, { status: "waesche", sinceWash: 0, rewears: Math.max(0, (it.rewears || 0) - 1) }); }
+  toast(`${ids.length} ${ids.length === 1 ? "Teil liegt" : "Teile liegen"} jetzt im Wäschekorb.`);
 }
 
 /* ---------- render ---------- */
@@ -808,12 +892,23 @@ function renderBanner() {
     b.innerHTML = `<div class="banner"><p>Demo-Modus: Änderungen werden nicht gespeichert.</p></div>`;
   } else if (state.tab === "schrank") {
     const r = reminder(), n = state.items.length;
-    if (r === "backup") b.innerHTML = `<div class="banner"><p><b>Zeit für eine Sicherung.</b> ${meta.lastBackupAt ? `Deine letzte ist ${daysSince(meta.lastBackupAt)} Tage alt.` : `Deine ${n} Teile liegen bisher nur auf diesem Handy.`} Wenn du den Browserverlauf löschst oder das Handy wechselst, wären sie weg. Speichere die Datei z. B. in iCloud, Google Drive oder schick sie dir selbst.</p>
+    const od = state.items.filter(isOverdue);
+    if (od.length) {
+      const it = od[0], d = daysSince(it.lentUntil);
+      b.innerHTML = `<div class="banner"><p><b>${esc(it.name)}</b> ${it.lentTo ? `bei ${esc(it.lentTo)} ` : ""}sollte seit ${d === 1 ? "gestern" : d + " Tagen"} zurück sein.${od.length > 1 ? ` Dazu ${od.length - 1} weitere${od.length === 2 ? "s Teil" : " Teile"}.` : ""}</p>
+      <div class="row"><button class="btn btn-primary" data-act="lend-remind" data-v="${it.id}">Freundlich erinnern</button><button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Ist zurück</button></div></div>`;
+    } else if (r === "backup") b.innerHTML = `<div class="banner"><p><b>Zeit für eine Sicherung.</b> ${meta.lastBackupAt ? `Deine letzte ist ${daysSince(meta.lastBackupAt)} Tage alt.` : `Deine ${n} Teile liegen bisher nur auf diesem Handy.`} Wenn du den Browserverlauf löschst oder das Handy wechselst, wären sie weg. Speichere die Datei z. B. in iCloud, Google Drive oder schick sie dir selbst.</p>
       <div class="row"><button class="btn btn-primary" data-act="backup">Jetzt sichern</button><button class="btn btn-ghost" data-act="backup-later">Später</button></div></div>`;
     else if (r === "feedback") b.innerHTML = `<div class="banner"><p><b>Wie findest du Schrankblick bisher?</b> Eine Minute Feedback hilft enorm, die App besser zu machen.</p>
       <div class="row"><button class="btn btn-primary" data-act="feedback">Feedback geben</button><button class="btn btn-ghost" data-act="feedback-later">Später</button></div></div>`;
     else b.innerHTML = "";
   } else b.innerHTML = "";
+  if (state.tab === "schrank" && !meta.source && meta.opens >= 2) b.insertAdjacentHTML("beforeend", sourceCard());
+}
+const SOURCES = [["freunde", "Freund:in hat sie gezeigt"], ["dede", "Von Dede"], ["social", "Social Media"], ["anders", "Anders"]];
+function sourceCard() {
+  return `<div class="banner" style="margin-top:12px"><p><b>Kurze Frage:</b> Wie bist du auf Schrankblick gekommen?</p>
+    <div class="chips-q">${SOURCES.map(([k, l]) => `<button class="chip" data-act="source" data-v="${k}">${l}</button>`).join("")}</div></div>`;
 }
 const daysSince = isoStr => Math.max(0, Math.floor((Date.now() - Date.parse(isoStr)) / 86400000));
 function reminder() {
@@ -858,12 +953,21 @@ function viewSchrank() {
     ${filtered ? "" : todayCard}
     <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Vergessen")}</div>
     ${quickbar}
+    ${filtered ? "" : `<button class="cardlink" data-act="stats"><div><b>Dein Schrank in Zahlen</b><span>${statsTeaser()}</span></div>${ICON_CHEV}</button>`}
     <div class="toolbar">
       <div class="chips" role="group" aria-label="Kategorie">${catChips}</div>
     </div>
     ${state.fStatus === "forgotten" ? '<p class="sub" style="margin:0">Seit über 30 Tagen nicht getragen. Gute Kandidaten für die nächste Woche oder zum Weitergeben.</p>' : ""}
     ${tiles ? `<div class="grid">${tiles}${filtered ? "" : addTile}</div>` : `<div class="empty">Keine Teile in dieser Auswahl.</div>`}
+    ${filtered ? "" : `<div class="banner"><p><b>Gefällt dir die App?</b> Lad Freunde zum Testen ein. Je mehr mitmachen, desto besser wird sie.</p><button class="btn btn-ghost" data-act="invite">Freunde einladen</button></div>`}
   </div>`;
+}
+function statsTeaser() {
+  const e = ecoSaved(state.items);
+  const priced = state.items.filter(i => i.price > 0);
+  if (e.n) return `${e.n}× nochmal getragen statt gewaschen · ≈ ${e.liter} l Wasser gespart`;
+  if (priced.length) return "Kosten pro Tragen, Lieblingsteile, vergessene Teile";
+  return "Lieblingsteile, vergessene Teile, Wasser und Strom gespart";
 }
 
 function viewWoche() {
@@ -874,9 +978,10 @@ function viewWoche() {
     const items = d.items.map(byId).filter(Boolean);
     const dirty = items.filter(i => i.status !== "schrank");
     const minis = items.map(it => `<button class="mini${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("");
+    const w = dayWx(k);
     return `<section class="day${k === tk ? " is-today" : ""}">
       <div class="day-head">
-        <div class="day-name">${name}${k === tk ? '<span class="today-tag">Heute</span>' : ""}</div>
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><div class="day-name">${name}${k === tk ? '<span class="today-tag">Heute</span>' : ""}</div>${w ? `<span class="wx">${wxText(w)}</span>` : ""}</div>
         <div class="day-tools">
           <button class="occ" data-act="occ" data-v="${k}" aria-label="Anlass ändern, jetzt ${OCC[d.occ]}">${OCC[d.occ]}${ICON_CHEV}</button>
           <button class="icon-btn" data-act="reroll" data-v="${k}" aria-label="Anderes Outfit für ${name}">${ICON_REROLL}</button>
@@ -890,7 +995,10 @@ function viewWoche() {
   }).join("");
   return `<div class="stack">
     <div><h2 class="section-h">Deine <em>Woche</em></h2><p class="sub">Nur aus Teilen, die gerade sauber im Schrank hängen. Anlass antippen zum Ändern.</p></div>
-    <div class="field"><span class="lbl">Wetter</span><div class="seg" role="group" aria-label="Wetter">${seg}</div></div>
+    ${meta.city ? `<div class="wx-line"><span class="sub" style="margin:0">Wetter für <b>${esc(meta.city.name)}</b>, wird automatisch berücksichtigt.</span><button class="linkbtn" data-act="wx-city">Ort ändern</button></div>
+    <div class="field"><span class="lbl">Für Tage ohne Vorhersage</span><div class="seg" role="group" aria-label="Wetter">${seg}</div></div>`
+    : `<div class="field"><span class="lbl">Wetter</span><div class="seg" role="group" aria-label="Wetter">${seg}</div></div>
+    <button class="linkbtn" data-act="wx-city" style="align-self:flex-start">Echtes Wetter für meinen Ort nutzen</button>`}
     <button class="btn btn-accent btn-wide" data-act="plan-ai" ${state.aiBusy ? "disabled" : ""}>${state.aiBusy ? '<span class="spin"></span> Die KI stellt Outfits zusammen…' : (sample ? ICON_SPARK + " Woche mit KI planen" : "Woche automatisch planen")}</button>
     <div class="week">${days}</div>
   </div>`;
@@ -899,7 +1007,7 @@ function viewWoche() {
 function viewWaesche() {
   const group = s => sortItems(state.items.filter(i => i.status === s));
   const row = (it, btns) => `<div class="row-item"><button class="thumb" style="border:0;padding:0" data-act="open-item" data-v="${it.id}" aria-label="${esc(it.name)} öffnen">${thumb(it)}</button>
-    <div class="txt"><b>${esc(it.name)}</b><span>${CATS[it.cat]}${it.lentTo ? " · an " + esc(it.lentTo) : ""}</span></div>${btns}</div>`;
+    <div class="txt"><b>${esc(it.name)}</b><span>${CATS[it.cat]}${it.lentTo ? " · an " + esc(it.lentTo) : ""}${it.lentUntil && it.status === "verliehen" ? (isOverdue(it) ? ` · <span class="overdue">überfällig seit ${fmtDate(it.lentUntil)}</span>` : " · bis " + fmtDate(it.lentUntil)) : ""}</span></div>${btns}</div>`;
   const back = it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Sauber</button>`;
   const w = group("waesche"), r = group("reinigung"), l = group("verliehen");
   const sec = (title, list, btn, emptyTxt) => `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">${title} <span class="n">${list.length}</span></h3>${list.length ? `<div class="list">${list.map(it => row(it, btn(it))).join("")}</div>` : `<div class="empty">${emptyTxt}</div>`}</div>`;
@@ -910,7 +1018,8 @@ function viewWaesche() {
     ${r.length > 1 ? `<button class="btn btn-ghost btn-wide" data-act="cleaning-done">Alles aus der Reinigung abgeholt (${r.length})</button>` : ""}
     ${sec("Wäschekorb", w, back, "Wäschekorb ist leer.")}
     ${sec("Reinigung", r, it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Abgeholt</button>`, "Nichts in der Reinigung.")}
-    ${sec("Verliehen", l, it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Zurück</button>`, "Nichts verliehen.")}
+    ${sec("Verliehen", l, it => `${isOverdue(it) ? `<button class="btn btn-ghost" data-act="lend-remind" data-v="${it.id}">Erinnern</button>` : ""}<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Zurück</button>`, "Nichts verliehen.")}
+    <div class="banner"><p><b>Lüften statt waschen.</b> Pullover, Jeans und Jacken müssen nicht nach jedem Tragen in die Wäsche. Die App zählt mit und legt ein Teil erst nach ein paar Mal Tragen in den Wäschekorb. Das spart Wasser und Strom und schont den Stoff, so hält er länger.</p><button class="btn btn-ghost" data-act="stats">Was du schon gespart hast</button></div>
     <p class="vision">${ICON_NFC}<span>Später: Mit einem NFC-Etikett im Kleidungsstück reicht ein Antippen am Wäschekorb, statt hier zu tippen.</span></p>
   </div>`;
 }
@@ -938,8 +1047,15 @@ function itemSheet(id, fromTag) {
       <dt>Farbe</dt><dd>${esc(it.color)}</dd>
       <dt>Anlass</dt><dd>${(it.occasions || []).map(o => OCC[o]).join(", ") || "–"}</dd>
       <dt>Getragen</dt><dd>${it.wears || 0}× · ${lastWornText(it)}</dd>
+      ${it.price > 0 ? `<dt>Pro Tragen</dt><dd>${euro(it.price / Math.max(1, it.wears || 0))}${(it.wears || 0) < 1 ? " (noch nie getragen)" : ""}</dd>` : ""}
     </dl>
     <div class="field"><span class="lbl">Wo ist es gerade?</span><div class="status-grid">${opts}</div></div>
+    ${it.status === "verliehen" ? `<div class="field"><span class="lbl">Verliehen</span>
+      <div class="lend-grid"><input type="text" id="lendTo" maxlength="30" placeholder="An wen?" value="${esc(it.lentTo || "")}" aria-label="An wen verliehen"><input type="date" id="lendUntil" value="${esc(it.lentUntil || "")}" aria-label="Zurück bis"></div>
+      <div class="set-row"><button class="btn btn-ghost btn-sm" data-act="lend-ics" data-v="${it.id}">Rückgabe in Kalender</button><button class="btn btn-ghost btn-sm" data-act="lend-remind" data-v="${it.id}">Freundlich erinnern</button></div></div>` : ""}
+    ${washEvery(it) ? `<div class="field"><span class="lbl">Waschen nach ca.</span>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="stepper"><button data-act="wash-every" data-v="${it.id}" data-d="-1" aria-label="Weniger">−</button><b>${washEvery(it)}</b><button data-act="wash-every" data-v="${it.id}" data-d="1" aria-label="Mehr">+</button></div><span class="hint">× Tragen · seit der letzten Wäsche ${it.sinceWash || 0}× getragen</span></div></div>` : ""}
+    <div class="field"><label for="priceInput">Kaufpreis (optional)</label><input type="text" id="priceInput" inputmode="decimal" placeholder="z. B. 49" value="${it.price > 0 ? String(it.price).replace(".", ",") : ""}" style="max-width:160px"><p class="hint">Damit siehst du, was dich jedes Tragen kostet. Je öfter getragen, desto günstiger und nachhaltiger.</p></div>
     <div class="actions">
       <button class="btn btn-ghost" data-act="worn" data-v="${it.id}">Heute getragen</button>
       ${LAUNDRY_CATS.has(it.cat) ? `<button class="btn btn-ghost" data-act="worn-wash" data-v="${it.id}">Getragen + Wäsche</button>` : ""}
@@ -950,6 +1066,11 @@ function itemSheet(id, fromTag) {
       <p class="hint">Diesen Link mit einer App wie „NFC Tools“ auf das Etikett schreiben. Danach öffnet Antippen mit dem Handy genau dieses Teil.${state.usingExamples ? " Bei Beispielteilen klappt das nur zum Ausprobieren." : ""}</p></div>
     <button class="btn btn-danger${state.armedDelete === it.id ? " armed" : ""}" data-act="delete" data-v="${it.id}">${state.armedDelete === it.id ? "Wirklich löschen? Nochmal tippen" : "Teil löschen"}</button>
   `);
+  const pr = document.getElementById("priceInput");
+  pr?.addEventListener("change", () => { const n = parseFloat(pr.value.replace(/[^0-9,.]/g, "").replace(",", ".")); patchItem(id, { price: n > 0 ? Math.round(n * 100) / 100 : null }); itemSheet(id); });
+  const lt = document.getElementById("lendTo"), lu = document.getElementById("lendUntil");
+  lt?.addEventListener("change", () => patchItem(id, { lentTo: lt.value.trim() || null }));
+  lu?.addEventListener("change", () => patchItem(id, { lentUntil: lu.value || null }));
 }
 
 let addDraft = null;
@@ -1583,17 +1704,26 @@ document.addEventListener("click", async e => {
     case "open-item": state.armedDelete = null; itemSheet(v); break;
     case "set-status": {
       const s = el.dataset.s;
-      await patchItem(v, s === "verliehen" ? { status: s } : { status: s, lentTo: null });
-      if (!scrim.hidden && sheet.querySelector(".status-grid")) itemSheet(v);
+      const cur = byId(v);
+      const patch = s === "verliehen" ? { status: s, lentUntil: cur?.lentUntil || localIso(new Date(Date.now() + 14 * 86400000)) } : { status: s, lentTo: null, lentUntil: null };
+      if (s === "waesche" || (s === "schrank" && cur?.status === "waesche")) patch.sinceWash = 0;
+      await patchItem(v, patch);
+      if (!scrim.hidden && sheet.querySelector(".status-grid")) { itemSheet(v); if (s === "verliehen") document.getElementById("lendTo")?.focus(); }
       break;
     }
     case "worn": case "worn-wash": {
       const it = byId(v); if (!it) break;
-      const patch = { wears: (it.wears || 0) + 1, lastWorn: todayIso() };
-      if (act === "worn-wash") patch.status = "waesche";
+      const patch = wearPatch(it, act === "worn-wash" ? "wash" : "auto");
       await patchItem(v, patch); closeSheet(); itemSheet(v);
-      toast(act === "worn-wash" ? "Getragen und ab in die Wäsche." : "Als heute getragen markiert.");
+      if (patch.status === "waesche") toast(act === "worn-wash" ? "Getragen und ab in die Wäsche." : "Getragen. Jetzt ist es reif für die Wäsche.");
+      else if (washEvery(it)) toast(`Getragen. Kann nochmal getragen werden (${patch.sinceWash} von ca. ${washEvery(it)}).`, { label: "Doch waschen", fn: () => washAgain([v]) });
+      else toast("Als heute getragen markiert.");
       break;
+    }
+    case "wash-every": {
+      const it = byId(v); if (!it) break;
+      const n = Math.max(1, Math.min(20, washEvery(it) + Number(el.dataset.d)));
+      await patchItem(v, { washEvery: n }); itemSheet(v); break;
     }
     case "delete":
       if (state.armedDelete !== v) { state.armedDelete = v; itemSheet(v); }
@@ -1711,7 +1841,7 @@ function settingsSheet(msg) {
       <div class="set-row"><button class="btn btn-ghost" data-act="save-key">Schlüssel speichern</button>${key ? '<button class="btn btn-danger" data-act="clear-key">Schlüssel entfernen</button>' : ""}</div></div>
     <div class="set-group"><span class="eyebrow">Feedback</span>
       <p class="hint">Was gefällt dir, was nervt, was fehlt? Jede Rückmeldung hilft.</p>
-      <button class="btn btn-ghost btn-wide" data-act="feedback">Feedback geben</button></div>
+      <div class="set-row"><button class="btn btn-ghost" data-act="feedback">Feedback geben</button><button class="btn btn-ghost" data-act="invite">Freunde einladen</button></div></div>
     ${waitlistBlock()}
     <p class="hint">Schrankblick · Test-Version ${APP_VERSION}</p>`, () => { state.armedWipe = false; });
   bindWaitlist();
@@ -1721,7 +1851,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.3.1";
+const APP_VERSION = "0.4";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -1766,8 +1896,148 @@ document.addEventListener("click", async e => {
     case "q-occ": { const o = quick.occasions, v = el.dataset.v; quick.occasions = o.includes(v) ? o.filter(x => x !== v) : [...o, v]; drawQuick(); break; }
     case "q-ai": quickAI(); break;
     case "q-save": saveQuick(); break;
+    case "source": meta.source = el.dataset.v; saveMeta(); render(); toast("Danke!"); break;
+    case "invite": invite(); break;
+    case "stats": statsSheet(); break;
+    case "stats-share": shareStats(); break;
+    case "lend-remind": lendRemind(el.dataset.v); break;
+    case "lend-ics": lendIcs(el.dataset.v); break;
+    case "wx-city": citySheet(); break;
+    case "wx-search": citySearch(); break;
+    case "wx-pick": {
+      const r = (window.__wxResults || [])[Number(el.dataset.v)]; if (!r) break;
+      meta.city = { name: r.name, lat: Math.round(r.latitude * 100) / 100, lon: Math.round(r.longitude * 100) / 100 }; meta.wxCache = null; saveMeta();
+      closeSheet(); state.tab = "woche"; render();
+      await loadWeather(true); fillWeekLocal(); render(); savePlan();
+      toast(meta.wxCache ? `Wetter für ${r.name} geladen. Woche neu geplant.` : "Wetter konnte gerade nicht geladen werden. Versuch es später nochmal.");
+      break;
+    }
+    case "wx-off": meta.city = null; meta.wxCache = null; saveMeta(); closeSheet(); render(); toast("Echtes Wetter ausgeschaltet."); break;
   }
 });
+
+/* ---------- Freunde einladen ---------- */
+async function invite() {
+  const url = location.origin + location.pathname + "?von=einladung";
+  const text = "Ich teste gerade Schrankblick, eine App für den digitalen Kleiderschrank: Wäsche im Blick, Outfits für die Woche, Vinted-Inserate in einer Minute. Läuft im Browser, deine Daten bleiben auf deinem Handy. Probier mal:";
+  if (navigator.share) { try { await navigator.share({ title: "Schrankblick", text, url }); toast("Danke fürs Weitersagen!"); return; } catch (e) { if (e?.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(text + " " + url); toast("Einladung kopiert. Füg sie in WhatsApp oder eine Mail ein."); } catch { toast(url); }
+}
+
+/* ---------- Verleihen ---------- */
+async function lendRemind(id) {
+  const it = byId(id); if (!it) return;
+  const text = `Hey${it.lentTo ? " " + it.lentTo : ""}, kleine Erinnerung: Du hast noch ${it.name} von mir. ${it.lentUntil ? `Wir hatten ${fmtDate(it.lentUntil)} gesagt. ` : ""}Kein Stress, sag einfach, wann es passt. 😊`;
+  if (navigator.share) { try { await navigator.share({ text }); return; } catch (e) { if (e?.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(text); toast("Nachricht kopiert. Füg sie in WhatsApp ein."); } catch { toast("Teilen klappt hier nicht."); }
+}
+async function lendIcs(id) {
+  const it = byId(id); if (!it) return;
+  const day = it.lentUntil || localIso(new Date(Date.now() + 14 * 86400000));
+  const d1 = day.replace(/-/g, ""), next = new Date(day + "T12:00:00"); next.setDate(next.getDate() + 1);
+  const d2 = localIso(next).replace(/-/g, "");
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const clean = t => String(t).replace(/[\\;,]/g, m => "\\" + m).replace(/\n/g, " ");
+  const title = clean(`${it.name} ${it.lentTo ? "von " + it.lentTo + " " : ""}zurückholen`);
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Schrankblick//DE", "BEGIN:VEVENT", `UID:${it.id}-${d1}@schrankblick`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d1}`, `DTEND;VALUE=DATE:${d2}`, `SUMMARY:${title}`,
+    "BEGIN:VALARM", "TRIGGER:PT9H", "ACTION:DISPLAY", `DESCRIPTION:${title}`, "END:VALARM", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+  try { await SB.downloads.save({ filename: "rueckgabe.ics", data: new Blob([ics], { type: "text/calendar" }) }); toast("Termin erstellt. Öffne ihn, um ihn in den Kalender zu übernehmen."); }
+  catch (e) { if (e?.code !== "declined") toast("Kalender-Termin hat nicht geklappt."); }
+}
+
+/* ---------- Wetter-Ort ---------- */
+function citySheet() {
+  openSheet(`<h2>Echtes <em>Wetter</em></h2>
+    <p class="hint">Die Woche wird dann nach der Vorhersage für deinen Ort geplant: Jacke bei Kälte oder Regen, leichter bei Wärme. Dafür geht nur der Ortsname bzw. die ungefähre Lage der Stadt an den kostenlosen Wetterdienst Open-Meteo, nicht dein genauer Standort.</p>
+    <div class="wl-row"><input type="text" id="cityInput" placeholder="z. B. Düsseldorf" autocomplete="address-level2" value="${esc(meta.city?.name || "")}" aria-label="Ort"><button class="btn btn-primary" data-act="wx-search">Suchen</button></div>
+    <div id="cityResults" class="list" style="box-shadow:none"></div>
+    ${meta.city ? '<button class="btn btn-danger" data-act="wx-off">Echtes Wetter ausschalten</button>' : ""}`);
+  const ci = document.getElementById("cityInput");
+  ci.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); citySearch(); } });
+  ci.focus();
+}
+async function citySearch() {
+  const q = document.getElementById("cityInput")?.value.trim(); const box = document.getElementById("cityResults");
+  if (!q || !box) return;
+  box.innerHTML = '<p class="hint"><span class="spin"></span> Suche …</p>';
+  try {
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=de&format=json`);
+    const j = await r.json(); const res = j.results || [];
+    window.__wxResults = res;
+    box.innerHTML = res.length ? res.map((x, i) => `<button class="row-item" data-act="wx-pick" data-v="${i}" style="text-align:left;width:100%"><div class="txt"><b>${esc(x.name)}</b><span>${esc([x.admin1, x.country].filter(Boolean).join(", "))}</span></div></button>`).join("") : '<p class="hint">Nichts gefunden. Probier eine andere Schreibweise.</p>';
+  } catch { box.innerHTML = '<p class="hint">Keine Verbindung zum Wetterdienst. Bist du online?</p>'; }
+}
+
+/* ---------- Dein Schrank in Zahlen ---------- */
+function statsData() {
+  const all = state.items, n = all.length;
+  const wears = all.reduce((a, i) => a + (i.wears || 0), 0);
+  const active = all.filter(i => i.lastWorn && daysSince(i.lastWorn) <= 30).length;
+  const top = [...all].filter(i => i.wears).sort((a, b) => b.wears - a.wears).slice(0, 3);
+  const forgotten = all.filter(isForgotten);
+  const priced = all.filter(i => i.price > 0).map(i => ({ it: i, cpw: i.price / Math.max(1, i.wears || 0) })).sort((a, b) => a.cpw - b.cpw);
+  const value = priced.reduce((a, p) => a + p.it.price, 0);
+  return { n, wears, active, activePct: n ? Math.round(active / n * 100) : 0, top, forgotten, priced, value, eco: ecoSaved(all) };
+}
+function statsSheet() {
+  const s = statsData(), e = s.eco;
+  const li = (a, b) => `<li><span>${esc(a)}</span><span>${b}</span></li>`;
+  openSheet(`<h2>Dein Schrank in <em>Zahlen</em></h2>
+    ${state.usingExamples ? '<p class="hint">Das sind Zahlen aus dem Beispielschrank. Mit deinen eigenen Teilen wird es spannender.</p>' : ""}
+    <div class="kpis">
+      <div class="kpi"><b>${s.n}</b><span>Teile im Schrank</span></div>
+      <div class="kpi"><b>${s.activePct} %</b><span>in den letzten 30 Tagen getragen</span></div>
+      <div class="kpi"><b>${s.wears}</b><span>Mal getragen, insgesamt</span></div>
+      <div class="kpi"><b>${s.forgotten.length}</b><span>vergessen (über 30 Tage nicht getragen)</span></div>
+    </div>
+    <div class="set-group"><span class="eyebrow">Öfter tragen, seltener waschen</span>
+      <div class="kpis">
+        <div class="kpi green"><b>${e.n}×</b><span>nochmal getragen statt gewaschen</span></div>
+        <div class="kpi green"><b>≈ ${e.liter} l</b><span>Wasser gespart</span></div>
+        <div class="kpi green"><b>≈ ${de1(e.kwh)} kWh</b><span>Strom gespart</span></div>
+        <div class="kpi green"><b>≈ ${e.co2} g</b><span>CO₂ gespart</span></div>
+      </div>
+      <p class="hint">Jedes Teil länger im Einsatz ist der größte Hebel: Wer Kleidung 9 Monate länger trägt, senkt ihren CO₂-, Wasser- und Müll-Fußabdruck um etwa 20 bis 30 % (WRAP). Seltener waschen schont außerdem den Stoff.</p>
+      <details class="fb-more"><summary>So rechnen wir</summary><p class="fb-stats">Vergleich: jedes Teil nach jedem Tragen waschen. Eine Ladung bei 40 °C braucht etwa 0,5 kWh Strom und rund 45 Liter Wasser, darin sind etwa 12 Teile. Strom in Deutschland 2024: rund 363 g CO₂ pro kWh. Das sind grobe Schätzungen, keine Messung.
+Quellen: Utopia.de (Waschgang-Rechner Uni Bonn, EU-Datenbank EPREL), Umweltbundesamt (Strommix 2024), WRAP „Valuing our clothes“, Levi Strauss & Co. (Lebenszyklus Jeans).</p></details>
+    </div>
+    ${s.top.length ? `<div class="set-group"><span class="eyebrow">Meistgetragen</span><ul class="rank">${s.top.map(i => li(i.name, i.wears + "×")).join("")}</ul></div>` : ""}
+    <div class="set-group"><span class="eyebrow">Kosten pro Tragen</span>
+      ${s.priced.length ? `<ul class="rank">${s.priced.slice(0, 3).map(p => li(p.it.name, euro(p.cpw))).join("")}</ul>
+      ${s.priced.length > 3 ? `<p class="hint">Am teuersten pro Tragen: ${esc(s.priced[s.priced.length - 1].it.name)} mit ${euro(s.priced[s.priced.length - 1].cpw)}. Vielleicht diese Woche anziehen oder verkaufen?</p>` : ""}
+      <p class="hint">${s.priced.length} Teile mit Preis, zusammen ${euro(s.value)}.</p>` : `<p class="hint">Tipp ein Teil an und trag den Kaufpreis ein. Dann siehst du, was dich jedes Tragen kostet.</p>`}
+    </div>
+    ${s.forgotten.length ? `<div class="set-group"><span class="eyebrow">Vergessen</span><p class="hint">${s.forgotten.slice(0, 4).map(i => esc(i.name)).join(", ")}${s.forgotten.length > 4 ? " …" : ""}. Diese Woche einplanen, verleihen oder verkaufen?</p></div>` : ""}
+    <button class="btn btn-primary btn-wide" data-act="stats-share">Als Bild teilen</button>
+    <button class="btn btn-ghost btn-wide" data-act="invite">Freunde einladen</button>`);
+}
+async function shareStats() {
+  const s = statsData(), e = s.eco;
+  try { await Promise.all([document.fonts.load('400 58px "Instrument Serif"'), document.fonts.load('600 26px "Geist"'), document.fonts.load('500 22px "Geist Mono"')]); } catch {}
+  const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d");
+  x.fillStyle = "#f4f4f1"; x.fillRect(0, 0, W, H);
+  x.fillStyle = "#6c6c66"; x.font = '500 26px "Geist Mono", monospace'; x.fillText("SCHRANKBLICK", 72, 110);
+  x.fillStyle = "#141413"; x.font = '400 96px "Instrument Serif", serif'; x.fillText("Mein Schrank", 72, 220);
+  x.fillStyle = "#56622f"; x.font = 'italic 400 96px "Instrument Serif", serif'; x.fillText("in Zahlen", 72, 310);
+  const box = (X, Y, big, small, green) => {
+    rr(x, X, Y, 456, 250, 32); x.fillStyle = green ? "#e3e8d2" : "#ffffff"; x.fill();
+    x.fillStyle = "#141413"; x.font = '400 104px "Instrument Serif", serif'; x.fillText(fitText(x, big, 400), X + 36, Y + 130);
+    x.fillStyle = "#4a4a45"; x.font = '500 30px "Geist", sans-serif'; x.fillText(fitText(x, small, 400), X + 36, Y + 200);
+  };
+  box(72, 380, String(s.n), "Teile im Schrank");
+  box(552, 380, s.activePct + " %", "aktiv getragen (30 Tage)");
+  box(72, 660, e.n + "×", "getragen statt gewaschen", true);
+  box(552, 660, "≈ " + e.liter + " l", "Wasser gespart", true);
+  let y = 1010;
+  x.font = '600 34px "Geist", sans-serif'; x.fillStyle = "#141413";
+  if (s.top[0]) { x.fillText(fitText(x, `Lieblingsteil: ${s.top[0].name} (${s.top[0].wears}×)`, 936), 72, y); y += 60; }
+  if (s.priced[0]) { x.fillText(fitText(x, `Am günstigsten pro Tragen: ${s.priced[0].it.name} (${euro(s.priced[0].cpw)})`, 936), 72, y); y += 60; }
+  if (s.forgotten.length) { x.fillText(fitText(x, `${s.forgotten.length} vergessene Teile warten auf ihren Einsatz`, 936), 72, y); }
+  x.fillStyle = "#6c6c66"; x.font = '500 26px "Geist Mono", monospace'; x.fillText("#NichtsAnzuziehen · tapir-app.github.io/app", 72, 1280);
+  const blob = await new Promise(r => c.toBlob(b => r(b), "image/png"));
+  try { await SB.downloads.save({ filename: "mein-schrank-in-zahlen.png", data: blob }); } catch (err) { if (err?.code !== "declined") toast("Bild teilen hat nicht geklappt."); }
+}
 
 /* ---------- send text: Teilen-Menü (WhatsApp, Mail …), sonst E-Mail, sonst kopieren ---------- */
 async function sendText(text, subject, viaShare) {
@@ -1805,6 +2075,10 @@ function usageSummary() {
   ];
   for (const [k, label] of Object.entries(TRACKED)) if (meta.counts[k]) lines.push(`${label}: ${meta.counts[k]}`);
   if (meta.counts.nfc) lines.push(`Per NFC-Etikett geöffnet: ${meta.counts.nfc}`);
+  if (meta.source) lines.push(`Gekommen über: ${(SOURCES.find(x => x[0] === meta.source) || [0, meta.source === "einladung" ? "Einladungslink" : meta.source])[1]}`);
+  if (meta.city) lines.push("Echtes Wetter: an");
+  const e = ecoSaved(own); if (e.n) lines.push(`Nochmal getragen statt gewaschen: ${e.n}`);
+  const pc = own.filter(i => i.price > 0).length; if (pc) lines.push(`Teile mit Kaufpreis: ${pc}`);
   lines.push(`Gerät: ${deviceKind()}`);
   return lines.join("\n");
 }
@@ -1995,6 +2269,7 @@ async function saveQuick() {
     state.planLoaded = true; render();
   });
   render();
+  loadWeather();
 })();
 if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
 })();
