@@ -555,7 +555,7 @@ let db = null, assets = null, sample = null, sampleImages = false, itemsCol = nu
 
 /* ---------- contact (Dede trägt hier ein, wohin Feedback und Warteliste gehen) ---------- */
 const CONTACT = {
-  email: "",          // z. B. hallo@tapiro.de – dann geht Feedback auch per E-Mail
+  email: "dede@akcay.online", // Feedback und Warteliste gehen zusätzlich per E-Mail hierhin
   feedbackForm: "",   // optional: Link zu einem längeren Fragebogen
   waitlistForm: ""    // optional: Link zu einem Wartelisten-Formular (bekommt ?email=… angehängt)
 };
@@ -1721,7 +1721,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.3";
+const APP_VERSION = "0.3.1";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -1754,7 +1754,8 @@ document.addEventListener("click", async e => {
     case "feedback": feedbackSheet(); break;
     case "fb-mood": fb.mood = el.dataset.v; drawFeedback(); break;
     case "fb-keep": fb.keep = el.dataset.v; drawFeedback(); break;
-    case "fb-send": sendFeedback(); break;
+    case "fb-send": sendFeedback(false); break;
+    case "fb-share": sendFeedback(true); break;
     case "waitlist": joinWaitlist(); break;
     case "q-del": {
       const i = Number(el.dataset.v); const r = quick?.rows[i]; if (!r) break;
@@ -1769,7 +1770,8 @@ document.addEventListener("click", async e => {
 });
 
 /* ---------- send text: Teilen-Menü (WhatsApp, Mail …), sonst E-Mail, sonst kopieren ---------- */
-async function sendText(text, subject) {
+async function sendText(text, subject, viaShare) {
+  if (CONTACT.email && !viaShare) { location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`; return true; }
   if (navigator.share) {
     try { await navigator.share({ title: subject, text }); return true; }
     catch (e) { if (e?.name === "AbortError") return false; }
@@ -1816,7 +1818,7 @@ function drawFeedback() {
     <label class="fb-check"><input type="checkbox" id="fbStats" ${fb.stats ? "checked" : ""}><span>Nutzungszahlen mitschicken. Nur Zählwerte, keine Namen, Fotos oder Teile. Die App zählt nur auf deinem Handy und sendet nie etwas von selbst.</span></label>
     <details class="fb-more"><summary>Diese Zahlen würden mitgehen</summary><p class="fb-stats">${esc(usageSummary())}</p></details>
     <button class="btn btn-primary btn-wide" data-act="fb-send">Feedback senden</button>
-    <p class="hint">Beim Senden öffnet sich das Teilen-Menü deines Handys. Wähl WhatsApp, Mail oder was du sonst nutzt.</p>
+    ${CONTACT.email ? `<p class="hint">Beim Senden öffnet sich deine Mail-App mit fertigem Text. Lieber per WhatsApp?</p><button class="btn btn-ghost btn-wide" data-act="fb-share">Über WhatsApp &amp; Co. teilen</button>` : `<p class="hint">Beim Senden öffnet sich das Teilen-Menü deines Handys. Wähl WhatsApp, Mail oder was du sonst nutzt.</p>`}
     ${CONTACT.feedbackForm ? `<a class="btn btn-ghost btn-wide" href="${esc(CONTACT.feedbackForm)}" target="_blank" rel="noopener">Ausführlicher Fragebogen</a>` : ""}
     ${waitlistBlock()}`);
   const ta = document.getElementById("fbText");
@@ -1824,14 +1826,14 @@ function drawFeedback() {
   document.getElementById("fbStats").addEventListener("change", e => { fb.stats = e.target.checked; });
   bindWaitlist();
 }
-async function sendFeedback() {
+async function sendFeedback(viaShare) {
   if (!fb.mood && !fb.keep && !fb.text.trim()) { toast("Tipp kurz eine Bewertung an oder schreib ein paar Worte."); return; }
   const lines = [`Schrankblick-Feedback (Test-Version ${APP_VERSION})`];
   if (fb.mood) lines.push(`Gefällt mir: ${MOODS.find(m => m[0] === fb.mood)[1]}`);
   if (fb.keep) lines.push(`Würde sie nutzen: ${KEEP.find(m => m[0] === fb.keep)[1]}`);
   if (fb.text.trim()) lines.push("", fb.text.trim());
   if (fb.stats) lines.push("", "Nutzung (nur Zählwerte):", usageSummary());
-  const ok = await sendText(lines.join("\n"), "Feedback zu Schrankblick");
+  const ok = await sendText(lines.join("\n"), "Feedback zu Schrankblick", viaShare);
   if (!ok) return;
   meta.fbSent = new Date().toISOString(); saveMeta(); count("feedback-sent");
   fb = null; closeSheet(); render();
