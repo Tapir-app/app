@@ -455,6 +455,7 @@ img { max-width: 100%; }
 .lend-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 8px; }
 .lend-grid input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 12px 12px; width: 100%; min-width: 0; font-size: 15px; }
 .chips-q { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip-sm { padding: 6px 12px; font-size: 12.5px; }
 details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer; padding: 4px 0; }
 .ok-line { font-size: 13.5px; color: var(--accent); font-weight: 600; margin: 0; }
 </style>
@@ -524,7 +525,22 @@ const STATUS = {
   reinigung: { label: "In der Reinigung", short: "Reinigung" },
   verliehen: { label: "Verliehen", short: "Verliehen" }
 };
-const OCC = { buero: "Büro", freizeit: "Freizeit", schule: "Schule", sport: "Sport", abend: "Abend" };
+const OCC = { buero: "Büro", freizeit: "Alltag", schule: "Schule", sport: "Sport", abend: "Abend" };
+const TYPES = {
+  top: ["T-Shirt", "Longsleeve", "Top", "Hemd", "Bluse", "Polo", "Pullover", "Hoodie", "Zip-Hoodie", "Sweatshirt", "Strickjacke"],
+  bottom: ["Jeans", "Chino", "Stoffhose", "Jogginghose", "Leggings", "Shorts", "Rock"],
+  dress: ["Sommerkleid", "Etuikleid", "Abendkleid", "Maxikleid", "Strickkleid", "Blusenkleid", "Jumpsuit"],
+  jacket: ["Jacke", "Zip-Jacke", "Blazer", "Mantel", "Parka", "Lederjacke", "Daunenjacke", "Regenjacke", "Weste"],
+  shoes: ["Sneaker", "Halbschuhe", "Stiefel", "Stiefeletten", "Sandalen", "Pumps", "Sportschuhe"],
+  acc: ["Gürtel", "Schal", "Mütze", "Cap", "Tasche", "Krawatte", "Schmuck", "Handschuhe"]
+};
+const NECKS = { rund: "Rundhals", v: "V-Ausschnitt", kragen: "Kragen", rolli: "Rollkragen", kapuze: "Kapuze", stehkragen: "Stehkragen" };
+const NECK_CATS = new Set(["top", "dress"]);
+const TYPE_NECK = { "Hoodie": "kapuze", "Zip-Hoodie": "kapuze", "Hemd": "kragen", "Polo": "kragen", "Bluse": "kragen", "Blusenkleid": "kragen" };
+// Wärme für die Wochenplanung: 0 = luftig, 2 = warm. Nicht genannte Arten gelten als mittel.
+const TYPE_WARMTH = { "T-Shirt": 0, "Top": 0, "Polo": 0, "Shorts": 0, "Sandalen": 0, "Sommerkleid": 0,
+  "Pullover": 2, "Hoodie": 2, "Zip-Hoodie": 2, "Sweatshirt": 2, "Strickjacke": 2, "Strickkleid": 2, "Stiefel": 2, "Mantel": 2, "Parka": 2, "Daunenjacke": 2 };
+const warmthOf = it => it.neck === "rolli" ? 2 : (TYPE_WARMTH[it.type] ?? 1);
 const OCC_KEYS = Object.keys(OCC);
 const WEATHER = { kalt: "Kalt", mild: "Mild", warm: "Warm" };
 const COLORS = [
@@ -563,22 +579,22 @@ function isoWeek(date) {
 }
 
 const EXAMPLES = [
-  { id: "ex01", brand: "COS", name: "Weißes Hemd", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(6), price: 49 },
-  { id: "ex02", brand: "Arket", name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3), rewears: 5 },
-  { id: "ex03", name: "Graues T-Shirt", cat: "top", color: "Grau", occasions: ["freizeit", "sport", "schule"], status: "waesche", wears: 22, lastWorn: daysAgo(1) },
-  { id: "ex04", name: "Hellblaues Hemd", cat: "top", color: "Blau", occasions: ["buero"], status: "schrank", wears: 7, lastWorn: daysAgo(9) },
-  { id: "ex05", brand: "Levi's", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2), price: 89, rewears: 18 },
-  { id: "ex06", name: "Beige Chino", cat: "bottom", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 11, lastWorn: daysAgo(5) },
-  { id: "ex07", name: "Schwarze Anzughose", cat: "bottom", color: "Schwarz", occasions: ["buero", "abend"], status: "schrank", wears: 8, lastWorn: daysAgo(12) },
-  { id: "ex08", name: "Laufshorts", cat: "bottom", color: "Schwarz", occasions: ["sport"], status: "schrank", wears: 18, lastWorn: daysAgo(4) },
-  { id: "ex09", name: "Bordeaux Kleid", cat: "dress", color: "Bordeaux", occasions: ["abend"], status: "schrank", wears: 2, lastWorn: daysAgo(74), price: 120 },
-  { id: "ex10", brand: "Massimo Dutti", name: "Navy Blazer", cat: "jacket", color: "Navy", occasions: ["buero", "abend"], status: "reinigung", wears: 10, lastWorn: daysAgo(8) },
-  { id: "ex11", name: "Olivgrüne Feldjacke", cat: "jacket", color: "Oliv", occasions: ["freizeit", "schule"], status: "schrank", wears: 16, lastWorn: daysAgo(3) },
-  { id: "ex12", brand: "Veja", name: "Weiße Sneaker", cat: "shoes", color: "Weiß", occasions: ["freizeit", "schule", "buero"], status: "schrank", wears: 40, lastWorn: daysAgo(1), price: 99 },
-  { id: "ex13", name: "Braune Lederschuhe", cat: "shoes", color: "Braun", occasions: ["buero", "abend"], status: "schrank", wears: 19, lastWorn: daysAgo(6) },
-  { id: "ex14", brand: "Asics", name: "Laufschuhe", cat: "shoes", color: "Blau", occasions: ["sport"], status: "schrank", wears: 25, lastWorn: daysAgo(4) },
-  { id: "ex15", name: "Ledergürtel", cat: "acc", color: "Braun", occasions: ["buero", "abend"], status: "verliehen", wears: 12, lastWorn: daysAgo(40), lentTo: "Bruder", lentUntil: daysAgo(2) },
-  { id: "ex16", brand: "H&M", name: "Gelber Hoodie", cat: "top", color: "Gelb", occasions: ["freizeit"], status: "schrank", wears: 1, lastWorn: daysAgo(63), price: 35 }
+  { id: "ex01", type: "Hemd", neck: "kragen", basic: true, brand: "COS", name: "Weißes Hemd", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(6), price: 49 },
+  { id: "ex02", type: "Pullover", neck: "rund", basic: true, brand: "Arket", name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3), rewears: 5 },
+  { id: "ex03", type: "T-Shirt", neck: "rund", basic: true, name: "Graues T-Shirt", cat: "top", color: "Grau", occasions: ["freizeit", "sport", "schule"], status: "waesche", wears: 22, lastWorn: daysAgo(1) },
+  { id: "ex04", type: "Hemd", neck: "kragen", name: "Hellblaues Hemd", cat: "top", color: "Blau", occasions: ["buero"], status: "schrank", wears: 7, lastWorn: daysAgo(9) },
+  { id: "ex05", type: "Jeans", basic: true, brand: "Levi's", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2), price: 89, rewears: 18 },
+  { id: "ex06", type: "Chino", basic: true, name: "Beige Chino", cat: "bottom", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 11, lastWorn: daysAgo(5) },
+  { id: "ex07", type: "Stoffhose", name: "Schwarze Anzughose", cat: "bottom", color: "Schwarz", occasions: ["buero", "abend"], status: "schrank", wears: 8, lastWorn: daysAgo(12) },
+  { id: "ex08", type: "Shorts", name: "Laufshorts", cat: "bottom", color: "Schwarz", occasions: ["sport"], status: "schrank", wears: 18, lastWorn: daysAgo(4) },
+  { id: "ex09", type: "Abendkleid", neck: "v", name: "Bordeaux Kleid", cat: "dress", color: "Bordeaux", occasions: ["abend"], status: "schrank", wears: 2, lastWorn: daysAgo(74), price: 120 },
+  { id: "ex10", type: "Blazer", brand: "Massimo Dutti", name: "Navy Blazer", cat: "jacket", color: "Navy", occasions: ["buero", "abend"], status: "reinigung", wears: 10, lastWorn: daysAgo(8) },
+  { id: "ex11", type: "Jacke", name: "Olivgrüne Feldjacke", cat: "jacket", color: "Oliv", occasions: ["freizeit", "schule"], status: "schrank", wears: 16, lastWorn: daysAgo(3) },
+  { id: "ex12", type: "Sneaker", basic: true, brand: "Veja", name: "Weiße Sneaker", cat: "shoes", color: "Weiß", occasions: ["freizeit", "schule", "buero"], status: "schrank", wears: 40, lastWorn: daysAgo(1), price: 99 },
+  { id: "ex13", type: "Halbschuhe", name: "Braune Lederschuhe", cat: "shoes", color: "Braun", occasions: ["buero", "abend"], status: "schrank", wears: 19, lastWorn: daysAgo(6) },
+  { id: "ex14", type: "Sportschuhe", brand: "Asics", name: "Laufschuhe", cat: "shoes", color: "Blau", occasions: ["sport"], status: "schrank", wears: 25, lastWorn: daysAgo(4) },
+  { id: "ex15", type: "Gürtel", basic: true, name: "Ledergürtel", cat: "acc", color: "Braun", occasions: ["buero", "abend"], status: "verliehen", wears: 12, lastWorn: daysAgo(40), lentTo: "Bruder", lentUntil: daysAgo(2) },
+  { id: "ex16", type: "Hoodie", neck: "kapuze", brand: "H&M", name: "Gelber Hoodie", cat: "top", color: "Gelb", occasions: ["freizeit"], status: "schrank", wears: 1, lastWorn: daysAgo(63), price: 35 }
 ].map(it => ({ ...it, createdAt: daysAgo(120) }));
 
 function emptyPlan() {
@@ -596,6 +612,8 @@ const state = {
   planLoaded: false,
   tab: "schrank",
   fCat: "all",
+  fType: "all",
+  fBasic: false,
   fStatus: "all",
   aiBusy: false,
   armedDelete: null
@@ -689,6 +707,21 @@ function wearPatch(it, mode) {
   else { p.sinceWash = since; p.rewears = (it.rewears || 0) + 1; }
   return p;
 }
+/* ---------- Art, Ausschnitt, Basic ---------- */
+function detailFields(d, prefix) {
+  const types = TYPES[d.cat] || [];
+  const typeChips = types.map(t => `<button type="button" class="chip" data-act="${prefix}-type" data-v="${esc(t)}" aria-pressed="${d.type === t}">${esc(t)}</button>`).join("");
+  const neckChips = Object.entries(NECKS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-neck" data-v="${k}" aria-pressed="${d.neck === k}">${l}</button>`).join("");
+  return `<div class="field"><span class="lbl">Art (optional)</span><div class="chips wrap">${typeChips}</div></div>
+    ${NECK_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Ausschnitt (optional)</span><div class="chips wrap">${neckChips}</div></div>` : ""}
+    <div class="field"><span class="lbl">Stil</span><div class="chips wrap"><button type="button" class="chip" data-act="${prefix}-basic" aria-pressed="${!!d.basic}">Basic</button></div>
+      <p class="hint">Basics sind schlichte Teile, die zu fast allem passen, z. B. weißes T-Shirt oder dunkle Jeans.</p></div>`;
+}
+function toggleType(d, t) {
+  d.type = d.type === t ? null : t;
+  if (d.type && TYPE_NECK[d.type] && NECK_CATS.has(d.cat) && !d.neckTouched) d.neck = TYPE_NECK[d.type];
+}
+
 /* ---------- Marken ---------- */
 // Grobe Preisklassen nur für den Preisvorschlag ohne Neupreis. Faustregel, keine Marktdaten.
 const BRAND_TIERS = {
@@ -829,8 +862,10 @@ function dbErrorText(e) {
 function generateOutfit(occ, weather, used, rain = 0) {
   const pool = state.items.filter(i => i.status === "schrank" && (!i.occasions?.length || i.occasions.includes(occ)));
   const pick = cat => {
-    const c = pool.filter(i => i.cat === cat);
+    let c = pool.filter(i => i.cat === cat);
     if (!c.length) return null;
+    const fit = c.filter(i => weather === "warm" ? warmthOf(i) < 2 : weather === "kalt" ? warmthOf(i) > 0 : true);
+    if (fit.length) c = fit;
     c.sort((a, b) => (used.has(a.id) - used.has(b.id)) || (a.wears || 0) - (b.wears || 0) || Math.random() - 0.5);
     const top3 = c.slice(0, Math.min(3, c.length)).filter(i => !used.has(i.id));
     const choice = (top3.length ? top3 : c)[Math.floor(Math.random() * (top3.length || 1))];
@@ -857,7 +892,7 @@ function fillWeekLocal(onlyDay) {
 
 async function planWithAI() {
   if (!sample) { fillWeekLocal(); render(); savePlan(); return; }
-  const avail = state.items.filter(i => i.status === "schrank").map(i => ({ id: i.id, name: i.name, cat: CATS[i.cat], farbe: i.color, anlaesse: (i.occasions || []).map(o => OCC[o]), getragen: i.wears || 0, zuletzt: i.lastWorn || "nie" }));
+  const avail = state.items.filter(i => i.status === "schrank").map(i => ({ id: i.id, name: i.name, cat: CATS[i.cat], art: i.type || "", ausschnitt: NECKS[i.neck] || "", basic: !!i.basic, farbe: i.color, anlaesse: (i.occasions || []).map(o => OCC[o]), getragen: i.wears || 0, zuletzt: i.lastWorn || "nie" }));
   if (avail.length < 3) { toast("Für Vorschläge brauche ich mindestens 3 saubere Teile im Schrank."); return; }
   const anl = DAYS.map(([k, n]) => `${n}: ${OCC[state.plan.days[k].occ]}`).join(", ");
   const prompt = `Du bist Stylist in einer Kleiderschrank-App. Stelle für jeden der 7 Tage dieser Woche ein Outfit NUR aus den verfügbaren Teilen unten zusammen.
@@ -974,15 +1009,20 @@ function viewSchrank() {
   const forgotten = all.filter(isForgotten).length;
   let list = all;
   if (state.fCat !== "all") list = list.filter(i => i.cat === state.fCat);
+  if (state.fCat !== "all" && state.fType !== "all") list = list.filter(i => i.type === state.fType);
+  if (state.fBasic) list = list.filter(i => i.basic);
   if (state.fStatus === "forgotten") list = list.filter(isForgotten);
   else if (state.fStatus !== "all") list = list.filter(i => i.status === state.fStatus);
   list = sortItems(list);
   const stat = (k, n, label) => `<button class="stat${state.fStatus === k ? " is-on" : ""}" data-act="fstatus" data-v="${k}" aria-pressed="${state.fStatus === k}"><b>${n}</b><span>${label}</span></button>`;
   const catChips = [["all", "Alle"], ...CAT_ORDER.map(c => [c, CATS[c]])].map(([k, l]) => `<button class="chip" data-act="fcat" data-v="${k}" aria-pressed="${state.fCat === k}">${l}</button>`).join("");
+  const typesHere = state.fCat === "all" ? [] : TYPES[state.fCat].filter(t => all.some(i => i.cat === state.fCat && i.type === t));
+  const typeChips = typesHere.length ? `<div class="chips" role="group" aria-label="Art">${[["all", "Alle " + CATS[state.fCat]], ...typesHere.map(t => [t, t])].map(([k, l]) => `<button class="chip chip-sm" data-act="ftype" data-v="${esc(k)}" aria-pressed="${state.fType === k}">${esc(l)}</button>`).join("")}</div>` : "";
+  const basicChip = all.some(i => i.basic) ? `<button class="chip" data-act="fbasic" aria-pressed="${state.fBasic}">Basics</button>` : "";
   const tiles = list.map(it => `<button class="tile${it.status !== "schrank" ? " is-dim" : ""}" data-act="open-item" data-v="${it.id}">
       <div class="thumb">${thumb(it)}${pill(it.status)}</div>
       <div class="name">${esc(it.name)}</div>
-      <div class="meta">${it.brand ? esc(it.brand) : CATS[it.cat]} · ${it.wears || 0}× getragen</div></button>`).join("");
+      <div class="meta">${esc(it.type || CATS[it.cat])}${it.brand ? " · " + esc(it.brand) : ""} · ${it.wears || 0}×</div></button>`).join("");
   const addTile = `<button class="tile-add" data-act="open-add">${ICON_PLUS}Neues Teil</button>`;
   const tk = todayKey();
   const todayItems = (state.plan.days[tk]?.items || []).map(byId).filter(Boolean);
@@ -992,7 +1032,7 @@ function viewSchrank() {
       ${todayItems.length ? `<div class="outfit">${todayItems.map(it => `<button class="mini${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div>
       <button class="btn btn-inv btn-wide" data-act="worn-today">Heute getragen</button>` : `<p class="note">Lass dir die Woche aus sauberen Teilen zusammenstellen.</p><button class="btn btn-inv btn-wide" data-act="tab" data-v="woche">Woche planen</button>`}
     </section>`;
-  const filtered = state.fCat !== "all" || state.fStatus !== "all";
+  const filtered = state.fCat !== "all" || state.fStatus !== "all" || state.fBasic;
   const wN = all.filter(i => i.status === "waesche").length;
   const quickbar = !filtered && wN ? `<div class="quickbar">${STATUS_ICON.waesche}<span>${wN} ${wN === 1 ? "Teil" : "Teile"} im Wäschekorb</span><button class="btn btn-ghost" data-act="laundry-done">Alles zurück</button></div>` : "";
   return `<div class="stack" style="gap:22px">
@@ -1001,7 +1041,8 @@ function viewSchrank() {
     ${quickbar}
     ${filtered ? "" : `<button class="cardlink" data-act="stats"><div><b>Dein Schrank in Zahlen</b><span>${statsTeaser()}</span></div>${ICON_CHEV}</button>`}
     <div class="toolbar">
-      <div class="chips" role="group" aria-label="Kategorie">${catChips}</div>
+      <div class="chips" role="group" aria-label="Kategorie">${catChips}${basicChip}</div>
+      ${typeChips}
     </div>
     ${state.fStatus === "forgotten" ? '<p class="sub" style="margin:0">Seit über 30 Tagen nicht getragen. Gute Kandidaten für die nächste Woche oder zum Weitergeben.</p>' : ""}
     ${tiles ? `<div class="grid">${tiles}${filtered ? "" : addTile}</div>` : `<div class="empty">Keine Teile in dieser Auswahl.</div>`}
@@ -1090,7 +1131,7 @@ function itemSheet(id, fromTag) {
       <div style="min-width:0;display:flex;flex-direction:column;gap:10px;align-items:flex-start"><h2>${esc(it.name)}</h2><span class="pill solid st-${it.status}"><i></i>${STATUS[it.status].label}</span></div></div>
     <dl class="kv">
       ${it.brand ? `<dt>Marke</dt><dd>${esc(it.brand)}</dd>` : ""}
-      <dt>Kategorie</dt><dd>${CATS[it.cat]}</dd>
+      <dt>Kategorie</dt><dd>${CATS[it.cat]}${it.type ? " · " + esc(it.type) : ""}${it.neck && NECKS[it.neck] ? " · " + NECKS[it.neck] : ""}${it.basic ? " · Basic" : ""}</dd>
       <dt>Farbe</dt><dd>${esc(it.color)}</dd>
       <dt>Anlass</dt><dd>${(it.occasions || []).map(o => OCC[o]).join(", ") || "–"}</dd>
       <dt>Getragen</dt><dd>${it.wears || 0}× · ${lastWornText(it)}</dd>
@@ -1102,6 +1143,8 @@ function itemSheet(id, fromTag) {
       <div class="set-row"><button class="btn btn-ghost btn-sm" data-act="lend-ics" data-v="${it.id}">Rückgabe in Kalender</button><button class="btn btn-ghost btn-sm" data-act="lend-remind" data-v="${it.id}">Freundlich erinnern</button></div></div>` : ""}
     ${washEvery(it) ? `<div class="field"><span class="lbl">Waschen nach ca.</span>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="stepper"><button data-act="wash-every" data-v="${it.id}" data-d="-1" aria-label="Weniger">−</button><b>${washEvery(it)}</b><button data-act="wash-every" data-v="${it.id}" data-d="1" aria-label="Mehr">+</button></div><span class="hint">× Tragen · seit der letzten Wäsche ${it.sinceWash || 0}× getragen</span></div></div>` : ""}
+    <details class="fb-more"${!(it.type || it.basic) || state.openDetails === it.id ? " open" : ""}><summary>Art, Ausschnitt und Stil ${it.type || it.basic ? "ändern" : "ergänzen"}</summary>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${detailFields(it, "i").replace(/data-act="i-(type|neck)" data-v="/g, `data-act="i-$1" data-v="${it.id}|`).replace(/data-act="i-basic"/, `data-act="i-basic" data-v="${it.id}"`)}</div></details>
     <div class="field"><label for="itemBrand">Marke (optional)</label><input type="text" id="itemBrand" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(it.brand || "")}">${brandList()}</div>
     <div class="field"><label for="priceInput">Kaufpreis (optional)</label><input type="text" id="priceInput" inputmode="decimal" placeholder="z. B. 49" value="${it.price > 0 ? String(it.price).replace(".", ",") : ""}" style="max-width:160px"><p class="hint">Damit siehst du, was dich jedes Tragen kostet. Je öfter getragen, desto günstiger und nachhaltiger.</p></div>
     <div class="actions">
@@ -1125,7 +1168,7 @@ function itemSheet(id, fromTag) {
 
 let addDraft = null;
 function addSheet() {
-  addDraft = { name: "", brand: "", cat: "top", color: "Schwarz", occasions: Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"], file: null, preview: null };
+  addDraft = { name: "", brand: "", type: null, neck: null, basic: false, cat: "top", color: "Schwarz", occasions: Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"], file: null, preview: null };
   drawAdd();
 }
 function drawAdd(focusName) {
@@ -1147,9 +1190,10 @@ function drawAdd(focusName) {
         </div>
       </div>
       ${d.file ? "" : `<div class="banner"><p><b>Viele Teile auf einmal?</b> Mach erst alle Fotos und wähl sie dann hier zusammen aus. Die App schätzt die Farbe, du tippst nur noch Namen und Kategorie.</p><span class="btn btn-ghost file-btn">Mehrere Fotos auswählen<input type="file" id="multiInput" accept="image/*" multiple aria-label="Mehrere Fotos wählen"></span></div>`}
-      <div class="field"><label for="nameInput">Name</label><input type="text" id="nameInput" maxlength="40" placeholder="z. B. Navy Strickpullover" value="${esc(d.name)}" required></div>
+      <div class="field"><label for="nameInput">Name</label><input type="text" id="nameInput" maxlength="40" placeholder="${d.type ? `z. B. ${esc(d.type)} ${esc(d.color)}` : "z. B. Navy Strickpullover"}" value="${esc(d.name)}"></div>
       <div class="field"><label for="brandInput">Marke (optional)</label><input type="text" id="brandInput" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(d.brand)}">${brandList()}</div>
       <div class="field"><span class="lbl">Kategorie</span><div class="chips wrap">${catChips}</div></div>
+      ${detailFields(d, "d")}
       <div class="field"><span class="lbl">Farbe · ${esc(d.color)}</span><div class="swatches">${sw}</div></div>
       <div class="field"><span class="lbl">Passt zu</span><div class="chips wrap">${occChips}</div></div>
       <div class="set-row"><button class="btn btn-primary" type="submit" id="saveBtn">In den Schrank legen</button><button class="btn btn-ghost" type="submit" data-next="1">Speichern + nächstes</button></div>
@@ -1173,8 +1217,8 @@ function drawAdd(focusName) {
   document.getElementById("addForm").addEventListener("submit", async ev => {
     ev.preventDefault();
     const next = !!ev.submitter?.dataset?.next;
-    const name = addDraft.name.trim();
-    if (!name) { nameInput.focus(); toast("Gib dem Teil einen Namen."); return; }
+    const name = addDraft.name.trim() || (addDraft.type ? `${addDraft.type} ${addDraft.color}` : "");
+    if (!name) { nameInput.focus(); toast("Gib dem Teil einen Namen oder wähl die Art."); return; }
     const btn = document.getElementById("saveBtn"); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Speichere…';
     let photo = null;
     if (addDraft.file && assets && state.mode === "db") {
@@ -1183,10 +1227,13 @@ function drawAdd(focusName) {
     }
     const data = { name, cat: addDraft.cat, color: addDraft.color, occasions: [...addDraft.occasions], status: "schrank" };
     const br = cleanBrand(addDraft.brand); if (br) data.brand = br;
+    if (addDraft.type) data.type = addDraft.type;
+    if (addDraft.neck && NECK_CATS.has(addDraft.cat)) data.neck = addDraft.neck;
+    if (addDraft.basic) data.basic = true;
     if (photo) data.photo = photo;
     meta.lastOcc = [...addDraft.occasions]; saveMeta();
     closeSheet();
-    state.fCat = "all"; state.fStatus = "all"; state.tab = "schrank";
+    state.fCat = "all"; state.fType = "all"; state.fBasic = false; state.fStatus = "all"; state.tab = "schrank";
     await addItem(data);
     toast(`„${name}“ hängt jetzt im Schrank.`);
     if (next) addSheet();
@@ -1204,7 +1251,7 @@ async function shrink(file, max = 1000) {
 }
 function recognizePrompt() {
   return `Das Foto zeigt ein Kleidungsstück oder Accessoire. Antworte nur mit JSON:
-{"name": "kurzer deutscher Name, 2-3 Wörter, z.B. Navy Strickpullover", "brand": "Marke, nur wenn ein Logo oder Etikett klar lesbar ist, sonst leerer Text", "cat": eins von ${JSON.stringify(CAT_ORDER)} (top=Oberteil, bottom=Hose oder Rock, dress=Kleid, jacket=Jacke oder Mantel, shoes=Schuhe, acc=Accessoire), "color": eins von ${JSON.stringify(COLORS.map(c => c[0]))}, "occasions": Teilmenge von ${JSON.stringify(OCC_KEYS)}}`;
+{"name": "kurzer deutscher Name, 2-3 Wörter, z.B. Navy Strickpullover", "brand": "Marke, nur wenn ein Logo oder Etikett klar lesbar ist, sonst leerer Text", "type": passende Art aus ${JSON.stringify(TYPES)} zur gewählten Kategorie, "neck": eins von ${JSON.stringify(Object.keys(NECKS))} oder leer (nur bei Oberteil und Kleid), "cat": eins von ${JSON.stringify(CAT_ORDER)} (top=Oberteil, bottom=Hose oder Rock, dress=Kleid, jacket=Jacke oder Mantel, shoes=Schuhe, acc=Accessoire), "color": eins von ${JSON.stringify(COLORS.map(c => c[0]))}, "occasions": Teilmenge von ${JSON.stringify(OCC_KEYS)}}`;
 }
 async function recognize() {
   const btn = document.getElementById("aiBtn");
@@ -1215,6 +1262,8 @@ async function recognize() {
     if (!addDraft) return;
     if (typeof r?.name === "string" && r.name.trim()) addDraft.name = r.name.trim().slice(0, 40);
     if (typeof r?.brand === "string" && r.brand.trim() && !addDraft.brand.trim()) addDraft.brand = cleanBrand(r.brand);
+    if ((TYPES[addDraft.cat] || []).includes(r?.type)) addDraft.type = r.type;
+    if (NECKS[r?.neck] && NECK_CATS.has(addDraft.cat)) addDraft.neck = r.neck;
     if (CATS[r?.cat]) addDraft.cat = r.cat;
     if (COLOR_HEX[r?.color]) addDraft.color = r.color;
     if (Array.isArray(r?.occasions)) { const o = r.occasions.filter(x => OCC[x]); if (o.length) addDraft.occasions = o; }
@@ -1389,7 +1438,8 @@ function localListing(d) {
   const ziel = Math.max(3, Math.round(neu * share));
   const inserat = Math.max(ziel + 1, Math.round(ziel * 1.12));
   const schnell = Math.max(2, Math.round(ziel * .8));
-  const details = [A.brand && "Marke: " + A.brand, A.material && "Material: " + A.material, A.size && "Größe: " + A.size, A.measures && "Maße: " + A.measures, cond && "Zustand: " + cond + (A.defects && A.defects !== "Keine Mängel" ? " (" + A.defects + ")" : ", keine Mängel")].filter(Boolean).join("\n");
+  const src = d.itemId ? byId(d.itemId) : null;
+  const details = [A.brand && "Marke: " + A.brand, src?.type && "Art: " + src.type, src?.neck && NECKS[src.neck] && "Ausschnitt: " + NECKS[src.neck], A.material && "Material: " + A.material, A.size && "Größe: " + A.size, A.measures && "Maße: " + A.measures, cond && "Zustand: " + cond + (A.defects && A.defects !== "Keine Mängel" ? " (" + A.defects + ")" : ", keine Mängel")].filter(Boolean).join("\n");
   const tags = ["#" + (A.brand || "secondhand").replace(/\s+/g, "").toLowerCase(), "#" + art.split(" ").pop().toLowerCase(), d.color ? "#" + d.color.toLowerCase() : "", "#preloved", "#nachhaltig"].filter(Boolean).join(" ");
   return {
     titel,
@@ -1533,7 +1583,8 @@ async function generateListing() {
   if (!sample) { d.result = localListing(d); sell.step = 3; await saveListing(true); render(); return toast("Inserat fertig und als Entwurf gespeichert."); }
   sell.busy = "gen"; render();
   const it = d.itemId ? byId(d.itemId) : null;
-  const info = { art: d.name || d.check?.seen?.art || "", kategorie: CATS[d.cat] || "", farbe: d.color || "", marke: A.brand, groesse: A.size, zustand: COND[A.condition], maengel: A.defects || "keine angegeben", material: A.material, masse: A.measures, neupreis_euro: A.originalPrice, mal_getragen: it ? it.wears || 0 : "unbekannt" };
+  const srcIt = d.itemId ? byId(d.itemId) : null;
+  const info = { typ: srcIt?.type || "", ausschnitt: NECKS[srcIt?.neck] || "", art: d.name || d.check?.seen?.art || "", kategorie: CATS[d.cat] || "", farbe: d.color || "", marke: A.brand, groesse: A.size, zustand: COND[A.condition], maengel: A.defects || "keine angegeben", material: A.material, masse: A.measures, neupreis_euro: A.originalPrice, mal_getragen: it ? it.wears || 0 : "unbekannt" };
   try {
     const r = await sample.json(`Du bist Experte für Secondhand-Mode auf Vinted Deutschland. Erstelle ein Inserat für diesen Artikel:
 ${JSON.stringify(info)}
@@ -1757,9 +1808,11 @@ document.addEventListener("click", async e => {
   const act = el.dataset.act, v = el.dataset.v;
   switch (act) {
     case "tab": state.tab = v; render(); window.scrollTo({ top: 0 }); break;
-    case "fcat": state.fCat = v; render(); break;
+    case "fcat": state.fCat = v; state.fType = "all"; render(); break;
+    case "ftype": state.fType = v; render(); break;
+    case "fbasic": state.fBasic = !state.fBasic; render(); break;
     case "fstatus": state.fStatus = state.fStatus === v ? "all" : v; render(); break;
-    case "open-item": state.armedDelete = null; itemSheet(v); break;
+    case "open-item": state.armedDelete = null; state.openDetails = null; itemSheet(v); break;
     case "set-status": {
       const s = el.dataset.s;
       const cur = byId(v);
@@ -1800,7 +1853,13 @@ document.addEventListener("click", async e => {
     case "worn-today": wornToday(); break;
     case "laundry-done": bulkBack("waesche"); break;
     case "cleaning-done": bulkBack("reinigung"); break;
-    case "d-cat": addDraft.cat = v; drawAdd(); break;
+    case "d-cat": if (addDraft.cat !== v) { addDraft.cat = v; addDraft.type = null; if (!NECK_CATS.has(v)) addDraft.neck = null; } drawAdd(); break;
+    case "d-type": toggleType(addDraft, v); drawAdd(); break;
+    case "d-neck": addDraft.neck = addDraft.neck === v ? null : v; addDraft.neckTouched = true; drawAdd(); break;
+    case "d-basic": addDraft.basic = !addDraft.basic; drawAdd(); break;
+    case "i-type": { state.openDetails = (v || "").split("|")[0]; const it = byId(v.split("|")[0]); if (!it) break; const d = { ...it }; toggleType(d, v.split("|")[1]); await patchItem(it.id, { type: d.type || null, ...(d.neck !== it.neck ? { neck: d.neck } : {}) }); itemSheet(it.id); break; }
+    case "i-neck": { state.openDetails = (v || "").split("|")[0]; const it = byId(v.split("|")[0]); if (!it) break; const n = v.split("|")[1]; await patchItem(it.id, { neck: it.neck === n ? null : n }); itemSheet(it.id); break; }
+    case "i-basic": { state.openDetails = (v || "").split("|")[0]; const it = byId(v); if (!it) break; await patchItem(it.id, { basic: !it.basic }); itemSheet(it.id); break; }
     case "d-color": addDraft.color = v; addDraft.colorTouched = true; drawAdd(); break;
     case "d-occ": {
       const o = addDraft.occasions;
@@ -1912,7 +1971,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.6";
+const APP_VERSION = "0.7";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -2145,6 +2204,7 @@ function usageSummary() {
   const e = ecoSaved(own); if (e.n) lines.push(`Nochmal getragen statt gewaschen: ${e.n}`);
   const pc = own.filter(i => i.price > 0).length; if (pc) lines.push(`Teile mit Kaufpreis: ${pc}`);
   const bc = own.filter(i => i.brand).length; if (bc) lines.push(`Teile mit Marke: ${bc}`);
+  const tc = own.filter(i => i.type).length; if (tc) lines.push(`Teile mit Art: ${tc}, Basics: ${own.filter(i => i.basic).length}`);
   lines.push(`Gerät: ${deviceKind()}`);
   return lines.join("\n");
 }
@@ -2232,7 +2292,7 @@ async function quickSheet(files) {
   openSheet(`<h2>Fotos werden <em>vorbereitet</em> …</h2><p class="hint"><span class="spin"></span> ${list.length} ${list.length === 1 ? "Foto" : "Fotos"}</p>`);
   const occ = Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"];
   const rows = [];
-  for (const f of list) rows.push({ file: f, preview: URL.createObjectURL(f), name: "", brand: "", cat: "top", color: (await guessColor(f)) || "Schwarz" });
+  for (const f of list) rows.push({ file: f, preview: URL.createObjectURL(f), name: "", brand: "", type: "", cat: "top", color: (await guessColor(f)) || "Schwarz" });
   quick = { occasions: occ, rows, busy: false };
   if (files.length > 30) toast("Maximal 30 Fotos auf einmal. Die ersten 30 sind drin.");
   drawQuick();
@@ -2246,21 +2306,22 @@ function drawQuick() {
       <div class="q-f">
         <input type="text" maxlength="40" data-q="name" data-i="${i}" placeholder="Name (optional)" value="${esc(r.name)}" aria-label="Name für Foto ${i + 1}">
         <input type="text" maxlength="40" data-q="brand" data-i="${i}" list="brandList" autocomplete="off" placeholder="Marke (optional)" value="${esc(r.brand)}" aria-label="Marke für Foto ${i + 1}">
-        <div class="q-sel"><select data-q="cat" data-i="${i}" aria-label="Kategorie">${catOpts(r.cat)}</select><select data-q="color" data-i="${i}" aria-label="Farbe">${colOpts(r.color)}</select></div>
+        <div class="q-sel"><select data-q="cat" data-i="${i}" aria-label="Kategorie">${catOpts(r.cat)}</select><select data-q="type" data-i="${i}" aria-label="Art"><option value="">Art …</option>${(TYPES[r.cat] || []).map(t => `<option${t === r.type ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></div>
+        <select data-q="color" data-i="${i}" aria-label="Farbe">${colOpts(r.color)}</select>
       </div>
       <button type="button" class="icon-btn" data-act="q-del" data-v="${i}" aria-label="Foto ${i + 1} entfernen"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
     </div>`).join("");
   const occChips = OCC_KEYS.map(o => `<button type="button" class="chip" data-act="q-occ" data-v="${o}" aria-pressed="${q.occasions.includes(o)}">${OCC[o]}</button>`).join("");
   const n = q.rows.length;
   openSheet(`<h2>Schnell <em>erfassen</em></h2>
-    <p class="hint">${n} ${n === 1 ? "Foto" : "Fotos"}. Die Farbe ist geschätzt. Prüf kurz die Kategorie. Ohne Namen nennt die App das Teil nach Kategorie und Farbe.</p>
+    <p class="hint">${n} ${n === 1 ? "Foto" : "Fotos"}. Die Farbe ist geschätzt. Prüf kurz Kategorie und Art. Ohne Namen nennt die App das Teil nach Art und Farbe, z. B. „Hoodie Schwarz“.</p>
     ${sampleImages ? `<button class="btn btn-accent btn-wide" data-act="q-ai" ${q.busy ? "disabled" : ""}>${q.busy ? `<span class="spin"></span> ${esc(q.busy)}` : ICON_SPARK + " Alle mit KI erkennen"}</button>` : ""}
     <div class="q-list">${rows}</div>${brandList()}
     <div class="field"><span class="lbl">Passt zu (für alle)</span><div class="chips wrap">${occChips}</div></div>
     <button class="btn btn-primary btn-wide" data-act="q-save" id="qSave" ${q.busy ? "disabled" : ""}>Alle ${n} in den Schrank legen</button>`,
     () => { if (quick && !quick.saving) quick.rows.forEach(r => URL.revokeObjectURL(r.preview)); quick = null; });
   sheet.querySelectorAll("[data-q]").forEach(el => {
-    const upd = () => { const r = quick?.rows[Number(el.dataset.i)]; if (r) r[el.dataset.q] = el.value; };
+    const upd = () => { const r = quick?.rows[Number(el.dataset.i)]; if (!r) return; const was = r[el.dataset.q]; r[el.dataset.q] = el.value; if (el.dataset.q === "cat" && was !== el.value) { r.type = ""; drawQuick(); } };
     el.addEventListener("input", upd); el.addEventListener("change", upd);
   });
 }
@@ -2274,6 +2335,7 @@ async function quickAI() {
       const res = await sample.json(recognizePrompt(), { images: [await shrink(r.file)], modelTier: "quick" });
       if (typeof res?.name === "string" && res.name.trim() && !r.name.trim()) r.name = res.name.trim().slice(0, 40);
       if (typeof res?.brand === "string" && res.brand.trim() && !r.brand.trim()) r.brand = cleanBrand(res.brand);
+      if ((TYPES[CATS[res?.cat] ? res.cat : r.cat] || []).includes(res?.type)) r.type = res.type;
       if (CATS[res?.cat]) r.cat = res.cat;
       if (COLOR_HEX[res?.color]) r.color = res.color;
     } catch (e) {
@@ -2298,9 +2360,10 @@ async function saveQuick() {
     if (assets && state.mode === "db") {
       try { photo = (await assets.upload(await shrink(r.file), { type: "image/jpeg" })).id; } catch {}
     }
-    const name = r.name.trim() || `${CATS[r.cat]} ${r.color}`;
+    const name = r.name.trim() || `${r.type || CATS[r.cat]} ${r.color}`;
     const data = { name, cat: r.cat, color: r.color, occasions: [...q.occasions], status: "schrank" };
     const br = cleanBrand(r.brand); if (br) data.brand = br;
+    if (r.type && (TYPES[r.cat] || []).includes(r.type)) { data.type = r.type; if (TYPE_NECK[r.type] && NECK_CATS.has(r.cat)) data.neck = TYPE_NECK[r.type]; }
     if (photo) data.photo = photo;
     await addItem(data);
   }
@@ -2308,7 +2371,7 @@ async function saveQuick() {
   meta.lastOcc = [...q.occasions]; saveMeta();
   q.rows.forEach(r => URL.revokeObjectURL(r.preview));
   closeSheet();
-  state.fCat = "all"; state.fStatus = "all"; state.tab = "schrank"; render(); window.scrollTo({ top: 0 });
+  state.fCat = "all"; state.fType = "all"; state.fBasic = false; state.fStatus = "all"; state.tab = "schrank"; render(); window.scrollTo({ top: 0 });
   toast(`${total} ${total === 1 ? "Teil hängt" : "Teile hängen"} jetzt im Schrank.`);
 }
 
