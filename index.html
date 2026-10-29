@@ -563,22 +563,22 @@ function isoWeek(date) {
 }
 
 const EXAMPLES = [
-  { id: "ex01", name: "Weißes Hemd", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(6), price: 49 },
-  { id: "ex02", name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3), rewears: 5 },
+  { id: "ex01", brand: "COS", name: "Weißes Hemd", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(6), price: 49 },
+  { id: "ex02", brand: "Arket", name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3), rewears: 5 },
   { id: "ex03", name: "Graues T-Shirt", cat: "top", color: "Grau", occasions: ["freizeit", "sport", "schule"], status: "waesche", wears: 22, lastWorn: daysAgo(1) },
   { id: "ex04", name: "Hellblaues Hemd", cat: "top", color: "Blau", occasions: ["buero"], status: "schrank", wears: 7, lastWorn: daysAgo(9) },
-  { id: "ex05", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2), price: 89, rewears: 18 },
+  { id: "ex05", brand: "Levi's", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2), price: 89, rewears: 18 },
   { id: "ex06", name: "Beige Chino", cat: "bottom", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 11, lastWorn: daysAgo(5) },
   { id: "ex07", name: "Schwarze Anzughose", cat: "bottom", color: "Schwarz", occasions: ["buero", "abend"], status: "schrank", wears: 8, lastWorn: daysAgo(12) },
   { id: "ex08", name: "Laufshorts", cat: "bottom", color: "Schwarz", occasions: ["sport"], status: "schrank", wears: 18, lastWorn: daysAgo(4) },
   { id: "ex09", name: "Bordeaux Kleid", cat: "dress", color: "Bordeaux", occasions: ["abend"], status: "schrank", wears: 2, lastWorn: daysAgo(74), price: 120 },
-  { id: "ex10", name: "Navy Blazer", cat: "jacket", color: "Navy", occasions: ["buero", "abend"], status: "reinigung", wears: 10, lastWorn: daysAgo(8) },
+  { id: "ex10", brand: "Massimo Dutti", name: "Navy Blazer", cat: "jacket", color: "Navy", occasions: ["buero", "abend"], status: "reinigung", wears: 10, lastWorn: daysAgo(8) },
   { id: "ex11", name: "Olivgrüne Feldjacke", cat: "jacket", color: "Oliv", occasions: ["freizeit", "schule"], status: "schrank", wears: 16, lastWorn: daysAgo(3) },
-  { id: "ex12", name: "Weiße Sneaker", cat: "shoes", color: "Weiß", occasions: ["freizeit", "schule", "buero"], status: "schrank", wears: 40, lastWorn: daysAgo(1), price: 99 },
+  { id: "ex12", brand: "Veja", name: "Weiße Sneaker", cat: "shoes", color: "Weiß", occasions: ["freizeit", "schule", "buero"], status: "schrank", wears: 40, lastWorn: daysAgo(1), price: 99 },
   { id: "ex13", name: "Braune Lederschuhe", cat: "shoes", color: "Braun", occasions: ["buero", "abend"], status: "schrank", wears: 19, lastWorn: daysAgo(6) },
-  { id: "ex14", name: "Laufschuhe", cat: "shoes", color: "Blau", occasions: ["sport"], status: "schrank", wears: 25, lastWorn: daysAgo(4) },
+  { id: "ex14", brand: "Asics", name: "Laufschuhe", cat: "shoes", color: "Blau", occasions: ["sport"], status: "schrank", wears: 25, lastWorn: daysAgo(4) },
   { id: "ex15", name: "Ledergürtel", cat: "acc", color: "Braun", occasions: ["buero", "abend"], status: "verliehen", wears: 12, lastWorn: daysAgo(40), lentTo: "Bruder", lentUntil: daysAgo(2) },
-  { id: "ex16", name: "Gelber Hoodie", cat: "top", color: "Gelb", occasions: ["freizeit"], status: "schrank", wears: 1, lastWorn: daysAgo(63), price: 35 }
+  { id: "ex16", brand: "H&M", name: "Gelber Hoodie", cat: "top", color: "Gelb", occasions: ["freizeit"], status: "schrank", wears: 1, lastWorn: daysAgo(63), price: 35 }
 ].map(it => ({ ...it, createdAt: daysAgo(120) }));
 
 function emptyPlan() {
@@ -689,6 +689,26 @@ function wearPatch(it, mode) {
   else { p.sinceWash = since; p.rewears = (it.rewears || 0) + 1; }
   return p;
 }
+/* ---------- Marken ---------- */
+// Grobe Preisklassen nur für den Preisvorschlag ohne Neupreis. Faustregel, keine Marktdaten.
+const BRAND_TIERS = {
+  fast: ["H&M", "Primark", "Shein", "C&A", "Zara", "Bershka", "Pull&Bear", "Stradivarius", "New Yorker", "KiK", "Takko", "Kiabi", "Reserved", "Mango", "Only", "Vero Moda", "Jack & Jones", "Esprit", "s.Oliver", "Tom Tailor", "Uniqlo", "Gina Tricot", "Monki", "Weekday", "Asos"],
+  premium: ["COS", "Arket", "& Other Stories", "Massimo Dutti", "Levi's", "Tommy Hilfiger", "Calvin Klein", "Marc O'Polo", "Lacoste", "Ralph Lauren", "Polo Ralph Lauren", "Boss", "Hugo Boss", "Hugo", "Armedangels", "Patagonia", "The North Face", "Nike", "Adidas", "New Balance", "Asics", "Puma", "Veja", "Birkenstock", "Dr. Martens", "Converse", "Vans", "Filippa K", "Samsøe Samsøe", "Closed", "Drykorn", "Scotch & Soda", "Diesel", "Carhartt WIP", "Columbia", "Jack Wolfskin", "Timberland", "Ugg", "Mammut", "Arc'teryx"],
+  luxury: ["Gucci", "Prada", "Louis Vuitton", "Burberry", "Moncler", "Canada Goose", "Acne Studios", "Max Mara", "Saint Laurent", "Balenciaga", "Hermès", "Dior", "Chanel", "Isabel Marant", "Ganni", "Stone Island", "Miu Miu", "Bottega Veneta", "Celine", "Loewe", "Valentino", "Versace", "Fendi", "Jil Sander", "Maison Margiela", "Off-White", "A.P.C.", "Sandro", "Maje", "Zadig & Voltaire", "Tory Burch"]
+};
+const BRAND_CANON = new Map(Object.values(BRAND_TIERS).flat().map(b => [b.toLowerCase(), b]));
+const BRAND_TIER = new Map(Object.entries(BRAND_TIERS).flatMap(([t, l]) => l.map(b => [b.toLowerCase(), t])));
+function cleanBrand(v) {
+  const t = String(v || "").replace(/\s+/g, " ").trim().slice(0, 40);
+  return BRAND_CANON.get(t.toLowerCase()) || t;
+}
+const brandTier = b => BRAND_TIER.get(String(b || "").trim().toLowerCase()) || null;
+function brandList() {
+  const used = [...new Set(state.items.map(i => i.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b, "de"));
+  const rest = [...BRAND_CANON.values()].filter(b => !used.includes(b)).sort((a, b) => a.localeCompare(b, "de"));
+  return `<datalist id="brandList">${[...used, ...rest].map(b => `<option value="${esc(b)}"></option>`).join("")}</datalist>`;
+}
+
 const isOverdue = it => it.status === "verliehen" && it.lentUntil && it.lentUntil < todayIso();
 const fmtDate = isoStr => new Date(isoStr + "T12:00:00").toLocaleDateString("de-DE", { day: "numeric", month: "short" });
 
@@ -962,7 +982,7 @@ function viewSchrank() {
   const tiles = list.map(it => `<button class="tile${it.status !== "schrank" ? " is-dim" : ""}" data-act="open-item" data-v="${it.id}">
       <div class="thumb">${thumb(it)}${pill(it.status)}</div>
       <div class="name">${esc(it.name)}</div>
-      <div class="meta">${CATS[it.cat]} · ${it.wears || 0}× getragen</div></button>`).join("");
+      <div class="meta">${it.brand ? esc(it.brand) : CATS[it.cat]} · ${it.wears || 0}× getragen</div></button>`).join("");
   const addTile = `<button class="tile-add" data-act="open-add">${ICON_PLUS}Neues Teil</button>`;
   const tk = todayKey();
   const todayItems = (state.plan.days[tk]?.items || []).map(byId).filter(Boolean);
@@ -1069,6 +1089,7 @@ function itemSheet(id, fromTag) {
     <div class="hero"><div class="thumb">${thumb(it)}</div>
       <div style="min-width:0;display:flex;flex-direction:column;gap:10px;align-items:flex-start"><h2>${esc(it.name)}</h2><span class="pill solid st-${it.status}"><i></i>${STATUS[it.status].label}</span></div></div>
     <dl class="kv">
+      ${it.brand ? `<dt>Marke</dt><dd>${esc(it.brand)}</dd>` : ""}
       <dt>Kategorie</dt><dd>${CATS[it.cat]}</dd>
       <dt>Farbe</dt><dd>${esc(it.color)}</dd>
       <dt>Anlass</dt><dd>${(it.occasions || []).map(o => OCC[o]).join(", ") || "–"}</dd>
@@ -1081,6 +1102,7 @@ function itemSheet(id, fromTag) {
       <div class="set-row"><button class="btn btn-ghost btn-sm" data-act="lend-ics" data-v="${it.id}">Rückgabe in Kalender</button><button class="btn btn-ghost btn-sm" data-act="lend-remind" data-v="${it.id}">Freundlich erinnern</button></div></div>` : ""}
     ${washEvery(it) ? `<div class="field"><span class="lbl">Waschen nach ca.</span>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="stepper"><button data-act="wash-every" data-v="${it.id}" data-d="-1" aria-label="Weniger">−</button><b>${washEvery(it)}</b><button data-act="wash-every" data-v="${it.id}" data-d="1" aria-label="Mehr">+</button></div><span class="hint">× Tragen · seit der letzten Wäsche ${it.sinceWash || 0}× getragen</span></div></div>` : ""}
+    <div class="field"><label for="itemBrand">Marke (optional)</label><input type="text" id="itemBrand" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(it.brand || "")}">${brandList()}</div>
     <div class="field"><label for="priceInput">Kaufpreis (optional)</label><input type="text" id="priceInput" inputmode="decimal" placeholder="z. B. 49" value="${it.price > 0 ? String(it.price).replace(".", ",") : ""}" style="max-width:160px"><p class="hint">Damit siehst du, was dich jedes Tragen kostet. Je öfter getragen, desto günstiger und nachhaltiger.</p></div>
     <div class="actions">
       <button class="btn btn-ghost" data-act="worn" data-v="${it.id}">Heute getragen</button>
@@ -1092,6 +1114,8 @@ function itemSheet(id, fromTag) {
       <p class="hint">Diesen Link mit einer App wie „NFC Tools“ auf das Etikett schreiben. Danach öffnet Antippen mit dem Handy genau dieses Teil.${state.usingExamples ? " Bei Beispielteilen klappt das nur zum Ausprobieren." : ""}</p></div>
     <button class="btn btn-danger${state.armedDelete === it.id ? " armed" : ""}" data-act="delete" data-v="${it.id}">${state.armedDelete === it.id ? "Wirklich löschen? Nochmal tippen" : "Teil löschen"}</button>
   `);
+  const ib = document.getElementById("itemBrand");
+  ib?.addEventListener("change", () => { patchItem(id, { brand: cleanBrand(ib.value) || null }); itemSheet(id); });
   const pr = document.getElementById("priceInput");
   pr?.addEventListener("change", () => { const n = parseFloat(pr.value.replace(/[^0-9,.]/g, "").replace(",", ".")); patchItem(id, { price: n > 0 ? Math.round(n * 100) / 100 : null }); itemSheet(id); });
   const lt = document.getElementById("lendTo"), lu = document.getElementById("lendUntil");
@@ -1101,7 +1125,7 @@ function itemSheet(id, fromTag) {
 
 let addDraft = null;
 function addSheet() {
-  addDraft = { name: "", cat: "top", color: "Schwarz", occasions: Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"], file: null, preview: null };
+  addDraft = { name: "", brand: "", cat: "top", color: "Schwarz", occasions: Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"], file: null, preview: null };
   drawAdd();
 }
 function drawAdd(focusName) {
@@ -1124,6 +1148,7 @@ function drawAdd(focusName) {
       </div>
       ${d.file ? "" : `<div class="banner"><p><b>Viele Teile auf einmal?</b> Mach erst alle Fotos und wähl sie dann hier zusammen aus. Die App schätzt die Farbe, du tippst nur noch Namen und Kategorie.</p><span class="btn btn-ghost file-btn">Mehrere Fotos auswählen<input type="file" id="multiInput" accept="image/*" multiple aria-label="Mehrere Fotos wählen"></span></div>`}
       <div class="field"><label for="nameInput">Name</label><input type="text" id="nameInput" maxlength="40" placeholder="z. B. Navy Strickpullover" value="${esc(d.name)}" required></div>
+      <div class="field"><label for="brandInput">Marke (optional)</label><input type="text" id="brandInput" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(d.brand)}">${brandList()}</div>
       <div class="field"><span class="lbl">Kategorie</span><div class="chips wrap">${catChips}</div></div>
       <div class="field"><span class="lbl">Farbe · ${esc(d.color)}</span><div class="swatches">${sw}</div></div>
       <div class="field"><span class="lbl">Passt zu</span><div class="chips wrap">${occChips}</div></div>
@@ -1131,6 +1156,8 @@ function drawAdd(focusName) {
     </form>`, () => { if (addDraft?.preview) URL.revokeObjectURL(addDraft.preview); addDraft = null; });
   const nameInput = document.getElementById("nameInput");
   nameInput.addEventListener("input", () => { addDraft.name = nameInput.value; });
+  const brandInput = document.getElementById("brandInput");
+  brandInput.addEventListener("input", () => { addDraft.brand = brandInput.value; });
   if (focusName) nameInput.focus();
   document.getElementById("photoInput").addEventListener("change", ev => {
     const f = ev.target.files?.[0]; if (!f) return;
@@ -1155,6 +1182,7 @@ function drawAdd(focusName) {
       catch (e) { toast(e?.code === "too_large" ? "Foto zu groß, das Teil wird ohne Foto gespeichert." : "Foto konnte nicht gespeichert werden, das Teil wird ohne Foto angelegt."); }
     }
     const data = { name, cat: addDraft.cat, color: addDraft.color, occasions: [...addDraft.occasions], status: "schrank" };
+    const br = cleanBrand(addDraft.brand); if (br) data.brand = br;
     if (photo) data.photo = photo;
     meta.lastOcc = [...addDraft.occasions]; saveMeta();
     closeSheet();
@@ -1176,7 +1204,7 @@ async function shrink(file, max = 1000) {
 }
 function recognizePrompt() {
   return `Das Foto zeigt ein Kleidungsstück oder Accessoire. Antworte nur mit JSON:
-{"name": "kurzer deutscher Name, 2-3 Wörter, z.B. Navy Strickpullover", "cat": eins von ${JSON.stringify(CAT_ORDER)} (top=Oberteil, bottom=Hose oder Rock, dress=Kleid, jacket=Jacke oder Mantel, shoes=Schuhe, acc=Accessoire), "color": eins von ${JSON.stringify(COLORS.map(c => c[0]))}, "occasions": Teilmenge von ${JSON.stringify(OCC_KEYS)}}`;
+{"name": "kurzer deutscher Name, 2-3 Wörter, z.B. Navy Strickpullover", "brand": "Marke, nur wenn ein Logo oder Etikett klar lesbar ist, sonst leerer Text", "cat": eins von ${JSON.stringify(CAT_ORDER)} (top=Oberteil, bottom=Hose oder Rock, dress=Kleid, jacket=Jacke oder Mantel, shoes=Schuhe, acc=Accessoire), "color": eins von ${JSON.stringify(COLORS.map(c => c[0]))}, "occasions": Teilmenge von ${JSON.stringify(OCC_KEYS)}}`;
 }
 async function recognize() {
   const btn = document.getElementById("aiBtn");
@@ -1186,6 +1214,7 @@ async function recognize() {
     const r = await sample.json(prompt, { images: [await shrink(addDraft.file)], modelTier: "quick" });
     if (!addDraft) return;
     if (typeof r?.name === "string" && r.name.trim()) addDraft.name = r.name.trim().slice(0, 40);
+    if (typeof r?.brand === "string" && r.brand.trim() && !addDraft.brand.trim()) addDraft.brand = cleanBrand(r.brand);
     if (CATS[r?.cat]) addDraft.cat = r.cat;
     if (COLOR_HEX[r?.color]) addDraft.color = r.color;
     if (Array.isArray(r?.occasions)) { const o = r.occasions.filter(x => OCC[x]); if (o.length) addDraft.occasions = o; }
@@ -1242,7 +1271,7 @@ function newDraft(itemId) {
   const d = {
     id: newKey("ls"), itemId: it?.id || null, name: it?.name || "", cat: it?.cat || "", color: it?.color || "",
     photos: [], check: null, collage: null, style: null,
-    answers: { brand: "", size: "", condition: "", defects: "", material: "", measures: "", originalPrice: "" },
+    answers: { brand: it?.brand || "", size: "", condition: "", defects: "", material: "", measures: "", originalPrice: it?.price ? String(it.price).replace(".", ",") : "" },
     freeText: "", result: null, status: "entwurf", updatedAt: nowIso()
   };
   if (it?.photo) d.photos.push({ k: "a" + it.photo, asset: it.photo, shared: true });
@@ -1353,8 +1382,10 @@ function localListing(d) {
   let titel = "";
   for (const p of parts.filter(Boolean)) { const next = titel ? titel + " " + p : p; if (next.length <= 60) titel = next; }
   const base = { top: 30, bottom: 40, dress: 45, jacket: 70, shoes: 60, acc: 25 };
-  const neu = parseFloat(String(A.originalPrice || "").replace(",", ".")) || base[d.cat] || 35;
-  const share = { neu_etikett: .45, neu: .4, sehr_gut: .3, gut: .22, ok: .12 }[A.condition] || .25;
+  const tier = brandTier(A.brand);
+  const tierF = { fast: .6, premium: 1.6, luxury: 4 }[tier] || 1;
+  const neu = parseFloat(String(A.originalPrice || "").replace(",", ".")) || Math.round((base[d.cat] || 35) * tierF);
+  const share = ({ neu_etikett: .45, neu: .4, sehr_gut: .3, gut: .22, ok: .12 }[A.condition] || .25) + (tier === "luxury" ? .1 : tier === "premium" ? .04 : tier === "fast" ? -.04 : 0);
   const ziel = Math.max(3, Math.round(neu * share));
   const inserat = Math.max(ziel + 1, Math.round(ziel * 1.12));
   const schnell = Math.max(2, Math.round(ziel * .8));
@@ -1365,7 +1396,8 @@ function localListing(d) {
     beschreibung: `${art}${A.brand ? " von " + A.brand : ""}${d.color ? " in " + d.color : ""}. Ein schönes Teil, das bei mir leider zu selten getragen wird.\n\n${details}\n\nSchneller Versand, Bündelrabatt möglich. Fragen gern per Nachricht.\n\n${tags}`,
     kategorie: "",
     preis: { inserat, ziel, schnell },
-    begruendung: A.originalPrice ? `Faustregel: etwa ${Math.round(share * 100)} % vom Neupreis bei Zustand „${cond || "gut"}“, mit etwas Luft zum Verhandeln.` : "Ohne Neupreis geschätzt. Trag den Neupreis ein, dann wird der Vorschlag genauer.",
+    begruendung: (A.originalPrice ? `Faustregel: etwa ${Math.round(share * 100)} % vom Neupreis bei Zustand „${cond || "gut"}“, mit etwas Luft zum Verhandeln.` : "Ohne Neupreis geschätzt. Trag den Neupreis ein, dann wird der Vorschlag genauer.")
+      + (tier ? ` ${A.brand} zählt bei uns als ${{ fast: "günstige Marke, die gebraucht eher wenig bringt", premium: "gefragte Marke, die ihren Wert gut hält", luxury: "Luxusmarke, die gebraucht viel wert bleibt" }[tier]}.` : ""),
     suchbegriff: [A.brand, art].filter(Boolean).join(" ").slice(0, 60)
   };
 }
@@ -1639,7 +1671,7 @@ function viewDraft() {
       <button class="btn btn-accent btn-wide" data-act="s-parse" ${b ? "disabled" : ""}>${b === "parse" ? '<span class="spin"></span> Lese mit…' : ICON_SPARK + " Daraus die Felder ausfüllen"}</button>
       <div class="panel">
         <div class="field"><label for="sName">Was ist es?</label><input type="text" id="sName" data-d="name" maxlength="40" placeholder="z. B. Strickpullover" value="${esc(d.name)}"></div>
-        <div class="field"><label for="sBrand">Marke</label><input type="text" id="sBrand" data-f="brand" maxlength="40" placeholder="z. B. COS" value="${esc(A.brand)}"></div>
+        <div class="field"><label for="sBrand">Marke</label><input type="text" id="sBrand" data-f="brand" list="brandList" autocomplete="off" maxlength="40" placeholder="z. B. COS" value="${esc(A.brand)}">${brandList()}</div>
         <div class="field"><label for="sSize">Größe</label><div class="chips wrap">${sizeChips}</div><input type="text" id="sSize" data-f="size" maxlength="12" placeholder="oder z. B. 38, W32/L32, 42 (Schuhe)" value="${esc(A.size)}"></div>
         <div class="field"><span class="lbl">Zustand</span><div class="cond-list">${conds}</div></div>
         <div class="field"><label for="sDef">Mängel</label><input type="text" id="sDef" data-f="defects" maxlength="200" placeholder="z. B. kleiner Fleck am Ärmel" value="${esc(A.defects)}"><div class="chips wrap"><button class="chip" data-act="s-nodef" aria-pressed="${A.defects === "Keine Mängel"}">Keine Mängel</button></div></div>
@@ -1880,7 +1912,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.5";
+const APP_VERSION = "0.6";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -2006,7 +2038,10 @@ function statsData() {
   const forgotten = all.filter(isForgotten);
   const priced = all.filter(i => i.price > 0).map(i => ({ it: i, cpw: i.price / Math.max(1, i.wears || 0) })).sort((a, b) => a.cpw - b.cpw);
   const value = priced.reduce((a, p) => a + p.it.price, 0);
-  return { n, wears, active, activePct: n ? Math.round(active / n * 100) : 0, top, forgotten, priced, value, eco: ecoSaved(all) };
+  const bm = new Map();
+  for (const i of all) if (i.brand) { const b = bm.get(i.brand) || { n: 0, w: 0 }; b.n++; b.w += i.wears || 0; bm.set(i.brand, b); }
+  const brands = [...bm.entries()].sort((a, b) => b[1].w - a[1].w || b[1].n - a[1].n).slice(0, 3);
+  return { n, wears, active, activePct: n ? Math.round(active / n * 100) : 0, top, forgotten, priced, value, eco: ecoSaved(all), brands, branded: all.filter(i => i.brand).length };
 }
 function statsSheet() {
   const s = statsData(), e = s.eco;
@@ -2030,6 +2065,7 @@ function statsSheet() {
       <details class="fb-more"><summary>So rechnen wir</summary><p class="fb-stats">Vergleich: jedes Teil nach jedem Tragen waschen. Eine Ladung bei 40 °C braucht etwa 0,5 kWh Strom und rund 45 Liter Wasser, darin sind etwa 12 Teile. Strom in Deutschland 2024: rund 363 g CO₂ pro kWh. Das sind grobe Schätzungen, keine Messung.
 Quellen: Utopia.de (Waschgang-Rechner Uni Bonn, EU-Datenbank EPREL), Umweltbundesamt (Strommix 2024), WRAP „Valuing our clothes“, Levi Strauss & Co. (Lebenszyklus Jeans).</p></details>
     </div>
+    ${s.brands.length ? `<div class="set-group"><span class="eyebrow">Lieblingsmarken</span><ul class="rank">${s.brands.map(([b, v]) => li(b, `${v.n} ${v.n === 1 ? "Teil" : "Teile"} · ${v.w}× getragen`)).join("")}</ul>${s.branded < s.n ? `<p class="hint">${s.n - s.branded} Teile ohne Marke. Tipp ein Teil an, um sie zu ergänzen.</p>` : ""}</div>` : ""}
     ${s.top.length ? `<div class="set-group"><span class="eyebrow">Meistgetragen</span><ul class="rank">${s.top.map(i => li(i.name, i.wears + "×")).join("")}</ul></div>` : ""}
     <div class="set-group"><span class="eyebrow">Kosten pro Tragen</span>
       ${s.priced.length ? `<ul class="rank">${s.priced.slice(0, 3).map(p => li(p.it.name, euro(p.cpw))).join("")}</ul>
@@ -2108,6 +2144,7 @@ function usageSummary() {
   if (meta.city) lines.push("Echtes Wetter: an");
   const e = ecoSaved(own); if (e.n) lines.push(`Nochmal getragen statt gewaschen: ${e.n}`);
   const pc = own.filter(i => i.price > 0).length; if (pc) lines.push(`Teile mit Kaufpreis: ${pc}`);
+  const bc = own.filter(i => i.brand).length; if (bc) lines.push(`Teile mit Marke: ${bc}`);
   lines.push(`Gerät: ${deviceKind()}`);
   return lines.join("\n");
 }
@@ -2195,7 +2232,7 @@ async function quickSheet(files) {
   openSheet(`<h2>Fotos werden <em>vorbereitet</em> …</h2><p class="hint"><span class="spin"></span> ${list.length} ${list.length === 1 ? "Foto" : "Fotos"}</p>`);
   const occ = Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"];
   const rows = [];
-  for (const f of list) rows.push({ file: f, preview: URL.createObjectURL(f), name: "", cat: "top", color: (await guessColor(f)) || "Schwarz" });
+  for (const f of list) rows.push({ file: f, preview: URL.createObjectURL(f), name: "", brand: "", cat: "top", color: (await guessColor(f)) || "Schwarz" });
   quick = { occasions: occ, rows, busy: false };
   if (files.length > 30) toast("Maximal 30 Fotos auf einmal. Die ersten 30 sind drin.");
   drawQuick();
@@ -2208,6 +2245,7 @@ function drawQuick() {
       <div class="q-img"><img src="${r.preview}" alt="Foto ${i + 1}"></div>
       <div class="q-f">
         <input type="text" maxlength="40" data-q="name" data-i="${i}" placeholder="Name (optional)" value="${esc(r.name)}" aria-label="Name für Foto ${i + 1}">
+        <input type="text" maxlength="40" data-q="brand" data-i="${i}" list="brandList" autocomplete="off" placeholder="Marke (optional)" value="${esc(r.brand)}" aria-label="Marke für Foto ${i + 1}">
         <div class="q-sel"><select data-q="cat" data-i="${i}" aria-label="Kategorie">${catOpts(r.cat)}</select><select data-q="color" data-i="${i}" aria-label="Farbe">${colOpts(r.color)}</select></div>
       </div>
       <button type="button" class="icon-btn" data-act="q-del" data-v="${i}" aria-label="Foto ${i + 1} entfernen"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
@@ -2217,7 +2255,7 @@ function drawQuick() {
   openSheet(`<h2>Schnell <em>erfassen</em></h2>
     <p class="hint">${n} ${n === 1 ? "Foto" : "Fotos"}. Die Farbe ist geschätzt. Prüf kurz die Kategorie. Ohne Namen nennt die App das Teil nach Kategorie und Farbe.</p>
     ${sampleImages ? `<button class="btn btn-accent btn-wide" data-act="q-ai" ${q.busy ? "disabled" : ""}>${q.busy ? `<span class="spin"></span> ${esc(q.busy)}` : ICON_SPARK + " Alle mit KI erkennen"}</button>` : ""}
-    <div class="q-list">${rows}</div>
+    <div class="q-list">${rows}</div>${brandList()}
     <div class="field"><span class="lbl">Passt zu (für alle)</span><div class="chips wrap">${occChips}</div></div>
     <button class="btn btn-primary btn-wide" data-act="q-save" id="qSave" ${q.busy ? "disabled" : ""}>Alle ${n} in den Schrank legen</button>`,
     () => { if (quick && !quick.saving) quick.rows.forEach(r => URL.revokeObjectURL(r.preview)); quick = null; });
@@ -2235,6 +2273,7 @@ async function quickAI() {
     try {
       const res = await sample.json(recognizePrompt(), { images: [await shrink(r.file)], modelTier: "quick" });
       if (typeof res?.name === "string" && res.name.trim() && !r.name.trim()) r.name = res.name.trim().slice(0, 40);
+      if (typeof res?.brand === "string" && res.brand.trim() && !r.brand.trim()) r.brand = cleanBrand(res.brand);
       if (CATS[res?.cat]) r.cat = res.cat;
       if (COLOR_HEX[res?.color]) r.color = res.color;
     } catch (e) {
@@ -2261,6 +2300,7 @@ async function saveQuick() {
     }
     const name = r.name.trim() || `${CATS[r.cat]} ${r.color}`;
     const data = { name, cat: r.cat, color: r.color, occasions: [...q.occasions], status: "schrank" };
+    const br = cleanBrand(r.brand); if (br) data.brand = br;
     if (photo) data.photo = photo;
     await addItem(data);
   }
