@@ -998,7 +998,7 @@ function viewWoche() {
     ${meta.city ? `<div class="wx-line"><span class="sub" style="margin:0">Wetter für <b>${esc(meta.city.name)}</b>, wird automatisch berücksichtigt.</span><button class="linkbtn" data-act="wx-city">Ort ändern</button></div>
     <div class="field"><span class="lbl">Für Tage ohne Vorhersage</span><div class="seg" role="group" aria-label="Wetter">${seg}</div></div>`
     : `<div class="field"><span class="lbl">Wetter</span><div class="seg" role="group" aria-label="Wetter">${seg}</div></div>
-    <button class="linkbtn" data-act="wx-city" style="align-self:flex-start">Echtes Wetter für meinen Ort nutzen</button>`}
+    <button class="btn btn-ghost btn-wide" data-act="wx-city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></svg>Ort eintragen für echtes Wetter</button>`}
     <button class="btn btn-accent btn-wide" data-act="plan-ai" ${state.aiBusy ? "disabled" : ""}>${state.aiBusy ? '<span class="spin"></span> Die KI stellt Outfits zusammen…' : (sample ? ICON_SPARK + " Woche mit KI planen" : "Woche automatisch planen")}</button>
     <div class="week">${days}</div>
   </div>`;
@@ -1824,6 +1824,9 @@ function settingsSheet(msg) {
     ${standalone ? "" : `<div class="set-group"><span class="eyebrow">Als App installieren</span>
       ${installEvt ? '<button class="btn btn-primary btn-wide" data-act="install">App installieren</button>' : ""}
       <p class="hint"><b>iPhone:</b> In Safari unten auf Teilen tippen, dann „Zum Home-Bildschirm“.<br><b>Android:</b> In Chrome oben rechts das Menü öffnen, dann „App installieren“.</p></div>`}
+    <div class="set-group"><span class="eyebrow">Wetter</span>
+      <p class="hint">${meta.city ? `Die Woche wird nach dem Wetter in <b>${esc(meta.city.name)}</b> geplant.` : "Trag deinen Ort ein, dann plant die App die Woche nach der echten Vorhersage."}</p>
+      <button class="btn btn-ghost btn-wide" data-act="wx-city">${meta.city ? "Ort ändern" : "Ort eintragen"}</button></div>
     <div class="set-group"><span class="eyebrow">Deine Daten</span>
       <p class="hint">Alles bleibt nur auf diesem Gerät. Nichts wird hochgeladen. Mach ab und zu eine Sicherung, falls du das Handy wechselst oder den Browser leerst.</p>
       <p class="hint"><b>Letzte Sicherung:</b> ${meta.lastBackupAt ? (daysSince(meta.lastBackupAt) === 0 ? "heute" : daysSince(meta.lastBackupAt) === 1 ? "gestern" : `vor ${daysSince(meta.lastBackupAt)} Tagen`) : "noch nie"}</p>
@@ -1851,7 +1854,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.4";
+const APP_VERSION = "0.4.1";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
