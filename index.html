@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,100;1,9..144,300..700,100&family=Geist:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: one calm phone column like a boutique lookbook. Serif headlines, quiet monochrome surfaces, moss green as the single accent, a floating glass tab bar. */
 :root {
@@ -50,9 +50,9 @@
   --garment-stroke: rgba(0, 0, 0, .22);
   --shadow: 0 1px 2px rgba(20, 20, 19, .04), 0 8px 24px rgba(20, 20, 19, .05);
   --shadow-float: 0 10px 40px rgba(20, 20, 19, .14), 0 2px 6px rgba(20, 20, 19, .06);
-  --font-display: "Instrument Serif", "Iowan Old Style", "Times New Roman", serif;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
   --font-body: "Geist", -apple-system, "Segoe UI", system-ui, sans-serif;
-  --font-label: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-label: "Geist", -apple-system, system-ui, sans-serif;
   --r-lg: 24px;
   --r: 18px;
   --r-sm: 12px;
@@ -106,14 +106,14 @@ svg { flex: none; }
 .top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
 .top-l { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .eyebrow { font-family: var(--font-label); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.brand { font-family: var(--font-display); font-weight: 400; font-size: 44px; letter-spacing: -0.02em; line-height: .95; margin: 0; }
+.brand { font-family: var(--font-display); font-weight: 420; font-size: 44px; letter-spacing: -0.02em; line-height: .95; margin: 0; }
 .brand em { font-style: italic; color: var(--accent); }
 .fab { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--ink); color: var(--bg); display: grid; place-items: center; box-shadow: var(--shadow); transition: transform .15s ease; flex: none; }
 .fab:active { transform: scale(.94); }
 .fab svg { width: 22px; height: 22px; }
 
 /* ---------- type ---------- */
-.section-h { font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1.05; margin: 0; letter-spacing: -0.015em; text-wrap: balance; }
+.section-h { font-family: var(--font-display); font-weight: 420; font-size: 32px; line-height: 1.05; margin: 0; letter-spacing: -0.015em; text-wrap: balance; }
 .h3 { font-family: var(--font-body); font-size: 15px; font-weight: 600; margin: 0; display: flex; align-items: baseline; gap: 8px; }
 .h3 .n { font-family: var(--font-label); font-size: 11px; color: var(--muted); font-weight: 500; }
 .sub { color: var(--muted); font-size: 14px; margin: 4px 0 0; text-wrap: pretty; }
@@ -147,7 +147,7 @@ a.btn { text-decoration: none; }
 .today { background: var(--inv-bg); color: var(--inv-fg); border-radius: var(--r-lg); padding: 18px; display: flex; flex-direction: column; gap: 14px; }
 .today-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .today-top .eyebrow { color: var(--inv-muted); }
-.today h2 { font-family: var(--font-display); font-weight: 400; font-size: 28px; margin: 2px 0 0; line-height: 1.05; }
+.today h2 { font-family: var(--font-display); font-weight: 420; font-size: 28px; margin: 2px 0 0; line-height: 1.05; }
 .today h2 em { font-style: italic; }
 .today .link { background: none; border: 0; color: var(--inv-muted); font-size: 13px; font-weight: 500; padding: 0; white-space: nowrap; }
 .today .outfit .thumb { background: rgba(127, 127, 120, .16); }
@@ -159,7 +159,7 @@ a.btn { text-decoration: none; }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
 .stat { background: none; border: 0; padding: 14px 6px 12px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; position: relative; }
 .stat + .stat::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 1px; background: var(--line); }
-.stat b { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat b { font-family: var(--font-display); font-weight: 420; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
 .stat span { font-size: 11.5px; color: var(--muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .stat::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 4px; height: 4px; border-radius: 50%; background: transparent; transform: translateX(-50%); }
 .stat.is-on { background: var(--surface-2); }
@@ -294,7 +294,7 @@ svg .d { fill: currentColor; fill-opacity: 0; transition: fill-opacity .2s ease;
 @keyframes fade { from { opacity: 0; } }
 @media (min-width: 600px) { .scrim { align-items: center; } .sheet { border-radius: 28px; max-height: 86vh; } }
 .grab { width: 38px; height: 5px; border-radius: 5px; background: var(--line-strong); margin: 0 auto; flex: none; }
-.sheet h2 { font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1.05; margin: 0; letter-spacing: -0.015em; overflow-wrap: anywhere; }
+.sheet h2 { font-family: var(--font-display); font-weight: 420; font-size: 32px; line-height: 1.05; margin: 0; letter-spacing: -0.015em; overflow-wrap: anywhere; }
 .sheet .hero { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 16px; align-items: end; }
 .sheet .hero .thumb { border-radius: var(--r); background: var(--surface-2); }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 0; font-size: 14px; background: var(--surface); border-radius: var(--r); padding: 4px 16px; margin: 0; box-shadow: var(--shadow); }
@@ -351,7 +351,7 @@ svg .d { fill: currentColor; fill-opacity: 0; transition: fill-opacity .2s ease;
 .ph-add input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .panel { background: var(--surface); border-radius: var(--r-lg); padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; box-shadow: var(--shadow); }
 .score { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.score b { font-family: var(--font-display); font-weight: 400; font-size: 48px; font-variant-numeric: tabular-nums; line-height: .9; }
+.score b { font-family: var(--font-display); font-weight: 420; font-size: 48px; font-variant-numeric: tabular-nums; line-height: .9; }
 .score b small { font-size: 22px; color: var(--muted); }
 .checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
 .checks li { display: flex; gap: 10px; align-items: flex-start; }
@@ -393,8 +393,24 @@ img { max-width: 100%; }
 .set-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .set-row .btn { flex: 1 1 150px; }
 .key-input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font-family: var(--font-label); font-size: 13px; }
+/* sb-0.5: Fraunces + Geist, Labels ohne Mono, schmale Leiste oben beim Scrollen */
+.eyebrow, .field > label, .field > .lbl { font-weight: 600; letter-spacing: .06em; }
+.brand { letter-spacing: -0.03em; font-size: clamp(28px, 8.4vw, 44px); white-space: nowrap; }
+@media (max-width: 340px) { .brand { font-size: 25px; } header.top .top-r .fab { width: 38px; height: 38px; } }
+.minibar { position: fixed; top: 0; left: 0; right: 0; z-index: 25; padding-top: env(safe-area-inset-top, 0px);
+  background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow: 0 1px 0 var(--line); transform: translateY(-110%); transition: transform .25s ease; }
+.minibar.show { transform: none; }
+.minibar-in { max-width: 560px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px max(20px, env(safe-area-inset-right, 0px)) 8px max(20px, env(safe-area-inset-left, 0px)); }
+.brand-sm { font-family: var(--font-display); font-weight: 420; font-size: 26px; letter-spacing: -0.03em; line-height: 1; border: 0; background: none; padding: 0; color: inherit; }
+.brand-sm em { font-style: italic; color: var(--accent); }
+.minibar .fab { width: 38px; height: 38px; box-shadow: none; }
+.minibar .fab.fab-soft { box-shadow: inset 0 0 0 1px var(--line); }
+.minibar .fab svg { width: 19px; height: 19px; }
+@media (prefers-reduced-motion: reduce) { .minibar { transition: none; } }
 /* sb-0.3: feedback, backup reminder, quick capture */
-@media (max-width: 400px) { .brand { font-size: 36px; } .top-r { gap: 6px; } .top-r .fab { width: 42px; height: 42px; } .top-r .fab svg { width: 20px; height: 20px; } }
+@media (max-width: 440px) { .top .top-r { gap: 6px; } .top .top-r .fab { width: 42px; height: 42px; } .top .top-r .fab svg { width: 20px; height: 20px; } }
 .toast { display: flex; align-items: center; justify-content: center; gap: 14px; }
 .toast-act { border: 0; background: none; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; padding: 4px 2px; flex: none; }
 .quickbar { display: flex; align-items: center; gap: 10px; background: var(--st-waesche-soft); border-radius: var(--r); padding: 8px 8px 8px 14px; }
@@ -427,7 +443,7 @@ img { max-width: 100%; }
 .cardlink svg { width: 18px; height: 18px; transform: rotate(-90deg); flex: none; color: var(--muted); }
 .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .kpi { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.kpi b { font-family: var(--font-display); font-weight: 400; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi b { font-family: var(--font-display); font-weight: 420; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
 .kpi span { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
 .kpi.green { background: var(--accent-soft); box-shadow: none; }
 .rank { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
@@ -444,6 +460,16 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
 </style>
 </head>
 <body>
+<div class="minibar" id="minibar" aria-hidden="true" inert>
+  <div class="minibar-in">
+    <button class="brand-sm" data-act="to-top" aria-label="Nach oben">Schrank<em>blick</em></button>
+    <div class="top-r">
+    <button class="fab fab-soft" data-act="feedback" aria-label="Feedback geben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M4.5 6.75A2.75 2.75 0 0 1 7.25 4h9.5a2.75 2.75 0 0 1 2.75 2.75v6.5A2.75 2.75 0 0 1 16.75 16H10.5l-4.25 3.5V16a2.75 2.75 0 0 1-1.75-2.75Z"/><path d="M8.75 8.75h6.5M8.75 11.75h4"/></svg></button>
+    <button class="fab fab-soft" data-act="settings" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.5h8.5M17.5 7.5H20M4 16.5h2.5M11.5 16.5H20"/><circle class="d" cx="15" cy="7.5" r="2.5"/><circle class="d" cx="9" cy="16.5" r="2.5"/></svg></button>
+    <button class="fab" data-act="open-add" aria-label="Teil hinzufügen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg></button>
+    </div>
+  </div>
+</div>
 <div class="app">
   <header class="top">
     <div class="top-l">
@@ -871,7 +897,7 @@ async function washAgain(ids) {
 
 /* ---------- render ---------- */
 function render() {
-  const now = new Date(); document.getElementById("kw").textContent = now.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" }) + " · KW " + isoWeek(now);
+  const now = new Date(); document.getElementById("kw").textContent = now.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "short" }) + " · KW " + isoWeek(now);
   document.querySelectorAll(".tab").forEach(t => { if (t.dataset.v === state.tab) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current"); });
   const lc = state.items.filter(i => i.status === "waesche").length;
   const lcEl = document.getElementById("laundryCount");
@@ -1369,7 +1395,7 @@ function fallbackPicks(d) {
   return out;
 }
 async function drawCollage(d, picks, tip) {
-  try { await Promise.all([document.fonts.load('400 58px "Instrument Serif"'), document.fonts.load('600 26px "Geist"'), document.fonts.load('500 22px "Geist Mono"')]); } catch {}
+  try { await Promise.all([document.fonts.load('420 58px "Fraunces"'), document.fonts.load('italic 420 58px "Fraunces"'), document.fonts.load('600 26px "Geist"')]); } catch {}
   const W = 1080, H = 1350, c = document.createElement("canvas");
   c.width = W; c.height = H;
   const x = c.getContext("2d");
@@ -1398,9 +1424,9 @@ async function drawCollage(d, picks, tip) {
     x.restore();
   }
   x.textAlign = "left";
-  x.fillStyle = "#6c6c66"; x.font = '500 22px "Geist Mono", monospace';
+  x.fillStyle = "#6c6c66"; x.font = '600 22px "Geist", sans-serif';
   x.fillText(slots.some(s => s.it) ? "STYLING-IDEE" : "DETAILS", 44, 1196);
-  x.fillStyle = "#141413"; x.font = '400 58px "Instrument Serif", serif';
+  x.fillStyle = "#141413"; x.font = '420 58px "Fraunces", serif';
   x.fillText(fitText(x, tip, 990), 44, 1258);
   const meta = [d.answers.brand, d.answers.size && "Gr. " + d.answers.size, COND[d.answers.condition]].filter(Boolean).join(" · ");
   if (meta) { x.fillStyle = "#6c6c66"; x.font = '500 30px "Geist", sans-serif'; x.fillText(fitText(x, meta, 990), 44, 1308); }
@@ -1854,7 +1880,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.4.1";
+const APP_VERSION = "0.5";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -2016,16 +2042,16 @@ Quellen: Utopia.de (Waschgang-Rechner Uni Bonn, EU-Datenbank EPREL), Umweltbunde
 }
 async function shareStats() {
   const s = statsData(), e = s.eco;
-  try { await Promise.all([document.fonts.load('400 58px "Instrument Serif"'), document.fonts.load('600 26px "Geist"'), document.fonts.load('500 22px "Geist Mono"')]); } catch {}
+  try { await Promise.all([document.fonts.load('420 58px "Fraunces"'), document.fonts.load('italic 420 58px "Fraunces"'), document.fonts.load('600 26px "Geist"')]); } catch {}
   const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
   const x = c.getContext("2d");
   x.fillStyle = "#f4f4f1"; x.fillRect(0, 0, W, H);
-  x.fillStyle = "#6c6c66"; x.font = '500 26px "Geist Mono", monospace'; x.fillText("SCHRANKBLICK", 72, 110);
-  x.fillStyle = "#141413"; x.font = '400 96px "Instrument Serif", serif'; x.fillText("Mein Schrank", 72, 220);
-  x.fillStyle = "#56622f"; x.font = 'italic 400 96px "Instrument Serif", serif'; x.fillText("in Zahlen", 72, 310);
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("SCHRANKBLICK", 72, 110);
+  x.fillStyle = "#141413"; x.font = '420 96px "Fraunces", serif'; x.fillText("Mein Schrank", 72, 220);
+  x.fillStyle = "#56622f"; x.font = 'italic 420 96px "Fraunces", serif'; x.fillText("in Zahlen", 72, 310);
   const box = (X, Y, big, small, green) => {
     rr(x, X, Y, 456, 250, 32); x.fillStyle = green ? "#e3e8d2" : "#ffffff"; x.fill();
-    x.fillStyle = "#141413"; x.font = '400 104px "Instrument Serif", serif'; x.fillText(fitText(x, big, 400), X + 36, Y + 130);
+    x.fillStyle = "#141413"; x.font = '420 104px "Fraunces", serif'; x.fillText(fitText(x, big, 400), X + 36, Y + 130);
     x.fillStyle = "#4a4a45"; x.font = '500 30px "Geist", sans-serif'; x.fillText(fitText(x, small, 400), X + 36, Y + 200);
   };
   box(72, 380, String(s.n), "Teile im Schrank");
@@ -2037,7 +2063,7 @@ async function shareStats() {
   if (s.top[0]) { x.fillText(fitText(x, `Lieblingsteil: ${s.top[0].name} (${s.top[0].wears}×)`, 936), 72, y); y += 60; }
   if (s.priced[0]) { x.fillText(fitText(x, `Am günstigsten pro Tragen: ${s.priced[0].it.name} (${euro(s.priced[0].cpw)})`, 936), 72, y); y += 60; }
   if (s.forgotten.length) { x.fillText(fitText(x, `${s.forgotten.length} vergessene Teile warten auf ihren Einsatz`, 936), 72, y); }
-  x.fillStyle = "#6c6c66"; x.font = '500 26px "Geist Mono", monospace'; x.fillText("#NichtsAnzuziehen · tapir-app.github.io/app", 72, 1280);
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("#NichtsAnzuziehen · tapir-app.github.io/app", 72, 1280);
   const blob = await new Promise(r => c.toBlob(b => r(b), "image/png"));
   try { await SB.downloads.save({ filename: "mein-schrank-in-zahlen.png", data: blob }); } catch (err) { if (err?.code !== "declined") toast("Bild teilen hat nicht geklappt."); }
 }
@@ -2274,6 +2300,14 @@ async function saveQuick() {
   render();
   loadWeather();
 })();
+(() => {
+  const bar = document.getElementById("minibar"), head = document.querySelector("header.top");
+  if (!bar || !head) return;
+  const set = on => { bar.classList.toggle("show", on); bar.toggleAttribute("inert", !on); bar.setAttribute("aria-hidden", String(!on)); };
+  if ("IntersectionObserver" in window) new IntersectionObserver(([e]) => set(!e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0 }).observe(head);
+  else addEventListener("scroll", () => set(scrollY > head.offsetHeight + 20), { passive: true });
+})();
+document.addEventListener("click", e => { if (e.target.closest('[data-act="to-top"]')) window.scrollTo({ top: 0, behavior: "smooth" }); });
 if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
 })();
 </script>
