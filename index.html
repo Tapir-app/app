@@ -473,6 +473,19 @@ img { max-width: 100%; }
 .lend-grid input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 12px 12px; width: 100%; min-width: 0; font-size: 15px; }
 .chips-q { display: flex; gap: 6px; flex-wrap: wrap; }
 .chip-sm { padding: 6px 12px; font-size: 12.5px; }
+.tree { display: flex; flex-direction: column; gap: 22px; }
+.tree-cat { display: flex; flex-direction: column; gap: 10px; }
+.tree-type { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.tree-head { width: 100%; border: 0; background: none; color: inherit; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 16px 10px; text-align: left; }
+.tree-head b { font-size: 15.5px; font-weight: 600; }
+.tree-head span { font-family: var(--font-display); font-size: 24px; font-weight: 420; line-height: 1; font-variant-numeric: tabular-nums; }
+.tree-row { width: 100%; border: 0; background: none; color: inherit; display: flex; align-items: center; gap: 12px; padding: 11px 14px 11px 16px; border-top: 1px solid var(--line); text-align: left; }
+.tree-row .dot { width: 22px; height: 22px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .14); }
+.tree-row .tt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tree-row b { font-size: 14.5px; font-weight: 600; }
+.tree-row b span { color: var(--muted); font-weight: 500; margin-left: 4px; }
+.tree-row small { font-size: 12.5px; color: var(--muted); line-height: 1.4; overflow-wrap: anywhere; }
+.tree-row > svg { width: 16px; height: 16px; transform: rotate(-90deg); color: var(--muted); flex: none; }
 details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer; padding: 4px 0; }
 .ok-line { font-size: 13.5px; color: var(--accent); font-weight: 600; margin: 0; }
 </style>
@@ -554,6 +567,8 @@ const TYPES = {
 };
 const NECKS = { rund: "Rundhals", v: "V-Ausschnitt", kragen: "Kragen", rolli: "Rollkragen", kapuze: "Kapuze", stehkragen: "Stehkragen" };
 const NECK_CATS = new Set(["top", "dress"]);
+const FITS = { skinny: "Skinny", slim: "Slim Fit", regular: "Regular", straight: "Straight", relaxed: "Relaxed", wide: "Wide Leg", oversize: "Oversize" };
+const FIT_CATS = new Set(["top", "bottom", "dress", "jacket"]);
 const TYPE_NECK = { "Hoodie": "kapuze", "Zip-Hoodie": "kapuze", "Hemd": "kragen", "Polo": "kragen", "Bluse": "kragen", "Blusenkleid": "kragen" };
 // Wärme für die Wochenplanung: 0 = luftig, 2 = warm. Nicht genannte Arten gelten als mittel.
 const TYPE_WARMTH = { "T-Shirt": 0, "Top": 0, "Polo": 0, "Shorts": 0, "Sandalen": 0, "Sommerkleid": 0,
@@ -564,7 +579,7 @@ const warmthOf = it => it.neck === "rolli" ? 2 : (TYPE_WARMTH[it.type] ?? 1);
 const OCC_KEYS = Object.keys(OCC);
 const WEATHER = { kalt: "Kalt", mild: "Mild", warm: "Warm" };
 const COLORS = [
-  ["Schwarz", "#1e1f24"], ["Weiß", "#f6f6f3"], ["Grau", "#9b9ea6"], ["Navy", "#253563"], ["Blau", "#4f7cc9"],
+  ["Schwarz", "#1e1f24"], ["Weiß", "#f6f6f3"], ["Grau", "#9b9ea6"], ["Navy", "#253563"], ["Blau", "#4f7cc9"], ["Hellblau", "#a9c6e6"],
   ["Denim", "#5876a3"], ["Beige", "#d8c6a5"], ["Braun", "#7a5236"], ["Grün", "#4e7a56"], ["Oliv", "#6e7147"],
   ["Rot", "#b5322f"], ["Bordeaux", "#6e1f2e"], ["Rosa", "#e3a3b4"], ["Gelb", "#e2c04a"], ["Gold", "#d2ae55"], ["Silber", "#c4c8ce"]
 ];
@@ -600,12 +615,12 @@ function isoWeek(date) {
 
 const EXAMPLES = [
   { id: "ex01", type: "Hemd", neck: "kragen", basic: true, brand: "COS", name: "Weißes Hemd", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(6), price: 49 },
-  { id: "ex02", type: "Pullover", neck: "rund", basic: true, brand: "Arket", name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3), rewears: 5 },
+  { id: "ex02", fit: "regular", type: "Pullover", neck: "rund", basic: true, brand: "Arket", name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3), rewears: 5 },
   { id: "ex03", type: "T-Shirt", neck: "rund", basic: true, name: "Graues T-Shirt", cat: "top", color: "Grau", occasions: ["freizeit", "sport", "schule"], status: "waesche", wears: 22, lastWorn: daysAgo(1) },
   { id: "ex04", type: "Hemd", neck: "kragen", name: "Hellblaues Hemd", cat: "top", color: "Blau", occasions: ["buero"], status: "schrank", wears: 7, lastWorn: daysAgo(9) },
-  { id: "ex05", type: "Jeans", basic: true, brand: "Levi's", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2), price: 89, rewears: 18 },
-  { id: "ex06", type: "Chino", basic: true, name: "Beige Chino", cat: "bottom", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 11, lastWorn: daysAgo(5) },
-  { id: "ex07", type: "Stoffhose", name: "Schwarze Anzughose", cat: "bottom", color: "Schwarz", occasions: ["buero", "abend"], status: "schrank", wears: 8, lastWorn: daysAgo(12) },
+  { id: "ex05", fit: "slim", type: "Jeans", basic: true, brand: "Levi's", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2), price: 89, rewears: 18 },
+  { id: "ex06", fit: "regular", type: "Chino", basic: true, name: "Beige Chino", cat: "bottom", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 11, lastWorn: daysAgo(5) },
+  { id: "ex07", fit: "slim", type: "Stoffhose", name: "Schwarze Anzughose", cat: "bottom", color: "Schwarz", occasions: ["buero", "abend"], status: "schrank", wears: 8, lastWorn: daysAgo(12) },
   { id: "ex08", type: "Shorts", name: "Laufshorts", cat: "bottom", color: "Schwarz", occasions: ["sport"], status: "schrank", wears: 18, lastWorn: daysAgo(4) },
   { id: "ex09", type: "Abendkleid", neck: "v", name: "Bordeaux Kleid", cat: "dress", color: "Bordeaux", occasions: ["abend"], status: "schrank", wears: 2, lastWorn: daysAgo(74), price: 120 },
   { id: "ex10", type: "Blazer", brand: "Massimo Dutti", name: "Navy Blazer", cat: "jacket", color: "Navy", occasions: ["buero", "abend"], status: "reinigung", wears: 10, lastWorn: daysAgo(8) },
@@ -637,6 +652,8 @@ const state = {
   fCat: "all",
   fType: "all",
   fBasic: false,
+  fColor: null,
+  fromTree: false,
   fStatus: "all",
   aiBusy: false,
   armedDelete: null
@@ -754,7 +771,8 @@ function typeField(d, prefix) {
 }
 function extraFields(d, prefix) {
   const neckChips = Object.entries(NECKS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-neck" data-v="${k}" aria-pressed="${d.neck === k}">${l}</button>`).join("");
-  return `${NECK_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Ausschnitt</span><div class="chips wrap">${neckChips}</div></div>` : ""}
+  return `${FIT_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Schnitt</span><div class="chips wrap">${Object.entries(FITS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-fit" data-v="${k}" aria-pressed="${d.fit === k}">${l}</button>`).join("")}</div></div>` : ""}
+    ${NECK_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Ausschnitt</span><div class="chips wrap">${neckChips}</div></div>` : ""}
     <div class="field"><span class="lbl">Stil</span><div class="chips wrap"><button type="button" class="chip" data-act="${prefix}-basic" aria-pressed="${!!d.basic}">Basic</button></div>
       <p class="hint">Basics sind schlichte Teile, die zu fast allem passen, z. B. weißes T-Shirt oder dunkle Jeans.</p></div>`;
 }
@@ -763,6 +781,7 @@ function detailFields(d, prefix) {
   const typeChips = types.map(t => `<button type="button" class="chip" data-act="${prefix}-type" data-v="${esc(t)}" aria-pressed="${d.type === t}">${esc(t)}</button>`).join("");
   const neckChips = Object.entries(NECKS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-neck" data-v="${k}" aria-pressed="${d.neck === k}">${l}</button>`).join("");
   return `<div class="field"><span class="lbl">Art (optional)</span><div class="chips wrap">${typeChips}</div></div>
+    ${FIT_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Schnitt</span><div class="chips wrap">${Object.entries(FITS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-fit" data-v="${k}" aria-pressed="${d.fit === k}">${l}</button>`).join("")}</div></div>` : ""}
     ${NECK_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Ausschnitt (optional)</span><div class="chips wrap">${neckChips}</div></div>` : ""}
     <div class="field"><span class="lbl">Stil</span><div class="chips wrap"><button type="button" class="chip" data-act="${prefix}-basic" aria-pressed="${!!d.basic}">Basic</button></div>
       <p class="hint">Basics sind schlichte Teile, die zu fast allem passen, z. B. weißes T-Shirt oder dunkle Jeans.</p></div>`;
@@ -907,7 +926,7 @@ async function removeItem(id) {
   noteChange();
   try {
     await itemsCol.doc(id).delete();
-    if (it?.photo && assets) await assets.delete(it.photo).catch(() => {});
+    if (it?.photo && assets && !state.items.some(x => x.photo === it.photo)) await assets.delete(it.photo).catch(() => {});
     await savePlan();
   } catch (e) { toast(dbErrorText(e)); }
 }
@@ -1089,7 +1108,9 @@ function viewSchrank() {
   const forgotten = all.filter(isForgotten).length;
   let list = all;
   if (state.fCat !== "all") list = list.filter(i => i.cat === state.fCat);
-  if (state.fCat !== "all" && state.fType !== "all") list = list.filter(i => i.type === state.fType);
+  if (state.fCat !== "all" && state.fType === "__none") list = list.filter(i => !i.type);
+  else if (state.fCat !== "all" && state.fType !== "all") list = list.filter(i => i.type === state.fType);
+  if (state.fColor) list = list.filter(i => i.color === state.fColor);
   if (state.fBasic) list = list.filter(i => i.basic);
   if (state.fStatus === "forgotten") list = list.filter(isForgotten);
   else if (state.fStatus !== "all") list = list.filter(i => i.status === state.fStatus);
@@ -1112,7 +1133,10 @@ function viewSchrank() {
       ${todayItems.length ? `<div class="outfit">${todayItems.map(it => `<button class="mini${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div>
       <button class="btn btn-inv btn-wide" data-act="worn-today">Heute getragen</button>` : `<p class="note">Lass dir die Woche aus sauberen Teilen zusammenstellen.</p><button class="btn btn-inv btn-wide" data-act="tab" data-v="woche">Woche planen</button>`}
     </section>`;
-  const filtered = state.fCat !== "all" || state.fStatus !== "all" || state.fBasic;
+  const filtered = state.fCat !== "all" || state.fStatus !== "all" || state.fBasic || !!state.fColor;
+  const tree = meta.view === "tree" && !state.fromTree;
+  const viewSeg = `<div class="seg" role="group" aria-label="Ansicht"><button data-act="view" data-v="grid" aria-pressed="${!tree}">Kacheln</button><button data-act="view" data-v="tree" aria-pressed="${tree}">Übersicht</button></div>`;
+  const crumb = state.fromTree ? `<div class="wx-line"><button class="back" data-act="tree-back">${ICON_BACK} Übersicht</button><span class="sub" style="margin:0">${[state.fType === "__none" ? "Ohne Art" : state.fType !== "all" ? state.fType : CATS[state.fCat], state.fColor].filter(Boolean).map(esc).join(" · ")} · ${list.length} ${list.length === 1 ? "Teil" : "Teile"}</span></div>` : "";
   const wN = all.filter(i => i.status === "waesche").length;
   const quickbar = !filtered && wN ? `<div class="quickbar">${STATUS_ICON.waesche}<span>${wN} ${wN === 1 ? "Teil" : "Teile"} im Wäschekorb</span><button class="btn btn-ghost" data-act="laundry-done">Alles zurück</button></div>` : "";
   return `<div class="stack" style="gap:22px">
@@ -1120,14 +1144,45 @@ function viewSchrank() {
     <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Vergessen")}</div>
     ${quickbar}
     ${filtered ? "" : `<button class="cardlink" data-act="stats"><div><b>Dein Schrank in Zahlen</b><span>${statsTeaser()}</span></div>${ICON_CHEV}</button>`}
-    <div class="toolbar">
+    ${state.fromTree ? crumb : `<div class="toolbar">
+      ${viewSeg}
       <div class="chips" role="group" aria-label="Kategorie">${catChips}${basicChip}</div>
-      ${typeChips}
-    </div>
+      ${tree ? "" : typeChips}
+    </div>`}
     ${state.fStatus === "forgotten" ? '<p class="sub" style="margin:0">Seit über 30 Tagen nicht getragen. Gute Kandidaten für die nächste Woche oder zum Weitergeben.</p>' : ""}
-    ${tiles ? `<div class="grid">${tiles}${filtered ? "" : addTile}</div>` : `<div class="empty">Keine Teile in dieser Auswahl.</div>`}
+    ${tree ? treeView(list) : tiles ? `<div class="grid">${tiles}${filtered ? "" : addTile}</div>` : `<div class="empty">Keine Teile in dieser Auswahl.</div>`}
     ${filtered ? "" : `<div class="banner"><p><b>Gefällt dir die App?</b> Lad Freunde zum Testen ein. Je mehr mitmachen, desto besser wird sie.</p><button class="btn btn-ghost" data-act="invite">Freunde einladen</button></div>`}
   </div>`;
+}
+function countText(map, label) {
+  return [...map.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0]), "de")).map(([k, n]) => `${esc(label ? label(k) : k)} ${n}`).join(" · ");
+}
+function treeView(list) {
+  if (!list.length) return `<div class="empty">Keine Teile in dieser Auswahl.</div>`;
+  const out = [];
+  for (const c of CAT_ORDER) {
+    const items = list.filter(i => i.cat === c);
+    if (!items.length) continue;
+    const order = [...(TYPES[c] || []), ...new Set(items.map(i => i.type).filter(t => t && !(TYPES[c] || []).includes(t))), ""];
+    const groups = order.map(t => [t, items.filter(i => (i.type || "") === t)]).filter(([, l]) => l.length);
+    const cards = groups.map(([t, gl]) => {
+      const byColor = new Map();
+      for (const i of gl) { const k = i.color || "–"; if (!byColor.has(k)) byColor.set(k, []); byColor.get(k).push(i); }
+      const rows = [...byColor.entries()].sort((a, b) => b[1].length - a[1].length).map(([col, cl]) => {
+        const brands = new Map(), fits = new Map(); let noBrand = 0;
+        for (const i of cl) { if (i.brand) brands.set(i.brand, (brands.get(i.brand) || 0) + 1); else noBrand++; if (i.fit && FITS[i.fit]) fits.set(i.fit, (fits.get(i.fit) || 0) + 1); }
+        const bt = brands.size ? countText(brands) + (noBrand ? ` · ohne Marke ${noBrand}` : "") : "";
+        const ft = fits.size ? countText(fits, k => FITS[k]) : "";
+        const clean = cl.filter(i => i.status === "schrank").length;
+        return `<button class="tree-row" data-act="tree-open" data-v="${c}|${esc(t)}|${esc(col)}"${t ? "" : ' data-none="1"'}><i class="dot" style="background:${COLOR_HEX[col] || "var(--surface-3)"}"></i>
+          <span class="tt"><b>${esc(col)} <span>${cl.length}</span></b>${bt ? `<small>${bt}</small>` : ""}${ft ? `<small>${ft}</small>` : ""}${clean < cl.length ? `<small>${cl.length === 1 ? (STATUS[cl[0].status]?.label || "") : `${clean} von ${cl.length} sauber im Schrank`}</small>` : ""}</span>${ICON_CHEV}</button>`;
+      }).join("");
+      return `<div class="tree-type"><button class="tree-head" data-act="tree-open" data-v="${c}|${esc(t)}|"${t ? "" : ' data-none="1"'}><b>${esc(t || "Ohne Art")}</b><span>${gl.length}</span></button>${rows}</div>`;
+    }).join("");
+    out.push(`<section class="tree-cat"><h3 class="h3">${CATS[c]} <span class="n">${items.length}</span></h3>${cards}</section>`);
+  }
+  const untyped = list.filter(i => !i.type).length;
+  return `<div class="tree">${out.join("")}${untyped ? `<p class="hint">${untyped} ${untyped === 1 ? "Teil hat" : "Teile haben"} noch keine Art. Teil antippen und unter „Art, Schnitt …“ ergänzen, dann wird die Übersicht genauer.</p>` : ""}</div>`;
 }
 function statsTeaser() {
   const e = ecoSaved(state.items);
@@ -1211,7 +1266,7 @@ function itemSheet(id, fromTag) {
       <div style="min-width:0;display:flex;flex-direction:column;gap:10px;align-items:flex-start"><h2>${esc(it.name)}</h2><span class="pill solid st-${it.status}"><i></i>${STATUS[it.status].label}</span></div></div>
     <dl class="kv">
       ${it.brand ? `<dt>Marke</dt><dd>${esc(it.brand)}</dd>` : ""}
-      <dt>Kategorie</dt><dd>${CATS[it.cat]}${it.type ? " · " + esc(it.type) : ""}${it.neck && NECKS[it.neck] ? " · " + NECKS[it.neck] : ""}${it.basic ? " · Basic" : ""}</dd>
+      <dt>Kategorie</dt><dd>${CATS[it.cat]}${it.type ? " · " + esc(it.type) : ""}${it.fit && FITS[it.fit] ? " · " + FITS[it.fit] : ""}${it.neck && NECKS[it.neck] ? " · " + NECKS[it.neck] : ""}${it.basic ? " · Basic" : ""}</dd>
       <dt>Farbe</dt><dd>${esc(it.color)}</dd>
       <dt>Anlass</dt><dd>${(it.occasions || []).map(o => OCC[o]).join(", ") || "–"}</dd>
       <dt>Getragen</dt><dd>${it.wears || 0}× · ${lastWornText(it)}</dd>
@@ -1223,8 +1278,8 @@ function itemSheet(id, fromTag) {
       <div class="set-row"><button class="btn btn-ghost btn-sm" data-act="lend-ics" data-v="${it.id}">Rückgabe in Kalender</button><button class="btn btn-ghost btn-sm" data-act="lend-remind" data-v="${it.id}">Freundlich erinnern</button></div></div>` : ""}
     ${washEvery(it) ? `<div class="field"><span class="lbl">Waschen nach ca.</span>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="stepper"><button data-act="wash-every" data-v="${it.id}" data-d="-1" aria-label="Weniger">−</button><b>${washEvery(it)}</b><button data-act="wash-every" data-v="${it.id}" data-d="1" aria-label="Mehr">+</button></div><span class="hint">× Tragen · seit der letzten Wäsche ${it.sinceWash || 0}× getragen</span></div></div>` : ""}
-    <details class="fb-more"${!(it.type || it.basic) || state.openDetails === it.id ? " open" : ""}><summary>Art, Ausschnitt und Stil ${it.type || it.basic ? "ändern" : "ergänzen"}</summary>
-      <div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${detailFields(it, "i").replace(/data-act="i-(type|neck)" data-v="/g, `data-act="i-$1" data-v="${it.id}|`).replace(/data-act="i-basic"/, `data-act="i-basic" data-v="${it.id}"`)}</div></details>
+    <details class="fb-more"${!(it.type || it.basic) || state.openDetails === it.id ? " open" : ""}><summary>Art, Schnitt, Ausschnitt und Stil ${it.type || it.basic ? "ändern" : "ergänzen"}</summary>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${detailFields(it, "i").replace(/data-act="i-(type|neck|fit)" data-v="/g, `data-act="i-$1" data-v="${it.id}|`).replace(/data-act="i-basic"/, `data-act="i-basic" data-v="${it.id}"`)}</div></details>
     <div class="field"><label for="itemBrand">Marke (optional)</label><input type="text" id="itemBrand" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(it.brand || "")}">${brandList()}</div>
     <div class="field"><label for="priceInput">Kaufpreis (optional)</label><input type="text" id="priceInput" inputmode="decimal" placeholder="z. B. 49" value="${it.price > 0 ? String(it.price).replace(".", ",") : ""}" style="max-width:160px"><p class="hint">Damit siehst du, was dich jedes Tragen kostet. Je öfter getragen, desto günstiger und nachhaltiger.</p></div>
     <div class="actions">
@@ -1275,7 +1330,8 @@ function drawAdd(focusName) {
       ${typeField(d, "d")}
       <div class="field"><span class="lbl">Farbe · ${esc(d.color)}</span><div class="swatches">${sw}</div></div>
       <div class="field"><span class="lbl">Passt zu</span><div class="chips wrap">${occChips}</div></div>
-      <details class="fb-more" id="addMore"${d.moreOpen ? " open" : ""}><summary>Mehr Details (optional): Marke${NECK_CATS.has(d.cat) ? ", Ausschnitt" : ""}, Basic</summary>
+      <div class="field"><span class="lbl">Anzahl</span><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="stepper"><button type="button" data-act="d-qty" data-d="-1" aria-label="Weniger">−</button><b>${d.qty || 1}</b><button type="button" data-act="d-qty" data-d="1" aria-label="Mehr">+</button></div><span class="hint">Mehrere gleiche Teile auf einmal, z. B. 4 weiße Basic-Shirts.</span></div></div>
+      <details class="fb-more" id="addMore"${d.moreOpen ? " open" : ""}><summary>Mehr Details (optional): Marke${FIT_CATS.has(d.cat) ? ", Schnitt" : ""}${NECK_CATS.has(d.cat) ? ", Ausschnitt" : ""}, Basic</summary>
         <div style="display:flex;flex-direction:column;gap:16px;margin-top:12px">
       <div class="field"><label for="brandInput">Marke</label><input type="text" id="brandInput" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(d.brand)}">${brandList()}</div>
         ${extraFields(d, "d")}
@@ -1315,12 +1371,14 @@ function drawAdd(focusName) {
     if (addDraft.type) data.type = addDraft.type;
     if (addDraft.neck && NECK_CATS.has(addDraft.cat)) data.neck = addDraft.neck;
     if (addDraft.basic) data.basic = true;
+    if (addDraft.fit && FIT_CATS.has(addDraft.cat)) data.fit = addDraft.fit;
     if (photo) data.photo = photo;
+    const qty = addDraft.qty || 1;
     meta.lastOcc = [...addDraft.occasions]; saveMeta();
     closeSheet();
-    state.fCat = "all"; state.fType = "all"; state.fBasic = false; state.fStatus = "all"; state.tab = "schrank";
-    await addItem(data);
-    toast(`„${name}“ hängt jetzt im Schrank.`);
+    state.fCat = "all"; state.fType = "all"; state.fColor = null; state.fromTree = false; state.fBasic = false; state.fStatus = "all"; state.tab = "schrank";
+    for (let k = 0; k < qty; k++) await addItem({ ...data, occasions: [...data.occasions] });
+    toast(qty > 1 ? `${qty}× „${name}“ hängen jetzt im Schrank.` : `„${name}“ hängt jetzt im Schrank.`);
     if (next) addSheet();
   });
 }
@@ -1524,7 +1582,7 @@ function localListing(d) {
   const inserat = Math.max(ziel + 1, Math.round(ziel * 1.12));
   const schnell = Math.max(2, Math.round(ziel * .8));
   const src = d.itemId ? byId(d.itemId) : null;
-  const details = [A.brand && "Marke: " + A.brand, src?.type && "Art: " + src.type, src?.neck && NECKS[src.neck] && "Ausschnitt: " + NECKS[src.neck], A.material && "Material: " + A.material, A.size && "Größe: " + A.size, A.measures && "Maße: " + A.measures, cond && "Zustand: " + cond + (A.defects && A.defects !== "Keine Mängel" ? " (" + A.defects + ")" : ", keine Mängel")].filter(Boolean).join("\n");
+  const details = [A.brand && "Marke: " + A.brand, src?.type && "Art: " + src.type, src?.fit && FITS[src.fit] && "Schnitt: " + FITS[src.fit], src?.neck && NECKS[src.neck] && "Ausschnitt: " + NECKS[src.neck], A.material && "Material: " + A.material, A.size && "Größe: " + A.size, A.measures && "Maße: " + A.measures, cond && "Zustand: " + cond + (A.defects && A.defects !== "Keine Mängel" ? " (" + A.defects + ")" : ", keine Mängel")].filter(Boolean).join("\n");
   const tags = ["#" + (A.brand || "secondhand").replace(/\s+/g, "").toLowerCase(), "#" + art.split(" ").pop().toLowerCase(), d.color ? "#" + d.color.toLowerCase() : "", "#preloved", "#nachhaltig"].filter(Boolean).join(" ");
   return {
     titel,
@@ -1669,7 +1727,7 @@ async function generateListing() {
   sell.busy = "gen"; render();
   const it = d.itemId ? byId(d.itemId) : null;
   const srcIt = d.itemId ? byId(d.itemId) : null;
-  const info = { typ: srcIt?.type || "", ausschnitt: NECKS[srcIt?.neck] || "", art: d.name || d.check?.seen?.art || "", kategorie: CATS[d.cat] || "", farbe: d.color || "", marke: A.brand, groesse: A.size, zustand: COND[A.condition], maengel: A.defects || "keine angegeben", material: A.material, masse: A.measures, neupreis_euro: A.originalPrice, mal_getragen: it ? it.wears || 0 : "unbekannt" };
+  const info = { typ: srcIt?.type || "", schnitt: FITS[srcIt?.fit] || "", ausschnitt: NECKS[srcIt?.neck] || "", art: d.name || d.check?.seen?.art || "", kategorie: CATS[d.cat] || "", farbe: d.color || "", marke: A.brand, groesse: A.size, zustand: COND[A.condition], maengel: A.defects || "keine angegeben", material: A.material, masse: A.measures, neupreis_euro: A.originalPrice, mal_getragen: it ? it.wears || 0 : "unbekannt" };
   try {
     const r = await sample.json(`Du bist Experte für Secondhand-Mode auf Vinted Deutschland. Erstelle ein Inserat für diesen Artikel:
 ${JSON.stringify(info)}
@@ -1893,7 +1951,14 @@ document.addEventListener("click", async e => {
   const act = el.dataset.act, v = el.dataset.v;
   switch (act) {
     case "tab": state.tab = v; render(); window.scrollTo({ top: 0 }); break;
-    case "fcat": state.fCat = v; state.fType = "all"; render(); break;
+    case "fcat": state.fCat = v; state.fType = "all"; state.fColor = null; render(); break;
+    case "view": meta.view = v; saveMeta(); count("view:" + v); state.fromTree = false; state.fColor = null; state.fType = "all"; render(); break;
+    case "tree-open": {
+      const [c, t, col] = v.split("|");
+      state.fCat = c; state.fType = t ? t : (el.dataset.none ? "__none" : "all"); state.fColor = col || null; state.fromTree = true;
+      count("tree-open"); render(); window.scrollTo({ top: 0 }); break;
+    }
+    case "tree-back": state.fromTree = false; state.fColor = null; state.fType = "all"; render(); break;
     case "ftype": state.fType = v; render(); break;
     case "fbasic": state.fBasic = !state.fBasic; render(); break;
     case "fstatus": state.fStatus = state.fStatus === v ? "all" : v; render(); break;
@@ -1938,10 +2003,13 @@ document.addEventListener("click", async e => {
     case "worn-today": wornToday(); break;
     case "laundry-done": bulkBack("waesche"); break;
     case "cleaning-done": bulkBack("reinigung"); break;
-    case "d-cat": if (addDraft.cat !== v) { addDraft.cat = v; addDraft.type = null; if (!NECK_CATS.has(v)) addDraft.neck = null; } drawAdd(); break;
+    case "d-cat": if (addDraft.cat !== v) { addDraft.cat = v; addDraft.type = null; if (!NECK_CATS.has(v)) addDraft.neck = null; if (!FIT_CATS.has(v)) addDraft.fit = null; } drawAdd(); break;
     case "d-type": toggleType(addDraft, v); drawAdd(); break;
     case "d-neck": addDraft.neck = addDraft.neck === v ? null : v; addDraft.neckTouched = true; drawAdd(); break;
     case "d-basic": addDraft.basic = !addDraft.basic; drawAdd(); break;
+    case "d-fit": addDraft.fit = addDraft.fit === v ? null : v; drawAdd(); break;
+    case "d-qty": addDraft.qty = Math.max(1, Math.min(20, (addDraft.qty || 1) + Number(el.dataset.d))); drawAdd(); break;
+    case "i-fit": { state.openDetails = (v || "").split("|")[0]; const it = byId(v.split("|")[0]); if (!it) break; const f = v.split("|")[1]; await patchItem(it.id, { fit: it.fit === f ? null : f }); itemSheet(it.id); break; }
     case "i-type": { state.openDetails = (v || "").split("|")[0]; const it = byId(v.split("|")[0]); if (!it) break; const d = { ...it }; toggleType(d, v.split("|")[1]); await patchItem(it.id, { type: d.type || null, ...(d.neck !== it.neck ? { neck: d.neck } : {}) }); itemSheet(it.id); break; }
     case "i-neck": { state.openDetails = (v || "").split("|")[0]; const it = byId(v.split("|")[0]); if (!it) break; const n = v.split("|")[1]; await patchItem(it.id, { neck: it.neck === n ? null : n }); itemSheet(it.id); break; }
     case "i-basic": { state.openDetails = (v || "").split("|")[0]; const it = byId(v); if (!it) break; await patchItem(it.id, { basic: !it.basic }); itemSheet(it.id); break; }
@@ -2058,7 +2126,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.8";
+const APP_VERSION = "0.9";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -2293,6 +2361,8 @@ function usageSummary() {
   const e = ecoSaved(own); if (e.n) lines.push(`Nochmal getragen statt gewaschen: ${e.n}`);
   const pc = own.filter(i => i.price > 0).length; if (pc) lines.push(`Teile mit Kaufpreis: ${pc}`);
   const bc = own.filter(i => i.brand).length; if (bc) lines.push(`Teile mit Marke: ${bc}`);
+  const fc = own.filter(i => i.fit).length; if (fc) lines.push(`Teile mit Schnitt: ${fc}`);
+  if (meta.view === "tree") lines.push("Ansicht: Übersicht");
   const tc = own.filter(i => i.type).length; if (tc) lines.push(`Teile mit Art: ${tc}, Basics: ${own.filter(i => i.basic).length}`);
   lines.push(`Farbe der App: ${PALETTES[curPalette()].label}`);
   lines.push(`Gerät: ${deviceKind()}`);
