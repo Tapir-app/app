@@ -14,6 +14,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Schrankblick">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script>try { var m = JSON.parse(localStorage.getItem("schrankblick:meta") || "{}"); document.documentElement.dataset.palette = m.palette || "bordeaux"; } catch (e) { document.documentElement.dataset.palette = "bordeaux"; }</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,100;1,9..144,300..700,100&family=Geist:wght@400;500;600;700&display=swap">
@@ -85,6 +86,22 @@
   --shadow: 0 1px 2px rgba(0, 0, 0, .4); --shadow-float: 0 10px 40px rgba(0, 0, 0, .5);
   color-scheme: dark;
 }
+
+/* ---------- Farbwelten (sb-0.8): Pastell-Hintergrund + kräftiger Akzent ---------- */
+@media (prefers-color-scheme: light) {
+  :root[data-palette="bordeaux"] { --bg: #f8f1f0; --surface: #fffdfc; --surface-2: #f1e5e4; --surface-3: #e9d8d7; --accent: #6d1f2f; --accent-ink: #ffffff; --accent-soft: #f3e0e3; --inv-bg: #4e1621; --inv-fg: #fbf1f2; --inv-muted: rgba(251, 241, 242, .66); --inv-line: rgba(251, 241, 242, .16); --glass: rgba(255, 252, 251, .8); }
+  :root[data-palette="babyblau"] { --bg: #f1f5fa; --surface: #ffffff; --surface-2: #e4ecf5; --surface-3: #d7e2ee; --accent: #2c5784; --accent-ink: #ffffff; --accent-soft: #dceaf8; --inv-bg: #1c3654; --inv-fg: #f1f6fc; --inv-muted: rgba(241, 246, 252, .66); --inv-line: rgba(241, 246, 252, .16); --glass: rgba(255, 255, 255, .8); }
+  :root[data-palette="zitrone"] { --bg: #fbf9ea; --surface: #fffffa; --surface-2: #f3f0d6; --surface-3: #ebe6c3; --accent: #6f5c0e; --accent-ink: #ffffff; --accent-soft: #f7f0b4; --inv-bg: #26241a; --inv-fg: #fbf9ea; --inv-muted: rgba(251, 249, 234, .64); --inv-line: rgba(251, 249, 234, .14); --glass: rgba(255, 255, 248, .8); }
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="bordeaux"] { --accent: #e7a6b4; --accent-ink: #2a0b12; --accent-soft: #34191f; }
+  :root[data-palette="babyblau"] { --accent: #a9cdf2; --accent-ink: #0c1b2b; --accent-soft: #172637; }
+  :root[data-palette="zitrone"] { --accent: #ece08a; --accent-ink: #1d1a06; --accent-soft: #2d2a14; }
+}
+.palettes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.pal { border: 0; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); border-radius: 16px; padding: 10px 4px 9px; display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: var(--ink); }
+.pal[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--ink); }
+.pal i { width: 34px; height: 34px; border-radius: 50%; display: block; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }
 
 [hidden] { display: none !important; }
 html, body { background: var(--bg); color: var(--ink); }
@@ -517,8 +534,8 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
 (() => {
 "use strict";
 
-const CATS = { top: "Oberteil", bottom: "Hose & Rock", dress: "Kleid", jacket: "Jacke", shoes: "Schuhe", acc: "Accessoire" };
-const CAT_ORDER = ["top", "bottom", "dress", "jacket", "shoes", "acc"];
+const CATS = { top: "Oberteil", bottom: "Hose & Rock", dress: "Kleid", jacket: "Jacke", shoes: "Schuhe", acc: "Accessoire", jewelry: "Schmuck" };
+const CAT_ORDER = ["top", "bottom", "dress", "jacket", "shoes", "acc", "jewelry"];
 const STATUS = {
   schrank: { label: "Im Schrank", short: "Schrank" },
   waesche: { label: "In der Wäsche", short: "Wäsche" },
@@ -532,7 +549,8 @@ const TYPES = {
   dress: ["Sommerkleid", "Etuikleid", "Abendkleid", "Maxikleid", "Strickkleid", "Blusenkleid", "Jumpsuit"],
   jacket: ["Jacke", "Zip-Jacke", "Blazer", "Mantel", "Parka", "Lederjacke", "Daunenjacke", "Regenjacke", "Weste"],
   shoes: ["Sneaker", "Halbschuhe", "Stiefel", "Stiefeletten", "Sandalen", "Pumps", "Sportschuhe"],
-  acc: ["Gürtel", "Schal", "Mütze", "Cap", "Tasche", "Krawatte", "Schmuck", "Handschuhe"]
+  acc: ["Sonnenbrille", "Tasche", "Rucksack", "Gürtel", "Schal", "Mütze", "Cap", "Hut", "Handschuhe", "Krawatte", "Haarschmuck"],
+  jewelry: ["Armband", "Kette", "Ohrringe", "Ring", "Uhr", "Brosche", "Fußkettchen"]
 };
 const NECKS = { rund: "Rundhals", v: "V-Ausschnitt", kragen: "Kragen", rolli: "Rollkragen", kapuze: "Kapuze", stehkragen: "Stehkragen" };
 const NECK_CATS = new Set(["top", "dress"]);
@@ -540,13 +558,15 @@ const TYPE_NECK = { "Hoodie": "kapuze", "Zip-Hoodie": "kapuze", "Hemd": "kragen"
 // Wärme für die Wochenplanung: 0 = luftig, 2 = warm. Nicht genannte Arten gelten als mittel.
 const TYPE_WARMTH = { "T-Shirt": 0, "Top": 0, "Polo": 0, "Shorts": 0, "Sandalen": 0, "Sommerkleid": 0,
   "Pullover": 2, "Hoodie": 2, "Zip-Hoodie": 2, "Sweatshirt": 2, "Strickjacke": 2, "Strickkleid": 2, "Stiefel": 2, "Mantel": 2, "Parka": 2, "Daunenjacke": 2 };
+const ACC_WEATHER = { "Sonnenbrille": "warm", "Cap": "warm", "Hut": "warm", "Schal": "kalt", "Mütze": "kalt", "Handschuhe": "kalt" };
+const NOT_USED_UP = new Set(["shoes", "acc", "jewelry"]);
 const warmthOf = it => it.neck === "rolli" ? 2 : (TYPE_WARMTH[it.type] ?? 1);
 const OCC_KEYS = Object.keys(OCC);
 const WEATHER = { kalt: "Kalt", mild: "Mild", warm: "Warm" };
 const COLORS = [
   ["Schwarz", "#1e1f24"], ["Weiß", "#f6f6f3"], ["Grau", "#9b9ea6"], ["Navy", "#253563"], ["Blau", "#4f7cc9"],
   ["Denim", "#5876a3"], ["Beige", "#d8c6a5"], ["Braun", "#7a5236"], ["Grün", "#4e7a56"], ["Oliv", "#6e7147"],
-  ["Rot", "#b5322f"], ["Bordeaux", "#6e1f2e"], ["Rosa", "#e3a3b4"], ["Gelb", "#e2c04a"]
+  ["Rot", "#b5322f"], ["Bordeaux", "#6e1f2e"], ["Rosa", "#e3a3b4"], ["Gelb", "#e2c04a"], ["Gold", "#d2ae55"], ["Silber", "#c4c8ce"]
 ];
 const COLOR_HEX = Object.fromEntries(COLORS);
 const DAYS = [["mo", "Montag"], ["di", "Dienstag"], ["mi", "Mittwoch"], ["do", "Donnerstag"], ["fr", "Freitag"], ["sa", "Samstag"], ["so", "Sonntag"]];
@@ -595,6 +615,9 @@ const EXAMPLES = [
   { id: "ex14", type: "Sportschuhe", brand: "Asics", name: "Laufschuhe", cat: "shoes", color: "Blau", occasions: ["sport"], status: "schrank", wears: 25, lastWorn: daysAgo(4) },
   { id: "ex15", type: "Gürtel", basic: true, name: "Ledergürtel", cat: "acc", color: "Braun", occasions: ["buero", "abend"], status: "verliehen", wears: 12, lastWorn: daysAgo(40), lentTo: "Bruder", lentUntil: daysAgo(2) },
   { id: "ex16", type: "Hoodie", neck: "kapuze", brand: "H&M", name: "Gelber Hoodie", cat: "top", color: "Gelb", occasions: ["freizeit"], status: "schrank", wears: 1, lastWorn: daysAgo(63), price: 35 }
+,
+  { id: "ex17", type: "Sonnenbrille", name: "Schwarze Sonnenbrille", cat: "acc", color: "Schwarz", occasions: ["freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(20) },
+  { id: "ex18", type: "Armband", basic: true, name: "Silberarmband", cat: "jewelry", color: "Silber", occasions: ["buero", "freizeit", "abend"], status: "schrank", wears: 27, lastWorn: daysAgo(2) }
 ].map(it => ({ ...it, createdAt: daysAgo(120) }));
 
 function emptyPlan() {
@@ -707,7 +730,34 @@ function wearPatch(it, mode) {
   else { p.sinceWash = since; p.rewears = (it.rewears || 0) + 1; }
   return p;
 }
+/* ---------- Farbwelten ---------- */
+const PALETTES = {
+  bordeaux: { label: "Bordeaux", bg: "#f8f1f0", accent: "#6d1f2f", soft: "#f3e0e3" },
+  babyblau: { label: "Babyblau", bg: "#f1f5fa", accent: "#2c5784", soft: "#dceaf8" },
+  zitrone: { label: "Zitrone", bg: "#fbf9ea", accent: "#6f5c0e", soft: "#f7f0b4" },
+  salbei: { label: "Salbei", bg: "#f4f4f1", accent: "#56622f", soft: "#e7ead9" }
+};
+const DEFAULT_PALETTE = "bordeaux";
+const curPalette = () => PALETTES[meta.palette] ? meta.palette : DEFAULT_PALETTE;
+function applyPalette() {
+  const k = curPalette();
+  document.documentElement.dataset.palette = k;
+  const tc = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]');
+  if (tc) tc.setAttribute("content", PALETTES[k].bg);
+}
+applyPalette();
+
 /* ---------- Art, Ausschnitt, Basic ---------- */
+function typeField(d, prefix) {
+  const typeChips = (TYPES[d.cat] || []).map(t => `<button type="button" class="chip" data-act="${prefix}-type" data-v="${esc(t)}" aria-pressed="${d.type === t}">${esc(t)}</button>`).join("");
+  return `<div class="field"><span class="lbl">Art</span><div class="chips wrap">${typeChips}</div></div>`;
+}
+function extraFields(d, prefix) {
+  const neckChips = Object.entries(NECKS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-neck" data-v="${k}" aria-pressed="${d.neck === k}">${l}</button>`).join("");
+  return `${NECK_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Ausschnitt</span><div class="chips wrap">${neckChips}</div></div>` : ""}
+    <div class="field"><span class="lbl">Stil</span><div class="chips wrap"><button type="button" class="chip" data-act="${prefix}-basic" aria-pressed="${!!d.basic}">Basic</button></div>
+      <p class="hint">Basics sind schlichte Teile, die zu fast allem passen, z. B. weißes T-Shirt oder dunkle Jeans.</p></div>`;
+}
 function detailFields(d, prefix) {
   const types = TYPES[d.cat] || [];
   const typeChips = types.map(t => `<button type="button" class="chip" data-act="${prefix}-type" data-v="${esc(t)}" aria-pressed="${d.type === t}">${esc(t)}</button>`).join("");
@@ -760,9 +810,33 @@ const PATHS = {
   shoes: '<path d="M12 64c0-11 6-18 15-19.5l11.5-2c3-.5 5.8 1 7.2 3.6C50 54 57 58 67 59.5l14.5 2.2C87 62.6 91 67.3 91 73v3c0 2.2-1.8 4-4 4H16c-2.2 0-4-1.8-4-4Z"/><path fill="none" stroke-linecap="round" d="M12.5 71.5h78M47 49l5-3M51 53l5-3M55.5 56.5l5-3"/>',
   acc: '<path d="M23.5 40h53c2.4 0 4.3 2.1 4 4.5L76 84.5c-.3 2-2 3.5-4 3.5H28c-2 0-3.7-1.5-4-3.5l-4.5-40c-.3-2.4 1.6-4.5 4-4.5Z"/><path d="M34 40c0-13 6.5-21 16-21s16 8 16 21h-4.5c0-10.5-4.3-16.5-11.5-16.5S38.5 29.5 38.5 40Z"/><path fill="none" stroke-linecap="round" d="M21 52h58"/><rect x="45" y="48" width="10" height="8" rx="2" fill="#000" fill-opacity=".14" stroke="none"/>'
 };
+const TYPE_PATHS = {
+  "Sonnenbrille": '<path d="M13 38h29c2.2 0 3.8 1.9 3.4 4l-2 12.5C42.3 61.2 37 66 30.5 66h-6.3C17.7 66 12.4 61.2 11.6 54.6L9.8 42c-.3-2.2 1.1-4 3.2-4Z"/><path d="M58 38h29c2.1 0 3.5 1.8 3.2 4l-1.8 12.6C87.6 61.2 82.3 66 75.8 66h-6.3c-6.5 0-11.8-4.8-12.9-11.5l-2-12.5c-.4-2.1 1.2-4 3.4-4Z"/><path fill="none" stroke-width="3.5" d="M45.5 44.5c3-3 6-3 9 0M10.5 41 4 36M89.5 41l6.5-5"/>',
+  "Uhr": '<rect x="38" y="6" width="24" height="88" rx="8"/><circle cx="50" cy="50" r="19" fill="#f6f4ee"/><circle cx="50" cy="50" r="19" fill="none" stroke="{c}" stroke-width="5"/><path fill="none" stroke-width="2.5" d="M50 39v11l7 5"/>',
+  "Kette": '<path fill="none" stroke="{c}" stroke-width="4" d="M22 14c0 32 13 50 28 50s28-18 28-50"/><path d="M50 62l8 10-8 12-8-12Z"/>',
+  "Armband": '<circle cx="50" cy="54" r="27" fill="none" stroke="{c}" stroke-width="10"/><circle cx="50" cy="54" r="32" fill="none"/><circle cx="50" cy="54" r="22" fill="none"/><circle cx="50" cy="24" r="6"/>',
+  "Ring": '<circle cx="50" cy="58" r="24" fill="none" stroke="{c}" stroke-width="7"/><path d="M50 18l10 9-10 11-10-11Z"/>',
+  "Ohrringe": '<circle cx="32" cy="22" r="4.5"/><path d="M32 30c8 10 10 18 10 24a10 10 0 0 1-20 0c0-6 2-14 10-24Z"/><circle cx="68" cy="22" r="4.5"/><path d="M68 30c8 10 10 18 10 24a10 10 0 0 1-20 0c0-6 2-14 10-24Z"/>',
+  "Fußkettchen": '<path fill="none" stroke="{c}" stroke-width="4" stroke-dasharray="1 5" d="M14 50c10-14 62-14 72 0-10 14-62 14-72 0Z"/><circle cx="50" cy="61" r="5"/>',
+  "Brosche": '<circle cx="50" cy="50" r="22"/><circle cx="50" cy="50" r="10" fill="#f6f4ee"/><circle cx="50" cy="50" r="10" fill="none"/>',
+  "Mütze": '<path d="M22 66c0-21 12-38 28-38s28 17 28 38Z"/><rect x="17" y="63" width="66" height="15" rx="6"/><circle cx="50" cy="23" r="7.5"/>',
+  "Cap": '<path d="M18 62c0-20 14-35 32-35s32 15 32 35Z"/><path d="M48 60h40c3.2 0 4.6 3.6 2.3 5.8C86 70 77 73 64 73H48Z"/><circle cx="50" cy="26" r="3"/>',
+  "Hut": '<ellipse cx="50" cy="66" rx="42" ry="10"/><path d="M28 64c0-19 9-31 22-31s22 12 22 31Z"/><path fill="none" stroke-width="5" d="M29.5 57.5c13 3 28 3 41 0"/>',
+  "Schal": '<path d="M28 14h44v18c0 7-5 12-12 14v42c0 2-1.5 3.5-3.5 3.5h-11C43.5 91.5 42 90 42 88V46c-8-2-14-7-14-15Z"/><path fill="none" d="M44 84h12M44 78h12"/>',
+  "Gürtel": '<rect x="6" y="41" width="88" height="18" rx="4"/><rect x="38" y="36" width="24" height="28" rx="4" fill="none" stroke-width="4"/>',
+  "Handschuhe": '<path d="M30 88V56l-9-14c-2-3 2-6 5-3l4 5V22c0-3 4-3 4 0v18-24c0-3 4-3 4 0v24-26c0-3 4-3 4 0v26-22c0-3 4-3 4 0v34c0 12-4 20-10 24v14Z"/>',
+  "Krawatte": '<path d="M43 8h14l-3 10h-8Z"/><path d="M46 18h8l9 54-13 18-13-18Z"/>',
+  "Rucksack": '<rect x="24" y="22" width="52" height="68" rx="14"/><path fill="none" stroke-width="4" d="M38 22c0-8 5-12 12-12s12 4 12 12"/><rect x="34" y="56" width="32" height="20" rx="5" fill="none"/>',
+  "Haarschmuck": '<path d="M16 60c10-28 58-28 68 0" fill="none" stroke="{c}" stroke-width="8"/><circle cx="50" cy="36" r="7"/>'
+};
+PATHS.jewelry = TYPE_PATHS["Armband"];
+function sketchBody(it, fill) {
+  const t = TYPE_PATHS[it.type];
+  return (t || PATHS[it.cat] || PATHS.top).replaceAll("{c}", fill);
+}
 function garmentSvg(it) {
   const fill = COLOR_HEX[it.color] || "#9b9ea6";
-  return `<svg class="garment" viewBox="0 0 100 100" aria-hidden="true"><g fill="${fill}" stroke="var(--garment-stroke)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">${PATHS[it.cat] || PATHS.top}</g></svg>`;
+  return `<svg class="garment" viewBox="0 0 100 100" aria-hidden="true"><g fill="${fill}" stroke="var(--garment-stroke)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">${sketchBody(it, fill)}</g></svg>`;
 }
 function thumb(it) {
   const u = it.photo ? SB.blobs.url(it.photo) : ""; const img = u ? `<img src="${esc(u)}" alt="" loading="lazy" onerror="this.remove()">` : "";
@@ -877,15 +951,21 @@ function generateOutfit(occ, weather, used, rain = 0) {
   else { ids.push(pick("top")); ids.push(pick("bottom")); }
   if (weather !== "warm" || rain >= 60) ids.push(pick("jacket"));
   ids.push(pick("shoes"));
+  const accPool = pool.filter(i => i.cat === "acc" && (ACC_WEATHER[i.type] ? ACC_WEATHER[i.type] === weather || (ACC_WEATHER[i.type] === "warm" && rain < 30 && weather === "mild") : true));
+  const seasonal = accPool.filter(i => ACC_WEATHER[i.type] === weather);
+  const accFrom = seasonal.length ? seasonal : accPool;
+  if (accFrom.length && Math.random() < (seasonal.length ? .85 : .5)) ids.push(accFrom[Math.floor(Math.random() * accFrom.length)].id);
+  const jew = pool.filter(i => i.cat === "jewelry");
+  if (jew.length && Math.random() < (occ === "abend" ? .9 : .5)) ids.push(jew[Math.floor(Math.random() * jew.length)].id);
   return ids.filter(Boolean);
 }
 function fillWeekLocal(onlyDay) {
   const used = new Set();
   for (const [k] of DAYS) {
     const day = state.plan.days[k];
-    if (onlyDay && k !== onlyDay) { day.items.forEach(i => { if (byId(i)?.cat !== "shoes") used.add(i); }); continue; }
+    if (onlyDay && k !== onlyDay) { day.items.forEach(i => { if (!NOT_USED_UP.has(byId(i)?.cat)) used.add(i); }); continue; }
     day.items = generateOutfit(day.occ, dayWeather(k), used, dayWx(k)?.rain || 0);
-    day.items.forEach(i => { if (byId(i)?.cat !== "shoes") used.add(i); });
+    day.items.forEach(i => { if (!NOT_USED_UP.has(byId(i)?.cat)) used.add(i); });
     day.note = "";
   }
 }
@@ -898,7 +978,7 @@ async function planWithAI() {
   const prompt = `Du bist Stylist in einer Kleiderschrank-App. Stelle für jeden der 7 Tage dieser Woche ein Outfit NUR aus den verfügbaren Teilen unten zusammen.
 Wetter: ${meta.city && meta.wxCache ? DAYS.map(([k, n]) => { const w = dayWx(k); return w ? `${n} ${w.max}°C, Regen ${w.rain} %` : `${n} ${WEATHER[state.plan.weather]}`; }).join("; ") : WEATHER[state.plan.weather]}.
 Anlässe: ${anl}.
-Regeln: Pro Outfit entweder ein Kleid ODER ein Oberteil plus Hose/Rock, dazu Schuhe. Bei kaltem oder mildem Wetter eine Jacke, wenn vorhanden. Teile müssen zum Anlass passen. Farben sollen harmonieren. Oberteile und Hosen nicht an zwei Tagen hintereinander. Selten oder lange nicht getragene Teile bevorzugen.
+Regeln: Pro Outfit entweder ein Kleid ODER ein Oberteil plus Hose/Rock, dazu Schuhe. Gern ein passendes Accessoire (Sonnenbrille nur bei Sonne, Schal/Mütze bei Kälte) und ein Schmuckstück, wenn vorhanden. Bei kaltem oder mildem Wetter eine Jacke, wenn vorhanden. Teile müssen zum Anlass passen. Farben sollen harmonieren. Oberteile und Hosen nicht an zwei Tagen hintereinander. Selten oder lange nicht getragene Teile bevorzugen.
 Verfügbare Teile (JSON): ${JSON.stringify(avail)}
 Antworte nur mit JSON in genau dieser Form: {"days":[{"day":"mo","items":["id1","id2"],"note":"kurzer Grund, höchstens 10 Wörter, auf Deutsch"}]} mit day aus mo, di, mi, do, fr, sa, so.`;
   state.aiBusy = true; render();
@@ -1173,7 +1253,7 @@ function addSheet() {
 }
 function drawAdd(focusName) {
   const d = addDraft;
-  const fake = { cat: d.cat, color: d.color };
+  const fake = { cat: d.cat, color: d.color, type: d.type };
   const prev = d.preview ? `<img src="${d.preview}" alt="Foto-Vorschau">` : "";
   const catChips = CAT_ORDER.map(c => `<button type="button" class="chip" data-act="d-cat" data-v="${c}" aria-pressed="${d.cat === c}">${CATS[c]}</button>`).join("");
   const occChips = OCC_KEYS.map(o => `<button type="button" class="chip" data-act="d-occ" data-v="${o}" aria-pressed="${d.occasions.includes(o)}">${OCC[o]}</button>`).join("");
@@ -1191,17 +1271,22 @@ function drawAdd(focusName) {
       </div>
       ${d.file ? "" : `<div class="banner"><p><b>Viele Teile auf einmal?</b> Mach erst alle Fotos und wähl sie dann hier zusammen aus. Die App schätzt die Farbe, du tippst nur noch Namen und Kategorie.</p><span class="btn btn-ghost file-btn">Mehrere Fotos auswählen<input type="file" id="multiInput" accept="image/*" multiple aria-label="Mehrere Fotos wählen"></span></div>`}
       <div class="field"><label for="nameInput">Name</label><input type="text" id="nameInput" maxlength="40" placeholder="${d.type ? `z. B. ${esc(d.type)} ${esc(d.color)}` : "z. B. Navy Strickpullover"}" value="${esc(d.name)}"></div>
-      <div class="field"><label for="brandInput">Marke (optional)</label><input type="text" id="brandInput" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(d.brand)}">${brandList()}</div>
       <div class="field"><span class="lbl">Kategorie</span><div class="chips wrap">${catChips}</div></div>
-      ${detailFields(d, "d")}
+      ${typeField(d, "d")}
       <div class="field"><span class="lbl">Farbe · ${esc(d.color)}</span><div class="swatches">${sw}</div></div>
       <div class="field"><span class="lbl">Passt zu</span><div class="chips wrap">${occChips}</div></div>
+      <details class="fb-more" id="addMore"${d.moreOpen ? " open" : ""}><summary>Mehr Details (optional): Marke${NECK_CATS.has(d.cat) ? ", Ausschnitt" : ""}, Basic</summary>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:12px">
+      <div class="field"><label for="brandInput">Marke</label><input type="text" id="brandInput" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(d.brand)}">${brandList()}</div>
+        ${extraFields(d, "d")}
+        </div></details>
       <div class="set-row"><button class="btn btn-primary" type="submit" id="saveBtn">In den Schrank legen</button><button class="btn btn-ghost" type="submit" data-next="1">Speichern + nächstes</button></div>
     </form>`, () => { if (addDraft?.preview) URL.revokeObjectURL(addDraft.preview); addDraft = null; });
   const nameInput = document.getElementById("nameInput");
   nameInput.addEventListener("input", () => { addDraft.name = nameInput.value; });
   const brandInput = document.getElementById("brandInput");
   brandInput.addEventListener("input", () => { addDraft.brand = brandInput.value; });
+  document.getElementById("addMore").addEventListener("toggle", e => { if (addDraft) addDraft.moreOpen = e.target.open; });
   if (focusName) nameInput.focus();
   document.getElementById("photoInput").addEventListener("change", ev => {
     const f = ev.target.files?.[0]; if (!f) return;
@@ -1261,7 +1346,7 @@ async function recognize() {
     const r = await sample.json(prompt, { images: [await shrink(addDraft.file)], modelTier: "quick" });
     if (!addDraft) return;
     if (typeof r?.name === "string" && r.name.trim()) addDraft.name = r.name.trim().slice(0, 40);
-    if (typeof r?.brand === "string" && r.brand.trim() && !addDraft.brand.trim()) addDraft.brand = cleanBrand(r.brand);
+    if (typeof r?.brand === "string" && r.brand.trim() && !addDraft.brand.trim()) { addDraft.brand = cleanBrand(r.brand); addDraft.moreOpen = true; }
     if ((TYPES[addDraft.cat] || []).includes(r?.type)) addDraft.type = r.type;
     if (NECKS[r?.neck] && NECK_CATS.has(addDraft.cat)) addDraft.neck = r.neck;
     if (CATS[r?.cat]) addDraft.cat = r.cat;
@@ -1430,7 +1515,7 @@ function localListing(d) {
   const parts = [A.brand, art, d.color, A.size && "Gr. " + A.size, cond];
   let titel = "";
   for (const p of parts.filter(Boolean)) { const next = titel ? titel + " " + p : p; if (next.length <= 60) titel = next; }
-  const base = { top: 30, bottom: 40, dress: 45, jacket: 70, shoes: 60, acc: 25 };
+  const base = { top: 30, bottom: 40, dress: 45, jacket: 70, shoes: 60, acc: 25, jewelry: 30 };
   const tier = brandTier(A.brand);
   const tierF = { fast: .6, premium: 1.6, luxury: 4 }[tier] || 1;
   const neu = parseFloat(String(A.originalPrice || "").replace(",", ".")) || Math.round((base[d.cat] || 35) * tierF);
@@ -1463,7 +1548,7 @@ function drawFit(x, img, X, Y, w, h, cover) {
 function fitText(x, t, maxW) { let s = String(t || ""); if (x.measureText(s).width <= maxW) return s; while (s.length > 1 && x.measureText(s + "…").width > maxW) s = s.slice(0, -1); return s.trim() + "…"; }
 function sketchSrc(it) {
   const fill = COLOR_HEX[it.color] || "#9b9ea6";
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="400" height="400"><g fill="${fill}" stroke="#2a2f3d" stroke-width="2.4" stroke-linejoin="round">${PATHS[it.cat] || PATHS.top}</g></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="400" height="400"><g fill="${fill}" stroke="#2a2f3d" stroke-width="2.4" stroke-linejoin="round">${sketchBody(it, fill)}</g></svg>`;
   return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
 function fallbackPicks(d) {
@@ -1941,6 +2026,8 @@ function settingsSheet(msg) {
     ${standalone ? "" : `<div class="set-group"><span class="eyebrow">Als App installieren</span>
       ${installEvt ? '<button class="btn btn-primary btn-wide" data-act="install">App installieren</button>' : ""}
       <p class="hint"><b>iPhone:</b> In Safari unten auf Teilen tippen, dann „Zum Home-Bildschirm“.<br><b>Android:</b> In Chrome oben rechts das Menü öffnen, dann „App installieren“.</p></div>`}
+    <div class="set-group"><span class="eyebrow">Farbe der App</span>
+      <div class="palettes">${Object.entries(PALETTES).map(([k, v]) => `<button class="pal" data-act="palette" data-v="${k}" aria-pressed="${curPalette() === k}"><i style="background:linear-gradient(135deg, ${v.soft} 0 50%, ${v.accent} 50% 100%)"></i>${v.label}</button>`).join("")}</div></div>
     <div class="set-group"><span class="eyebrow">Wetter</span>
       <p class="hint">${meta.city ? `Die Woche wird nach dem Wetter in <b>${esc(meta.city.name)}</b> geplant.` : "Trag deinen Ort ein, dann plant die App die Woche nach der echten Vorhersage."}</p>
       <button class="btn btn-ghost btn-wide" data-act="wx-city">${meta.city ? "Ort ändern" : "Ort eintragen"}</button></div>
@@ -1971,7 +2058,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.7";
+const APP_VERSION = "0.8";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -2032,6 +2119,7 @@ document.addEventListener("click", async e => {
       toast(meta.wxCache ? `Wetter für ${r.name} geladen. Woche neu geplant.` : "Wetter konnte gerade nicht geladen werden. Versuch es später nochmal.");
       break;
     }
+    case "palette": meta.palette = el.dataset.v; saveMeta(); count("palette:" + el.dataset.v); applyPalette(); settingsSheet(); break;
     case "wx-off": meta.city = null; meta.wxCache = null; saveMeta(); closeSheet(); render(); toast("Echtes Wetter ausgeschaltet."); break;
   }
 });
@@ -2140,12 +2228,13 @@ async function shareStats() {
   try { await Promise.all([document.fonts.load('420 58px "Fraunces"'), document.fonts.load('italic 420 58px "Fraunces"'), document.fonts.load('600 26px "Geist"')]); } catch {}
   const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
   const x = c.getContext("2d");
-  x.fillStyle = "#f4f4f1"; x.fillRect(0, 0, W, H);
+  const PAL = PALETTES[curPalette()];
+  x.fillStyle = PAL.bg; x.fillRect(0, 0, W, H);
   x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("SCHRANKBLICK", 72, 110);
   x.fillStyle = "#141413"; x.font = '420 96px "Fraunces", serif'; x.fillText("Mein Schrank", 72, 220);
-  x.fillStyle = "#56622f"; x.font = 'italic 420 96px "Fraunces", serif'; x.fillText("in Zahlen", 72, 310);
+  x.fillStyle = PAL.accent; x.font = 'italic 420 96px "Fraunces", serif'; x.fillText("in Zahlen", 72, 310);
   const box = (X, Y, big, small, green) => {
-    rr(x, X, Y, 456, 250, 32); x.fillStyle = green ? "#e3e8d2" : "#ffffff"; x.fill();
+    rr(x, X, Y, 456, 250, 32); x.fillStyle = green ? PAL.soft : "#ffffff"; x.fill();
     x.fillStyle = "#141413"; x.font = '420 104px "Fraunces", serif'; x.fillText(fitText(x, big, 400), X + 36, Y + 130);
     x.fillStyle = "#4a4a45"; x.font = '500 30px "Geist", sans-serif'; x.fillText(fitText(x, small, 400), X + 36, Y + 200);
   };
@@ -2205,6 +2294,7 @@ function usageSummary() {
   const pc = own.filter(i => i.price > 0).length; if (pc) lines.push(`Teile mit Kaufpreis: ${pc}`);
   const bc = own.filter(i => i.brand).length; if (bc) lines.push(`Teile mit Marke: ${bc}`);
   const tc = own.filter(i => i.type).length; if (tc) lines.push(`Teile mit Art: ${tc}, Basics: ${own.filter(i => i.basic).length}`);
+  lines.push(`Farbe der App: ${PALETTES[curPalette()].label}`);
   lines.push(`Gerät: ${deviceKind()}`);
   return lines.join("\n");
 }
@@ -2275,7 +2365,7 @@ async function guessColor(file) {
     x.drawImage(bmp, (bmp.width - side) / 2, (bmp.height - side) / 2, side, side, 0, 0, N, N);
     bmp.close?.();
     const px = x.getImageData(0, 0, N, N).data;
-    const pal = COLORS.map(([n, h]) => [n, parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]);
+    const pal = COLORS.filter(([n]) => n !== "Gold" && n !== "Silber").map(([n, h]) => [n, parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]);
     const votes = {};
     for (let i = 0; i < px.length; i += 4) {
       const r = px[i], g = px[i + 1], b = px[i + 2];
