@@ -48,7 +48,7 @@
   --st-waesche-soft: #e1eaf3;
   --st-reinigung-soft: #ece5f4;
   --st-verliehen-soft: #f4ebdb;
-  --garment-stroke: rgba(0, 0, 0, .22);
+  --garment-stroke: rgba(0, 0, 0, .22); --inv-garment-stroke: rgba(255, 255, 255, .3);
   --shadow: 0 1px 2px rgba(20, 20, 19, .04), 0 8px 24px rgba(20, 20, 19, .05);
   --shadow-float: 0 10px 40px rgba(20, 20, 19, .14), 0 2px 6px rgba(20, 20, 19, .06);
   --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
@@ -68,7 +68,7 @@
     --glass: rgba(28, 28, 27, .78); --scrim: rgba(0, 0, 0, .55); --danger: #ef8270;
     --st-schrank: #8cc79a; --st-waesche: #8bb8de; --st-reinigung: #c3a7e6; --st-verliehen: #e2b867;
     --st-schrank-soft: #1c2b20; --st-waesche-soft: #1a2633; --st-reinigung-soft: #282036; --st-verliehen-soft: #30261a;
-    --garment-stroke: rgba(0, 0, 0, .35);
+    --garment-stroke: rgba(255, 255, 255, .3); --inv-garment-stroke: rgba(0, 0, 0, .24);
     --shadow: 0 1px 2px rgba(0, 0, 0, .4); --shadow-float: 0 10px 40px rgba(0, 0, 0, .5);
     color-scheme: dark;
   }
@@ -82,7 +82,7 @@
   --glass: rgba(28, 28, 27, .78); --scrim: rgba(0, 0, 0, .55); --danger: #ef8270;
   --st-schrank: #8cc79a; --st-waesche: #8bb8de; --st-reinigung: #c3a7e6; --st-verliehen: #e2b867;
   --st-schrank-soft: #1c2b20; --st-waesche-soft: #1a2633; --st-reinigung-soft: #282036; --st-verliehen-soft: #30261a;
-  --garment-stroke: rgba(0, 0, 0, .35);
+  --garment-stroke: rgba(255, 255, 255, .3); --inv-garment-stroke: rgba(0, 0, 0, .24);
   --shadow: 0 1px 2px rgba(0, 0, 0, .4); --shadow-float: 0 10px 40px rgba(0, 0, 0, .5);
   color-scheme: dark;
 }
@@ -168,6 +168,7 @@ a.btn { text-decoration: none; }
 .today h2 em { font-style: italic; }
 .today .link { background: none; border: 0; color: var(--inv-muted); font-size: 13px; font-weight: 500; padding: 0; white-space: nowrap; }
 .today .outfit .thumb { background: rgba(127, 127, 120, .16); }
+.today, .day.is-today { --garment-stroke: var(--inv-garment-stroke); }
 .today .mini span { color: var(--inv-muted); }
 .today .note { color: var(--inv-muted); }
 .today .btn-inv { background: var(--inv-fg); color: var(--inv-bg); }
@@ -199,6 +200,7 @@ a.btn { text-decoration: none; }
 .tile:active .thumb { transform: scale(.98); }
 .thumb { position: relative; aspect-ratio: 4 / 5; max-width: 100%; width: 100%; border-radius: var(--r); background: var(--surface-2); overflow: hidden; display: grid; place-items: center; }
 .thumb svg.garment { width: 62%; height: 62%; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .10)); }
+.thumb svg.garment.wide { width: 86%; height: 86%; }
 .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .thumb .pill { position: absolute; left: 8px; top: 8px; }
 .tile .name { font-weight: 600; font-size: 14px; line-height: 1.3; overflow-wrap: anywhere; padding-inline: 2px; }
@@ -232,6 +234,7 @@ a.btn { text-decoration: none; }
 .week { display: flex; flex-direction: column; gap: 10px; }
 .day { background: var(--surface); border-radius: var(--r-lg); padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow); }
 .day-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.day-name { flex-wrap: wrap; row-gap: 6px; }
 .day-name { font-family: var(--font-display); font-size: 24px; line-height: 1; display: flex; align-items: center; gap: 10px; }
 .today-tag { font-family: var(--font-label); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; background: var(--accent); color: var(--accent-ink); padding: 4px 8px; border-radius: 999px; }
 .day-tools { display: flex; gap: 6px; align-items: center; }
@@ -256,10 +259,12 @@ a.btn { text-decoration: none; }
 
 /* ---------- lists ---------- */
 .list { display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
-.row-item { display: flex; align-items: center; gap: 14px; padding: 10px 12px 10px 10px; background: var(--surface); border: 0; color: inherit; font: inherit; }
+.row-item { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 12px 10px 10px; background: var(--surface); border: 0; color: inherit; font: inherit; }
 .list > .row-item + .row-item { border-top: 1px solid var(--line); }
 .row-item .thumb { width: 52px; flex: none; border-radius: 12px; aspect-ratio: 1; }
-.row-item .txt { flex: 1; min-width: 0; }
+.row-item .txt { flex: 1 1 100px; min-width: 0; }
+.row-acts { display: flex; gap: 6px; margin-left: auto; flex: none; }
+.row-item > .btn { margin-left: auto; }
 .row-item .txt b { display: block; font-size: 14.5px; font-weight: 600; overflow-wrap: anywhere; }
 .row-item .txt span { font-size: 12.5px; color: var(--muted); }
 .row-item .btn { min-height: 36px; padding: 7px 14px; font-size: 13px; }
@@ -460,7 +465,7 @@ img { max-width: 100%; }
 .cardlink svg { width: 18px; height: 18px; transform: rotate(-90deg); flex: none; color: var(--muted); }
 .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .kpi { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.kpi b { font-family: var(--font-display); font-weight: 420; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi b { font-family: var(--font-display); font-weight: 420; font-size: clamp(24px, 8vw, 34px); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .kpi span { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
 .kpi.green { background: var(--accent-soft); box-shadow: none; }
 .rank { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
@@ -869,10 +874,17 @@ const PATHS = {
   bottom: '<path d="M30.5 10h39c1.9 0 3.4 1.5 3.5 3.4l3.9 72.3c.2 2.4-1.7 4.3-4.1 4.3H59.5c-2 0-3.6-1.5-3.9-3.4L50 42l-5.6 44.6c-.3 1.9-1.9 3.4-3.9 3.4H27.2c-2.4 0-4.3-1.9-4.1-4.3L27 13.4c.1-1.9 1.6-3.4 3.5-3.4Z"/><path fill="none" stroke-linecap="round" d="M27.4 19h45.2M50 19v23M36 19c0 5-2 8-7 9M64 19c0 5 2 8 7 9"/>',
   dress: '<path d="M40 8h3l2.5 9h9L57 8h3l1 13c.3 3.7 1.4 7.3 3.2 10.5L81 82.3c1 3-1.2 6.2-4.4 6.2H23.4c-3.2 0-5.4-3.2-4.4-6.2l16.8-50.8C37.6 28.3 38.7 24.7 39 21Z"/><path fill="none" stroke-linecap="round" d="M37.5 32c8 3 17 3 25 0M50 35v18M42 88l2-30M58 88l-2-30"/>',
   jacket: '<path d="M35 12 44 9l6 21 6-21 9 3 13.5 5.4c4.6 1.8 7.8 6.1 8 11.1L89 78c.1 2.6-1.9 4.8-4.5 4.8H80c-1.8 0-3.3-1.4-3.4-3.2L75 50v36c0 2.2-1.8 4-4 4H29c-2.2 0-4-1.8-4-4V50l-1.6 29.6c-.1 1.8-1.6 3.2-3.4 3.2h-4.5c-2.6 0-4.6-2.2-4.5-4.8l2.5-49.5c.2-5 3.4-9.3 8-11.1Z"/><path fill="none" stroke-linecap="round" d="M50 30v60M44 9l-3 22 9-1M56 9l3 22-9-1M30 66h12M58 66h12"/><circle cx="54" cy="45" r="1.6" stroke="none" fill="#000" fill-opacity=".25"/><circle cx="54" cy="58" r="1.6" stroke="none" fill="#000" fill-opacity=".25"/><circle cx="54" cy="71" r="1.6" stroke="none" fill="#000" fill-opacity=".25"/>',
-  shoes: '<path d="M12 64c0-11 6-18 15-19.5l11.5-2c3-.5 5.8 1 7.2 3.6C50 54 57 58 67 59.5l14.5 2.2C87 62.6 91 67.3 91 73v3c0 2.2-1.8 4-4 4H16c-2.2 0-4-1.8-4-4Z"/><path fill="none" stroke-linecap="round" d="M12.5 71.5h78M47 49l5-3M51 53l5-3M55.5 56.5l5-3"/>',
+  shoes: "",
   acc: '<path d="M23.5 40h53c2.4 0 4.3 2.1 4 4.5L76 84.5c-.3 2-2 3.5-4 3.5H28c-2 0-3.7-1.5-4-3.5l-4.5-40c-.3-2.4 1.6-4.5 4-4.5Z"/><path d="M34 40c0-13 6.5-21 16-21s16 8 16 21h-4.5c0-10.5-4.3-16.5-11.5-16.5S38.5 29.5 38.5 40Z"/><path fill="none" stroke-linecap="round" d="M21 52h58"/><rect x="45" y="48" width="10" height="8" rx="2" fill="#000" fill-opacity=".14" stroke="none"/>'
 };
 const TYPE_PATHS = {
+  "Sneaker": '<path d="M10.5 66C9.6 58 10 51 12.2 45c.5-1.3 1.8-1.9 3.1-1.4C21 45.7 26.7 47.6 32.5 47.6c3 0 4.3-3 5.7-5.2 1-1.6 2.8-2.2 4.6-1.8l1.8.4c1.6.4 2.7 1.6 3 3.2 5.4 6.3 16.4 9.8 29.9 12 9 1.5 14.9 4.4 15.9 9.4Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M11.3 50c4.2 1.5 8.7 2.5 13.2 2.6-1.8 4.4-2 8.9-.3 13.4H10.6c-.5-5.5-.3-11 .7-16Z"/><path fill="#fff" fill-opacity=".3" stroke="none" d="M56 52.5c6 2.4 13 3.8 20.5 4.4-7.5.6-15-1-20.5-4.4Z"/><path fill="none" d="M77 66c.5-5.5 4.5-9.2 10.5-9.6M38.4 42.2c1.6 3.8 3.6 7.3 6.1 10.3"/><path fill="none" stroke-width="1.6" d="M45.6 47l5-2.6M49.8 50.3l5-2.5M54.6 53.1l5-2.4"/><path fill="none" stroke="#000" stroke-opacity=".26" stroke-width="1" stroke-dasharray="1.8 1.8" d="M13 62.6c22 .6 50 .6 78 0M80 65c.6-3.6 3.2-6.2 7-6.8"/><path fill="#f4f1ea" d="M8.5 65.5c21.5 1 61.5 1 83.5-.5 2.6-.2 4.4 2 3.9 4.5l-.6 2.8c-.6 2.7-2.9 4.7-5.7 4.7H13c-2.6 0-4.7-2-4.9-4.6l-.3-5.1c-.1-1 .2-1.7.7-1.8Z"/><path fill="none" d="M8 71.5c27 .5 62 .5 87.6-.5"/>',
+  "Halbschuhe": '<path d="M12.5 69C11.6 61.5 12 55.5 14 50.5c.4-1 1.4-1.6 2.5-1.4 6 1 11.5 2.3 17.5 2.1l9.6-4c1.6-.7 3.5-.4 4.8.8C56 55 68.5 58.7 82 60.7c6.8 1 10.6 4 11 8.3Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M14.3 52c5 .9 10 1.7 15 1.9-1.9 5-2.2 10-.8 15.1H12.8c-.6-6.5-.2-12.2 1.5-17Z"/><path fill="#fff" fill-opacity=".3" stroke="none" d="M60 58.5c8 2.8 17 4.3 25 5.4-6.4.2-17-1.4-25-5.4Z"/><path fill="none" d="M34 51.2c3.3 3.5 7.5 5.3 12.7 5.5M43.6 47.2c2.6 3.6 6 5.8 10.4 6.6M78.5 69c.6-4 3.4-6.8 7.6-7.6"/><path fill="none" stroke-width="1.6" d="M40.5 49.5l3.6 3.4M45.2 48.3l3.3 3.7"/><path fill="none" stroke="#000" stroke-opacity=".26" stroke-width="1" stroke-dasharray="1.8 1.8" d="M15 56.5c4.4.8 9 1.3 13.5 1.3M81 67.5c.8-2.5 2.7-4 5.6-4.7"/><path fill="#3b302a" d="M11.5 68.4H93.4c.6 0 1 .6.8 1.2l-.5 1.5c-.6 1.6-2.1 2.6-3.8 2.6H33c-1.2 0-2.1.7-2.4 1.8l-.8 3.2H14.5c-1.7 0-3-1.3-3-3Z"/>',
+  "Stiefel": '<path d="M22 69.5c-2.4-8-2.6-16-1-24 1.6-10 .6-21-1.2-32.3 9-1.2 18.4-1.6 27-.6-1.6 10.6-2 21.4-1.6 31.4.2 6.2 4 10 10.2 12.3 10 3.6 21.5 5.2 29.6 7.7 4.5 1.4 7 3 7 5.5Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M20 14c2.4-.3 4.8-.5 7.2-.6-.6 11.6-.5 22 .4 31.6.6 8 .2 16.2-1 24.5H22c-2.4-8-2.6-16-1-24 1.6-10 .6-21-1-31.5Z"/><path fill="#fff" fill-opacity=".3" stroke="none" d="M40.5 15c1.5 0 2.9.1 4.3.2-1.2 10-1.6 20.6-1.3 30.6.1 3.4 1.2 6 3.3 8-4.6-1.5-6.6-4.4-6.7-8.6-.2-10 0-20.2.4-30.2Z"/><path fill="none" d="M20.4 17.6c8.6-1 17.6-1.3 26.4-.6M76.5 69.5c.5-3.8 3-6.4 7-7.2"/><path fill="none" stroke="#000" stroke-opacity=".26" stroke-width="1" stroke-dasharray="1.8 1.8" d="M80 69c.6-2.4 2.2-4 4.6-4.6"/><path fill="#3b302a" d="M11.5 68.4H93.4c.6 0 1 .6.8 1.2l-.5 1.5c-.6 1.6-2.1 2.6-3.8 2.6H38c-1.2 0-2.1.7-2.4 1.8l-.8 3.2H14.5c-1.7 0-3-1.3-3-3Z"/>',
+  "Stiefeletten": '<path d="M22 69.5c-2.2-8.5-2.2-16.5-.5-23.5 1-4.6.8-9.2-.5-13.5 8.5-1 17.2-1.3 25.6-.5-.8 4.5-1 9-.6 13.5.5 5 4 8.5 10 10.8 10 3.6 21.5 5.2 29.6 7.7 4.5 1.4 7 3 7 5.5Z"/><path fill="#000" fill-opacity=".2" d="M30 31.9c1.4 7 3.4 12.6 6 16.2 2.6-3.6 4.6-9.2 6-16.4-4-.2-8-.1-12 .2Z"/><path fill="none" stroke="#000" stroke-opacity=".15" stroke-width="1" d="M33 33v8M36 33v12M39 33v8"/><path fill="#000" fill-opacity=".12" stroke="none" d="M21 32.6c2.3-.3 4.6-.5 6.9-.6-.7 4.5-.8 9-.2 13.6.8 7.8.6 15.8-.7 23.9H22c-2.2-8.5-2.2-16.5-.5-23.5 1-4.6.8-9.2-.5-13.4Z"/><path d="M22 32.4c-.3-3-.1-5.6.8-7.7.4-.9 1.4-1.3 2.3-1l2.5.8c.9.3 1.4 1.2 1.2 2.1l-1.3 5.5"/><path fill="none" d="M75.5 69.5c.5-3.8 3-6.4 7-7.2"/><path fill="none" stroke="#000" stroke-opacity=".26" stroke-width="1" stroke-dasharray="1.8 1.8" d="M79 69c.6-2.4 2.2-4 4.6-4.6"/><path fill="#3b302a" d="M11.5 68.4H93.4c.6 0 1 .6.8 1.2l-.5 1.5c-.6 1.6-2.1 2.6-3.8 2.6H36c-1.2 0-2.1.7-2.4 1.8l-.8 3.2H14.5c-1.7 0-3-1.3-3-3Z"/>',
+  "Sandalen": '<path fill="#e3d3b6" d="M47.5 7.5C59 7 68.5 14.5 69.5 26.5c.8 10-3.2 19-4.6 28.4-.9 6.2.3 12.4.2 19.1C65 85 58 92.5 49.5 92.5S34.6 85.4 34.8 74.6c.1-6.6 1.4-12.8.4-19.4C33.8 45.6 29.6 37 30 27c.5-11.3 7.4-19 17.5-19.5Z"/><path fill="#000" fill-opacity=".1" stroke="none" d="M48 12c8.5-.3 15.6 5.6 16.3 14.6.6 8.4-2.8 16.2-4 24.2-.8 6.2.3 12.6.2 19.2-.1 9.5-5 16.3-11 16.3s-10.6-6.6-10.5-16c.1-6.8 1.2-13 .3-19.6-1.2-8.2-4.8-15.8-4.5-24.2.4-8.7 5.8-14.3 13.2-14.5Z"/><path d="M26.5 30.5c14-4.2 33-4.2 47 0l-1.2 10.2c-13.8-3.6-30.8-3.6-44.6 0Z"/><path d="M30.5 51.5c12.6-3.4 26.4-3.4 39 0l-1 10c-12-2.8-25-2.8-37 0Z"/><rect x="62.5" y="31" width="6.5" height="8" rx="1.6" fill="none" stroke="#d2ae55" stroke-width="2"/><rect x="59.5" y="51.6" width="6.5" height="8" rx="1.6" fill="none" stroke="#d2ae55" stroke-width="2"/><path fill="none" stroke="#000" stroke-opacity=".25" stroke-width="1" d="M65.8 31.3v7.6M62.8 51.9v7.6"/>',
+  "Pumps": '<path d="M13.5 35.5c5.5 0 10.5 2.6 14.5 7 7 7.6 15 11 25.5 12 14 1.4 26.5 8.3 36 17.2 2.6 2.4 4.6 4.6 4.6 6.3 0 .9-.7 1.5-2 1.5H63c-13.5 0-25.5-9.5-33.5-20.5-4-5.5-9.5-8.8-16-9.5Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M14 37.5c4.4.4 8.5 2.6 12 6.4-.6 3.6-1.3 6.8-3 9.4-2.6-1.8-5.6-3-9-3.5Z"/><path fill="#fff" fill-opacity=".3" stroke="none" d="M55 57c11 1.7 21 6.6 29 13.4-9-4.8-19-9.4-29-13.4Z"/><path fill="none" d="M14.5 35.6c3.4 4 8 6.4 13.4 7"/><path fill="#3b302a" d="M13.6 49.6c4 .5 7.5 1.7 10.5 3.6l-2.4 25.3c-.1.8-.8 1.5-1.6 1.5h-1.6c-.8 0-1.5-.7-1.6-1.5Z"/>',
+  "Sportschuhe": '<path d="M12 64C11 55.5 12 48.5 15 42c.5-1.1 1.7-1.6 2.8-1.2C23.5 43.1 28.5 46.1 34 46c3 0 4.5-2.8 6-5 1-1.6 2.8-2.2 4.6-1.8l1.8.4c1.6.4 2.7 1.6 3 3.2 4.4 7.8 14.6 11.6 29.7 13.6 8.4 1.1 15 3.4 16.4 8.1Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M13 56C26 58.5 40 58.6 52 57c7-1 13-2 18-2.5-7 5-18 7.5-30 8.1-10 .5-19 .4-27.7-.3-.1-2.1.2-4.3.7-6.3Z"/><g fill="#000" fill-opacity=".14" stroke="none"><circle cx="76" cy="57" r=".9"/><circle cx="80" cy="56.6" r=".9"/><circle cx="84" cy="57.4" r=".9"/><circle cx="78" cy="60" r=".9"/><circle cx="82" cy="60" r=".9"/><circle cx="86" cy="60.6" r=".9"/></g><path d="M15.4 42.2c-.9-2-1.3-3.8-1.2-5.4.1-.9.9-1.5 1.8-1.4l2.2.3c.8.1 1.4.8 1.4 1.6l-.2 4.6"/><path fill="none" stroke-width="1.6" d="M47.2 45.4l5-2.7M51.6 48.8l5-2.6M56.6 51.6l5-2.4"/><path fill="#f4f1ea" d="M10 63c28 1.4 58 1.2 85.5-.6 1.7-.1 2.8 1.6 2.2 3.2l-1.6 4.4c-1.5 4-5.3 6.5-9.6 6.5H15.4C12.4 76.5 10 74 10 71Z"/><path fill="none" d="M10.4 68.6c5 1.6 9.5-1.4 14.5 0s9.5-1.4 14.5 0 9.5-1.4 14.5 0 9.5-1.4 14.5 0 9.5-1.4 14.5 0 8-1 12.5-1.3"/><path fill="#000" fill-opacity=".2" stroke="none" d="M11 72.4c.9 2.4 2.4 3.6 4.4 3.6h71.2c3.6 0 6.8-2 8.2-5.2-27 1.2-56 1.8-83.8 1.6Z"/>',
   "Sonnenbrille": '<path d="M13 38h29c2.2 0 3.8 1.9 3.4 4l-2 12.5C42.3 61.2 37 66 30.5 66h-6.3C17.7 66 12.4 61.2 11.6 54.6L9.8 42c-.3-2.2 1.1-4 3.2-4Z"/><path d="M58 38h29c2.1 0 3.5 1.8 3.2 4l-1.8 12.6C87.6 61.2 82.3 66 75.8 66h-6.3c-6.5 0-11.8-4.8-12.9-11.5l-2-12.5c-.4-2.1 1.2-4 3.4-4Z"/><path fill="none" stroke-width="3.5" d="M45.5 44.5c3-3 6-3 9 0M10.5 41 4 36M89.5 41l6.5-5"/>',
   "Uhr": '<rect x="38" y="6" width="24" height="88" rx="8"/><circle cx="50" cy="50" r="19" fill="#f6f4ee"/><circle cx="50" cy="50" r="19" fill="none" stroke="{c}" stroke-width="5"/><path fill="none" stroke-width="2.5" d="M50 39v11l7 5"/>',
   "Kette": '<path fill="none" stroke="{c}" stroke-width="4" d="M22 14c0 32 13 50 28 50s28-18 28-50"/><path d="M50 62l8 10-8 12-8-12Z"/>',
@@ -892,13 +904,15 @@ const TYPE_PATHS = {
   "Haarschmuck": '<path d="M16 60c10-28 58-28 68 0" fill="none" stroke="{c}" stroke-width="8"/><circle cx="50" cy="36" r="7"/>'
 };
 PATHS.jewelry = TYPE_PATHS["Armband"];
+PATHS.shoes = TYPE_PATHS["Sneaker"];
 function sketchBody(it, fill) {
   const t = TYPE_PATHS[it.type];
   return (t || PATHS[it.cat] || PATHS.top).replaceAll("{c}", fill);
 }
 function garmentSvg(it) {
   const fill = COLOR_HEX[it.color] || "#9b9ea6";
-  return `<svg class="garment" viewBox="0 0 100 100" aria-hidden="true"><g fill="${fill}" stroke="var(--garment-stroke)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">${sketchBody(it, fill)}</g></svg>`;
+  const wide = it.cat === "shoes" && it.type !== "Sandalen" ? " wide" : "";
+  return `<svg class="garment${wide}" viewBox="0 0 100 100" aria-hidden="true"><g fill="${fill}" stroke="var(--garment-stroke)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">${sketchBody(it, fill)}</g></svg>`;
 }
 function thumb(it) {
   const u = it.photo ? SB.blobs.url(it.photo) : ""; const img = u ? `<img src="${esc(u)}" alt="" loading="lazy" onerror="this.remove()">` : "";
@@ -1272,7 +1286,7 @@ function viewWoche() {
 function viewWaesche() {
   const group = s => sortItems(state.items.filter(i => i.status === s));
   const row = (it, btns) => `<div class="row-item"><button class="thumb" style="border:0;padding:0" data-act="open-item" data-v="${it.id}" aria-label="${esc(it.name)} öffnen">${thumb(it)}</button>
-    <div class="txt"><b>${esc(it.name)}</b><span>${CATS[it.cat]}${it.lentTo ? " · an " + esc(it.lentTo) : ""}${it.lentUntil && it.status === "verliehen" ? (isOverdue(it) ? ` · <span class="overdue">überfällig seit ${fmtDate(it.lentUntil)}</span>` : " · bis " + fmtDate(it.lentUntil)) : ""}</span></div>${btns}</div>`;
+    <div class="txt"><b>${esc(it.name)}</b><span>${CATS[it.cat]}${it.lentTo ? " · an " + esc(it.lentTo) : ""}${it.lentUntil && it.status === "verliehen" ? (isOverdue(it) ? ` · <span class="overdue">überfällig seit ${fmtDate(it.lentUntil)}</span>` : " · bis " + fmtDate(it.lentUntil)) : ""}</span></div><div class="row-acts">${btns}</div></div>`;
   const back = it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Sauber</button>`;
   const w = group("waesche"), r = group("reinigung"), l = group("verliehen");
   const sec = (title, list, btn, emptyTxt) => `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">${title} <span class="n">${list.length}</span></h3>${list.length ? `<div class="list">${list.map(it => row(it, btn(it))).join("")}</div>` : `<div class="empty">${emptyTxt}</div>`}</div>`;
@@ -2170,7 +2184,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.9";
+const APP_VERSION = "0.10";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
