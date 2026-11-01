@@ -360,6 +360,30 @@ html.kb-open .sheet { max-height: calc(var(--vv-h, 100vh) - 8px); animation: non
 .status-opt.st-eingelagert[aria-pressed="true"] { background: var(--st-eingelagert-soft) !important; }
 .status-opt.st-koffer[aria-pressed="true"] { background: var(--st-koffer-soft) !important; }
 .pack-group { display: flex; flex-direction: column; gap: 8px; }
+.care-rows { display: flex; flex-direction: column; gap: 12px; }
+.care-row { display: flex; flex-direction: column; gap: 6px; }
+.care-row > span { font-size: 12px; color: var(--muted); font-weight: 500; }
+.care-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.care-btn { width: 46px; height: 46px; border: 0; border-radius: 12px; background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-strong); display: grid; place-items: center; padding: 0; transition: background .15s ease, color .15s ease; }
+.care-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); box-shadow: none; }
+.cs { width: 32px; height: 32px; display: block; overflow: visible; }
+.cs text { font: 700 8.5px var(--font-body); fill: currentColor; stroke: none; }
+.care-mini { display: inline-flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; margin-bottom: 4px; }
+.care-mini .cs { width: 24px; height: 24px; }
+.care-txt { display: block; font-size: 13px; line-height: 1.4; color: var(--muted); }
+@media (max-width: 340px) { .care-opts { gap: 4px; } .care-btn { width: 42px; height: 42px; } }
+.care-mode { max-width: 340px; }
+.care-info { margin-top: 2px; }
+.care-info summary { font-size: 13px; color: var(--muted); cursor: pointer; padding: 4px 0; }
+.care-info dl { display: grid; grid-template-columns: 36px 1fr; gap: 8px 10px; align-items: center; margin: 10px 0 0; font-size: 13.5px; }
+.care-info dt { color: var(--ink); }
+.care-info dt .cs { width: 30px; height: 30px; }
+.care-info dd { margin: 0; color: var(--ink); }
+.care-info p { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+.care-info h4 { grid-column: 1 / -1; margin: 8px 0 0; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.wash-load .wl-sym { width: 52px; height: 52px; border-radius: 12px; background: var(--st-waesche-soft); color: var(--st-waesche); display: grid; place-items: center; flex: none; }
+.wash-load .txt span { display: block; }
+.wash-load .wl-warn { color: var(--danger); font-size: 12.5px; }
 .pack-group .eyebrow { padding-left: 2px; }
 .status-grid > .status-opt:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .pt-chip { display: inline-flex; align-items: center; gap: 7px; padding-left: 8px; }
@@ -637,8 +661,8 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
 (() => {
 "use strict";
 
-const CATS = { top: "Oberteil", bottom: "Hose & Rock", dress: "Kleid", jacket: "Jacke", shoes: "Schuhe", swim: "Bademode", acc: "Accessoire", bag: "Tasche & Gepäck", jewelry: "Schmuck" };
-const CAT_ORDER = ["top", "bottom", "dress", "jacket", "shoes", "swim", "acc", "bag", "jewelry"];
+const CATS = { top: "Oberteil", bottom: "Hose & Rock", dress: "Kleid", suit: "Anzug & Kostüm", jacket: "Jacke", shoes: "Schuhe", swim: "Bademode", acc: "Accessoire", bag: "Tasche & Gepäck", jewelry: "Schmuck" };
+const CAT_ORDER = ["top", "bottom", "dress", "suit", "jacket", "shoes", "swim", "acc", "bag", "jewelry"];
 const STATUS = {
   schrank: { label: "Im Schrank", short: "Schrank" },
   waesche: { label: "In der Wäsche", short: "Wäsche" },
@@ -654,6 +678,7 @@ const TYPES = {
   dress: ["Sommerkleid", "Etuikleid", "Abendkleid", "Maxikleid", "Strickkleid", "Blusenkleid", "Jumpsuit"],
   jacket: ["Jacke", "Zip-Jacke", "Blazer", "Mantel", "Parka", "Lederjacke", "Daunenjacke", "Skijacke", "Regenjacke", "Weste"],
   shoes: ["Sneaker", "Halbschuhe", "Stiefel", "Stiefeletten", "Sandalen", "Pumps", "Sportschuhe"],
+  suit: ["Anzug", "Hosenanzug", "Kostüm", "Smoking"],
   swim: ["Bikini", "Badeanzug", "Badehose", "Badeshorts"],
   acc: ["Sonnenbrille", "Gürtel", "Schal", "Mütze", "Cap", "Hut", "Handschuhe", "Strumpfhose", "Krawatte", "Haarschmuck"],
   bag: ["Tasche", "Rucksack", "Sporttasche", "Reisetasche", "Koffer"],
@@ -662,7 +687,7 @@ const TYPES = {
 const NECKS = { rund: "Rundhals", v: "V-Ausschnitt", kragen: "Kragen", rolli: "Rollkragen", kapuze: "Kapuze", stehkragen: "Stehkragen" };
 const NECK_CATS = new Set(["top", "dress"]);
 const FITS = { skinny: "Skinny", slim: "Slim Fit", regular: "Regular", straight: "Straight", relaxed: "Relaxed", wide: "Wide Leg", oversize: "Oversize" };
-const FIT_CATS = new Set(["top", "bottom", "dress", "jacket"]);
+const FIT_CATS = new Set(["top", "bottom", "dress", "suit", "jacket"]);
 const TYPE_NECK = { "Hoodie": "kapuze", "Zip-Hoodie": "kapuze", "Hemd": "kragen", "Polo": "kragen", "Bluse": "kragen", "Blusenkleid": "kragen" };
 // Wärme für die Wochenplanung: 0 = luftig, 2 = warm. Nicht genannte Arten gelten als mittel.
 const TYPE_WARMTH = { "T-Shirt": 0, "Top": 0, "Polo": 0, "Shorts": 0, "Sandalen": 0, "Sommerkleid": 0, "Bikini": 0, "Badeanzug": 0, "Badehose": 0, "Badeshorts": 0,
@@ -674,15 +699,15 @@ const BAG_MOVE = new Set(["Tasche", "Rucksack"]);
 /* Muster: Name, Adjektiv für den Namen, wo es Sinn ergibt */
 const PATTERNS = { streifen: "Streifen", karo: "Karo", punkte: "Punkte", blumen: "Blumen" };
 const PATTERN_ADJ = { streifen: "gestreift", karo: "kariert", punkte: "gepunktet", blumen: "geblümt" };
-const PATTERN_CATS = new Set(["top", "bottom", "dress", "jacket", "swim", "acc", "bag"]);
-const STRIPE_VERTICAL = new Set(["Hemd", "Bluse", "Blusenkleid", "Stoffhose", "Blazer"]);
+const PATTERN_CATS = new Set(["top", "bottom", "dress", "suit", "jacket", "swim", "acc", "bag"]);
+const STRIPE_VERTICAL = new Set(["Hemd", "Bluse", "Blusenkleid", "Stoffhose", "Blazer", "Anzug", "Hosenanzug", "Kostüm", "Smoking"]);
 /* Stoffe laut Etikett, mit Prozent */
 const MATERIALS = ["Baumwolle", "Leinen", "Wolle", "Kaschmir", "Seide", "Viskose", "Modal", "Lyocell", "Polyester", "Polyamid", "Elastan", "Acryl", "Leder"];
-const MAT_CATS = new Set(["top", "bottom", "dress", "jacket", "shoes", "swim", "acc", "bag"]);
+const MAT_CATS = new Set(["top", "bottom", "dress", "suit", "jacket", "shoes", "swim", "acc", "bag"]);
 const MAT_WARM = new Set(["Wolle", "Kaschmir"]), MAT_COOL = new Set(["Leinen"]), MAT_SYN = new Set(["Polyester", "Polyamid", "Acryl", "Elastan"]);
 const mainMat = it => { const m = (it.material || []).filter(r => MATERIALS.includes(r.m)); return m.length ? m.reduce((a, b) => ((b.p || 0) > (a.p || 0) ? b : a)).m : null; };
 const matText = it => [...(it.material || [])].sort((a, b) => (b.p || 0) - (a.p || 0)).map(r => (r.p > 0 ? r.p + "\u00a0%\u00a0" : "") + r.m).join(", ");
-const SIZE_CATS = new Set(["top", "bottom", "dress", "jacket", "shoes", "swim", "acc"]);
+const SIZE_CATS = new Set(["top", "bottom", "dress", "suit", "jacket", "shoes", "swim", "acc"]);
 const warmthOf = it => {
   const w = it.neck === "rolli" ? 2 : (TYPE_WARMTH[it.type] ?? 1), m = mainMat(it);
   return MAT_WARM.has(m) ? Math.min(2, w + 1) : MAT_COOL.has(m) ? Math.max(0, w - 1) : w;
@@ -725,11 +750,11 @@ function isoWeek(date) {
 }
 
 const EXAMPLES = [
-  { id: "ex01", type: "Hemd", neck: "kragen", basic: true, brand: "COS", size: "M", material: [{ m: "Baumwolle", p: 100, a: true }], name: "Weißes Hemd", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(6), price: 49 },
-  { id: "ex02", fit: "regular", type: "Pullover", neck: "rund", basic: true, brand: "Arket", material: [{ m: "Wolle", p: 100, a: true }], name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3), rewears: 5 },
+  { id: "ex01", type: "Hemd", neck: "kragen", basic: true, brand: "COS", size: "M", material: [{ m: "Baumwolle", p: 100, a: true }], care: { wash: "40", mode: "schon", bleach: "no", dry: "1", iron: "2" }, origin: "Portugal", name: "Weißes Hemd", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(6), price: 49 },
+  { id: "ex02", fit: "regular", type: "Pullover", neck: "rund", basic: true, brand: "Arket", material: [{ m: "Wolle", p: 100, a: true }], care: { wash: "hand", bleach: "no", dry: "no", iron: "1", pro: "P" }, name: "Navy Strickpullover", cat: "top", color: "Navy", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3), rewears: 5 },
   { id: "ex03", type: "T-Shirt", neck: "rund", basic: true, name: "Graues T-Shirt", cat: "top", color: "Grau", occasions: ["freizeit", "sport", "schule"], status: "waesche", wears: 22, lastWorn: daysAgo(1) },
   { id: "ex04", type: "Hemd", neck: "kragen", name: "Gestreiftes Hemd", cat: "top", color: "Weiß", pattern: "streifen", color2: "Blau", occasions: ["buero"], status: "schrank", wears: 7, lastWorn: daysAgo(9) },
-  { id: "ex05", fit: "slim", type: "Jeans", basic: true, brand: "Levi's", size: "W32/L32", material: [{ m: "Baumwolle", p: 98, a: true }, { m: "Elastan", p: 2 }], name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2), price: 89, rewears: 18 },
+  { id: "ex05", fit: "slim", type: "Jeans", basic: true, brand: "Levi's", size: "W32/L32", material: [{ m: "Baumwolle", p: 98, a: true }, { m: "Elastan", p: 2 }], care: { wash: "30", bleach: "no", dry: "no", iron: "2" }, origin: "Türkei", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "schule"], status: "waesche", wears: 31, lastWorn: daysAgo(2), price: 89, rewears: 18 },
   { id: "ex06", fit: "regular", type: "Chino", basic: true, name: "Beige Chino", cat: "bottom", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 11, lastWorn: daysAgo(5) },
   { id: "ex07", fit: "slim", type: "Stoffhose", name: "Schwarze Anzughose", cat: "bottom", color: "Schwarz", occasions: ["buero", "abend"], status: "schrank", wears: 8, lastWorn: daysAgo(12) },
   { id: "ex08", type: "Shorts", name: "Laufshorts", cat: "bottom", color: "Schwarz", occasions: ["sport"], status: "schrank", wears: 18, lastWorn: daysAgo(4) },
@@ -746,6 +771,7 @@ const EXAMPLES = [
   { id: "ex19", type: "Schal", name: "Karierter Schal", cat: "acc", color: "Beige", pattern: "karo", color2: "Bordeaux", material: [{ m: "Wolle", p: 100, a: true }], occasions: ["buero", "freizeit", "abend"], status: "schrank", wears: 6, lastWorn: daysAgo(15) },
   { id: "ex20", type: "Badeshorts", name: "Badeshorts", cat: "swim", color: "Navy", pattern: "streifen", color2: "Weiß", occasions: ["freizeit", "sport"], status: "eingelagert", wears: 8, lastWorn: daysAgo(70) },
   { id: "ex21", type: "Koffer", name: "Schwarzer Koffer", cat: "bag", color: "Schwarz", occasions: ["freizeit", "buero"], status: "schrank", wears: 3, lastWorn: daysAgo(40) },
+  { id: "ex22", type: "Anzug", fit: "slim", name: "Grauer Anzug", cat: "suit", color: "Grau", size: "50", material: [{ m: "Wolle", p: 100, a: true }], care: { wash: "no", bleach: "no", dry: "no", iron: "2", pro: "P" }, origin: "Italien", occasions: ["buero", "abend"], status: "schrank", wears: 5, lastWorn: daysAgo(18), price: 299 },
   { id: "ex18", type: "Armband", basic: true, name: "Silberarmband", cat: "jewelry", color: "Silber", occasions: ["buero", "freizeit", "abend"], status: "schrank", wears: 27, lastWorn: daysAgo(2) }
 ].map(it => ({ ...it, createdAt: daysAgo(120) }));
 
@@ -896,7 +922,7 @@ function detailFields(d, prefix) {
   const typeChips = types.map(t => `<button type="button" class="chip" data-act="${prefix}-type" data-v="${esc(t)}" aria-pressed="${d.type === t}">${esc(t)}</button>`).join("");
   const neckChips = Object.entries(NECKS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-neck" data-v="${k}" aria-pressed="${d.neck === k}">${l}</button>`).join("");
   return `<div class="field"><span class="lbl">Art (optional)</span><div class="chips wrap">${typeChips}</div></div>
-    ${patternFields(d, prefix)}${matFields(d, prefix)}
+    ${patternFields(d, prefix)}${matFields(d, prefix)}${careFields(d, prefix)}
     ${FIT_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Schnitt</span><div class="chips wrap">${Object.entries(FITS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-fit" data-v="${k}" aria-pressed="${d.fit === k}">${l}</button>`).join("")}</div></div>` : ""}
     ${NECK_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Ausschnitt (optional)</span><div class="chips wrap">${neckChips}</div></div>` : ""}
     <div class="field"><span class="lbl">Stil</span><div class="chips wrap"><button type="button" class="chip" data-act="${prefix}-basic" aria-pressed="${!!d.basic}">Basic</button></div>
@@ -960,7 +986,107 @@ function bindMat(prefix, getRows, setRows, commit) {
     inp.addEventListener("change", () => { const r = getRows()[Number(inp.dataset.mat)]; inp.value = r?.p > 0 ? r.p : ""; if (commit) { clearTimeout(t); commit(); } });
   });
 }
-const SIZE_HINT = { shoes: "z. B. 39", bottom: "z. B. 38 oder W32/L32", acc: "z. B. M oder Einheitsgröße" };
+/* Pflegesymbole nach dem üblichen Etikett: Waschen, Bleichen, Trocknen, Bügeln, professionelle Reinigung */
+const CARE = {
+  wash: { label: "Waschen", opts: [["30", "Waschen bis 30 °C"], ["40", "Waschen bis 40 °C"], ["60", "Waschen bis 60 °C"], ["95", "Waschen bis 95 °C"], ["hand", "Handwäsche"], ["no", "Nicht waschen"]] },
+  bleach: { label: "Bleichen", opts: [["any", "Bleichen erlaubt"], ["oxy", "Nur Sauerstoffbleiche, kein Chlor"], ["no", "Nicht bleichen"]] },
+  dry: { label: "Trockner", opts: [["2", "Trockner, normale Temperatur"], ["1", "Trockner, niedrige Temperatur"], ["no", "Nicht in den Trockner"]] },
+  iron: { label: "Bügeln", opts: [["1", "Bügeln bis 110 °C, ohne Dampf"], ["2", "Bügeln bis 150 °C"], ["3", "Bügeln bis 200 °C"], ["no", "Nicht bügeln"]] },
+  pro: { label: "Reinigung", opts: [["P", "Chemische Reinigung möglich"], ["F", "Schonende chemische Reinigung"], ["W", "Professionelle Nassreinigung"], ["no", "Nicht chemisch reinigen"]] }
+};
+const WASH_MODE = { schon: "Schonwaschgang", fein: "Feinwäsche" };
+function careIcon(g, v, mode) {
+  const X = '<path d="M5 5L27 27M27 5L5 27" stroke-width="1.8"/>';
+  const dots = (n, y, x0, dx) => Array.from({ length: n }, (_, k) => `<circle cx="${x0 + k * dx}" cy="${y}" r="1.35" fill="currentColor" stroke="none"/>`).join("");
+  let b = "";
+  if (g === "wash") {
+    b = '<path d="M3.5 9.5L6.6 23.5H25.4L28.5 9.5"/><path d="M3.5 9.5C6 7.5 8.4 7.5 10.8 9.5S15.6 11.5 18 9.5 22.8 7.5 25.2 9.5 28 10.5 28.5 9.5"/>';
+    if (v === "hand") b += '<path d="M12.5 20.5V15a1 1 0 0 1 2 0v3.5M14.5 18V13.5a1 1 0 0 1 2 0V18M16.5 18v-4a1 1 0 0 1 2 0v4.5M18.5 18.5v-2.5a1 1 0 0 1 2 0V19c0 1.6-1.3 2.5-3 2.5h-2.5c-1.6 0-3-.9-3-2.5" stroke-width="1.2"/>';
+    else if (v === "no") b += X;
+    else b += `<text x="16" y="20.6" text-anchor="middle">${v}</text>`;
+    if (mode === "schon" || mode === "fein") b += '<path d="M6.5 26.6H25.5"/>';
+    if (mode === "fein") b += '<path d="M6.5 29.4H25.5"/>';
+  } else if (g === "bleach") {
+    b = '<path d="M16 4.5L28.5 26H3.5Z"/>' + (v === "oxy" ? '<path d="M12.5 24L18.5 13.5M16.5 24L21.4 15.4" stroke-width="1.3"/>' : v === "no" ? X : "");
+  } else if (g === "dry") {
+    b = '<rect x="4.5" y="4.5" width="23" height="23" rx="1.5"/><circle cx="16" cy="16" r="8"/>' + (v === "2" ? dots(2, 16, 13.4, 5.2) : v === "1" ? dots(1, 16, 16, 0) : X);
+  } else if (g === "iron") {
+    b = '<path d="M3.5 24.5C4.4 18.6 8.6 14.5 15 14.5H25.6L27.8 24.5Z"/><path d="M10.6 14.5C10.6 11.6 12.4 9.6 15 9.6H26.4L25.6 14.5"/>' + (v === "no" ? X : dots(Number(v) || 1, 20, 16 - (Number(v) - 1) * 2.6, 5.2));
+  } else if (g === "pro") {
+    b = '<circle cx="16" cy="16" r="11"/>' + (v === "no" ? X : `<text x="16" y="19.4" text-anchor="middle">${v}</text>`);
+  }
+  return `<svg class="cs" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${b}</svg>`;
+}
+const careLabel = (g, v) => (CARE[g].opts.find(o => o[0] === v) || [])[1] || "";
+function careText(c) {
+  if (!c) return "";
+  return Object.keys(CARE).filter(g => c[g]).map(g => careLabel(g, c[g]) + (g === "wash" && WASH_MODE[c.mode] && /^\d+$/.test(c.wash) ? ", " + WASH_MODE[c.mode] : "")).join(" · ");
+}
+const careIcons = c => Object.keys(CARE).filter(g => c?.[g]).map(g => careIcon(g, c[g], c.mode)).join("");
+function careFields(d, prefix) {
+  if (d.cat === "jewelry") return "";
+  const c = d.care || {};
+  const rows = Object.entries(CARE).map(([g, def]) => `<div class="care-row"><span>${def.label}</span><div class="care-opts">${def.opts.map(([v, l]) => `<button type="button" class="care-btn" data-act="${prefix}-care" data-v="${g}:${v}" aria-pressed="${c[g] === v}" aria-label="${l}" title="${l}">${careIcon(g, v, g === "wash" && /^\d+$/.test(v) ? c.mode : null)}</button>`).join("")}</div>
+    ${g === "wash" && /^\d+$/.test(c.wash || "") ? `<div class="seg care-mode" role="group" aria-label="Waschgang">${[["normal", "Normal"], ["schon", "Schon"], ["fein", "Fein"]].map(([k, l]) => `<button type="button" data-act="${prefix}-caremode" data-v="${k}" aria-pressed="${(c.mode || "normal") === k}">${l}</button>`).join("")}</div>` : ""}</div>`).join("");
+  const info = Object.entries(CARE).map(([g, def]) => `<h4>${def.label}</h4>` + def.opts.map(([v, l]) => `<dt>${careIcon(g, v)}</dt><dd>${l}</dd>`).join("")
+    + (g === "wash" ? `<dt>${careIcon("wash", "40", "schon")}</dt><dd>Ein Strich darunter: Schonwaschgang</dd><dt>${careIcon("wash", "30", "fein")}</dt><dd>Zwei Striche darunter: Feinwäsche</dd>` : "")).join("");
+  return `<div class="field"><span class="lbl">Pflegeetikett</span><div class="care-rows">${rows}</div>
+    <p class="hint">${careText(c) || "Tippe die Symbole an, die auf dem eingenähten Etikett stehen. Nochmal tippen hebt die Auswahl auf."}</p>
+    <details class="care-info"${state.careInfo ? " open" : ""}><summary>Was bedeuten die Symbole?</summary>
+      <p>Durchgestrichen heißt immer: nicht erlaubt. Je mehr Punkte, desto heißer darf es sein.</p><dl>${info}</dl></details></div>`;
+}
+function toggleCare(care, gv) {
+  const [g, v] = gv.split(":"), c = { ...(care || {}) };
+  if (c[g] === v) delete c[g]; else c[g] = v;
+  if (g === "wash" && !/^\d+$/.test(c.wash || "")) delete c.mode;
+  return Object.keys(c).length ? c : null;
+}
+const COUNTRIES = ["Deutschland", "Italien", "Portugal", "Spanien", "Frankreich", "Türkei", "Rumänien", "Polen", "Bulgarien", "Litauen", "Großbritannien", "Marokko", "Tunesien", "Ägypten", "China", "Bangladesch", "Vietnam", "Indien", "Kambodscha", "Pakistan", "Indonesien", "Myanmar", "Sri Lanka", "Thailand", "Japan", "Südkorea", "Mexiko", "USA", "Äthiopien"];
+const originField = (id, val) => `<div class="field"><label for="${id}">Hergestellt in (optional)</label><input type="text" id="${id}" list="countryList" maxlength="30" autocomplete="off" placeholder="z. B. Portugal" value="${esc(val || "")}" style="max-width:260px"><datalist id="countryList">${COUNTRIES.map(c => `<option value="${c}">`).join("")}</datalist><p class="hint">Steht meist als „Made in …“ auf dem Etikett.</p></div>`;
+const cleanOrigin = v => { const t = String(v || "").replace(/^\s*made in\s*/i, "").replace(/\s+/g, " ").trim().slice(0, 30); return COUNTRIES.find(c => c.toLowerCase() === t.toLowerCase()) || t; };
+
+/* Waschgänge aus dem Wäschekorb: nach Programm, Temperatur und hell/dunkel. Nur ein Vorschlag. */
+function washPlan(list) {
+  const loads = new Map(), skip = [];
+  for (const it of list) {
+    const c = it.care || {}, mm = mainMat(it);
+    if (c.wash === "no") { skip.push(it); continue; }
+    let prog, temp, guess = !c.wash;
+    if (c.wash === "hand") { prog = "hand"; temp = 30; }
+    else if (MAT_WARM.has(mm)) { prog = "wolle"; temp = Math.min(Number(c.wash) || 30, 30); }
+    else {
+      temp = Number(c.wash) || (mm === "Seide" || mm === "Viskose" || it.cat === "swim" ? 30 : 40);
+      prog = mm === "Seide" ? "fein" : c.mode || (mm === "Viskose" ? "fein" : "normal");
+    }
+    const shade = hexLum(COLOR_HEX[it.color] || "#9b9ea6") > .55 ? "hell" : "dunkel";
+    const key = prog === "hand" || prog === "wolle" ? prog : prog + "|" + shade;
+    const L = loads.get(key) || { prog, shade: prog === "hand" || prog === "wolle" ? null : shade, temp: 95, items: [], guess: false };
+    L.temp = Math.min(L.temp, temp); L.items.push(it); L.guess = L.guess || guess; loads.set(key, L);
+  }
+  // Normalwäsche passt mit in den Schonwaschgang gleicher Farbe: ein Waschgang weniger
+  for (const sh of ["hell", "dunkel"]) {
+    const n = loads.get("normal|" + sh), sc = loads.get("schon|" + sh);
+    if (n && sc) { sc.items.push(...n.items); sc.temp = Math.min(sc.temp, n.temp); sc.guess = sc.guess || n.guess; loads.delete("normal|" + sh); }
+  }
+  const order = { normal: 0, schon: 1, fein: 2, wolle: 3, hand: 4 };
+  return { loads: [...loads.values()].sort((a, b) => order[a.prog] - order[b.prog] || (a.shade === "hell" ? -1 : 1)), skip };
+}
+const PROG_NAME = { normal: "Normalwaschgang", schon: "Schonwaschgang", fein: "Feinwäsche", wolle: "Wollprogramm", hand: "Handwäsche" };
+function washPlanHtml(list) {
+  if (!list.length) return "";
+  const { loads, skip } = washPlan(list);
+  const noDry = it => it.care?.dry === "no" || ["Wolle", "Kaschmir", "Seide", "Leder"].includes(mainMat(it)) || (!it.care?.dry && it.cat === "swim");
+  const card = L => {
+    const nd = L.items.filter(noDry), title = L.prog === "hand" ? "Handwäsche, kalt bis 30 °C" : L.prog === "wolle" ? `Wollprogramm bis ${L.temp} °C` : `${L.shade === "hell" ? "Helles" : "Dunkles"} · ${L.temp} °C ${PROG_NAME[L.prog]}`;
+    return `<div class="row-item wash-load"><div class="wl-sym">${careIcon("wash", L.prog === "hand" ? "hand" : String(L.temp), L.prog === "schon" ? "schon" : L.prog === "fein" || L.prog === "wolle" ? "fein" : null)}</div>
+      <div class="txt"><b>${title}</b><span>${L.items.map(i => esc(i.name)).join(", ")}</span>${nd.length ? `<span class="wl-warn">Nicht in den Trockner: ${nd.map(i => esc(i.name)).join(", ")}</span>` : ""}</div></div>`;
+  };
+  const guess = loads.some(L => L.guess);
+  return `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Waschgänge <span class="n">Vorschlag</span></h3>
+    <div class="list">${loads.map(card).join("")}${skip.length ? `<div class="row-item wash-load"><div class="wl-sym">${careIcon("wash", "no")}</div><div class="txt"><b>Nicht waschen</b><span>${skip.map(i => esc(i.name)).join(", ")}: laut Etikett lieber in die Reinigung.</span></div></div>` : ""}</div>
+    <p class="hint">Vorschlag ohne Gewähr. Im Zweifel gilt das Pflegeetikett im Kleidungsstück.${guess ? " Bei Teilen ohne Etikett in der App ist die Temperatur geschätzt." : ""}</p></div>`;
+}
+const SIZE_HINT = { shoes: "z. B. 39", bottom: "z. B. 38 oder W32/L32", suit: "z. B. 50 oder 38", acc: "z. B. M oder Einheitsgröße" };
 function sizeList(cat) {
   const letters = ["XS", "S", "M", "L", "XL", "XXL"], nums = [32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54];
   const opts = cat === "shoes" ? Array.from({ length: 13 }, (_, k) => String(35 + k))
@@ -1013,6 +1139,10 @@ const PATHS = {
   acc: '<path d="M23.5 40h53c2.4 0 4.3 2.1 4 4.5L76 84.5c-.3 2-2 3.5-4 3.5H28c-2 0-3.7-1.5-4-3.5l-4.5-40c-.3-2.4 1.6-4.5 4-4.5Z"/><path d="M34 40c0-13 6.5-21 16-21s16 8 16 21h-4.5c0-10.5-4.3-16.5-11.5-16.5S38.5 29.5 38.5 40Z"/><path fill="none" stroke-linecap="round" d="M21 52h58"/><rect x="45" y="48" width="10" height="8" rx="2" fill="#000" fill-opacity=".14" stroke="none"/>'
 };
 const TYPE_PATHS = {
+  "Anzug": '<g transform="translate(22 42.6) scale(0.56)" stroke-width="2.68"><path d="M50 9.2L68.14 9.2C69.15 9.2 69.91 10.1 69.99 11.3C71.5 30 73.02 60 73.02 89.6C73.02 90.7 72.26 91.6 71.34 91.6L55.46 91.6C54.54 91.6 53.78 90.8 53.7 89.7C53.19 70 52.02 50 51.18 39.6C51.01 38.2 50.59 37.4 50 37.2C49.41 37.4 48.99 38.2 48.82 39.6C47.98 50 46.81 70 46.3 89.7C46.22 90.8 45.46 91.6 44.54 91.6L28.66 91.6C27.74 91.6 26.98 90.7 26.98 89.6C26.98 60 28.5 30 30.01 11.3C30.09 10.1 30.85 9.2 31.86 9.2L50 9.2Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M48.82 40C47.98 50 47.14 70 46.14 89.6C46.14 90.8 45.46 91.6 44.46 91.6L42.1 91.6C43.62 72 45.3 54 46.98 38.4Z"/><path fill="none" d="M29.92 16.6L70.08 16.6"/><path fill="none" d="M61.42 16.6L70.83 28.6M38.58 16.6L29.17 28.6"/><path fill="none" d="M50 16.6L50 36.8"/><path fill="none" stroke="#000" stroke-opacity=".26" stroke-width="1" stroke-dasharray="1.8 1.8" d="M53.36 17L53.36 29.6C53.36 32.6 52.18 34.2 50.34 34.4"/><rect x="31.68" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="41.59" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="56.21" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="66.12" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="47.6" y="11.6" width="4.8" height="2.4" rx="1" fill="#000" fill-opacity=".22" stroke="none"/><path fill="none" d="M58.06 16.6L58.74 24.4M41.94 16.6L41.26 24.4"/><path fill="none" stroke="#000" stroke-opacity=".16" stroke-width="1.2" d="M58.74 24.4L63.27 91M41.26 24.4L36.73 91"/><path fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.4" d="M59.58 26C61.42 46 62.94 66 64.11 90.6M40.42 26C38.58 46 37.06 66 35.89 90.6"/></g><g transform="translate(19 -3.2) scale(0.62)" stroke-width="2.42"><path d="M50 10C54.8 10 57.6 10.2 59.4 10.6L77.4 15.2C80.6 16.8 83 19 84.6 22.4C87.6 40 90 58 91.4 76.4C91.6 77.6 90.9 78.6 89.8 78.9L83.4 80.6C82.3 80.9 81.3 80.2 81.1 79.1C80 64 78 48 75.6 33.6C75 50 75.6 70 75.6 85.6C75.6 86.8 74.6 87.8 73.4 87.8L56 87.8C53.2 87.8 51 86.2 50 83.2C49 86.2 46.8 87.8 44 87.8L26.6 87.8C25.4 87.8 24.4 86.8 24.4 85.6C24.4 70 25 50 24.4 33.6C22 48 20 64 18.9 79.1C18.7 80.2 17.7 80.9 16.6 80.6L10.2 78.9C9.1 78.6 8.4 77.6 8.6 76.4C10 58 12.4 40 15.4 22.4C17 19 19.4 16.8 22.6 15.2L40.6 10.6C42.4 10.2 45.2 10 50 10Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M24.4 34C24.6 50 24.2 70 24.2 85.6C24.2 86.8 25.2 87.8 26.4 87.8L29.6 87.8C28.8 70 29 52 28.8 37.6Z"/><path fill="#fff" fill-opacity=".28" stroke="none" d="M61 30C64.8 42 65.6 58 63.6 74C67 58 67 42 61 30Z"/><path d="M40.6 10.6L50 50L59.4 10.6C56.6 12 53.4 12.6 50 12.6C46.6 12.6 43.4 12 40.6 10.6Z" fill="#f1ede4" stroke-width="1.2"/><path d="M50 12.6L46.4 17.4L43.4 12M50 12.6L53.6 17.4L56.6 12" fill="#f8f6f1" stroke-width="1"/><path fill="none" stroke="#000" stroke-opacity=".12" stroke-width="1" d="M50 14.4L50 50"/><path d="M59.4 10.6L63.8 12.2L63.4 22.2L60.6 24.4L63 26.4L51.6 49L50.6 50ZM40.6 10.6L36.2 12.2L36.6 22.2L39.4 24.4L37 26.4L48.4 49L49.4 50Z"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M62.4 27.6L51.8 47.6M37.6 27.6L48.2 47.6"/><path fill="none" d="M50 50L50 83.2"/><circle cx="51.6" cy="55.4" r="1.5" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="51.6" cy="65.4" r="1.5" fill="#000" fill-opacity=".28" stroke="none"/><path d="M57.4 67L69.6 67L69.4 71.2L57.6 71.2ZM42.6 67L30.4 67L30.6 71.2L42.4 71.2Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M57.6 71.2L69.4 71.2L69.3 72.4L57.7 72.4ZM42.4 71.2L30.6 71.2L30.7 72.4L42.3 72.4Z"/><path fill="none" d="M60.8 37.6L68.6 36.6L68.8 38.8L61 39.8Z"/><path fill="none" d="M75.6 33.6C77.8 27.6 78.8 21.6 78.4 16.4M24.4 33.6C22.2 27.6 21.2 21.6 21.6 16.4"/><circle cx="86.2" cy="75.6" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="87.8" cy="75.2" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="13.8" cy="75.6" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="12.2" cy="75.2" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/></g>',
+  "Kostüm": '<g transform="translate(20 40.2) scale(0.6)" stroke-width="2.50"><path d="M50 14L67.6 14C68.8 14 69.6 14.8 69.6 16L69.8 19.6C76 40 81.6 64 84 84.4C84.2 85.6 83.4 86.6 82.2 86.8C72 88.6 60 89.2 50 89.2C40 89.2 28 88.6 17.8 86.8C16.6 86.6 15.8 85.6 16 84.4C18.4 64 24 40 30.2 19.6L30.4 16C30.4 14.8 31.2 14 32.4 14L50 14Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M30.2 19.6C26 34 21.6 56 18.4 76L17.2 84.4C17 85.6 17.8 86.6 19 86.8L23 87.2C24 70 27 46 33.6 22.4Z"/><path fill="#fff" fill-opacity=".28" stroke="none" d="M60 30C64.4 46 66.4 64 66 82C69.2 64 67 46 60 30ZM40 30C35.6 46 33.6 64 34 82C30.8 64 33 46 40 30Z"/><path fill="none" d="M30.2 19.6L69.8 19.6"/><circle cx="66.4" cy="16.8" r="1.2" fill="#000" fill-opacity=".28" stroke="none"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M56 22C57.4 44 59 66 60.6 88.6M63.6 21.6C68.2 44 71.8 66 74.4 87.8M44 22C42.6 44 41 66 39.4 88.6M36.4 21.6C31.8 44 28.2 66 25.6 87.8"/><path fill="none" stroke="#000" stroke-opacity=".26" stroke-width="1" stroke-dasharray="1.8 1.8" d="M18.6 84C34 86.6 66 86.6 81.4 84"/></g><g transform="translate(19 -3.2) scale(0.62)" stroke-width="2.42"><path d="M50 10C54.8 10 57.6 10.2 59.4 10.6L77.4 15.2C80.6 16.8 83 19 84.6 22.4C87.6 40 90 58 91.4 76.4C91.6 77.6 90.9 78.6 89.8 78.9L83.4 80.6C82.3 80.9 81.3 80.2 81.1 79.1C80 64 78 48 75.6 33.6C75 50 75.6 70 75.6 85.6C75.6 86.8 74.6 87.8 73.4 87.8L56 87.8C53.2 87.8 51 86.2 50 83.2C49 86.2 46.8 87.8 44 87.8L26.6 87.8C25.4 87.8 24.4 86.8 24.4 85.6C24.4 70 25 50 24.4 33.6C22 48 20 64 18.9 79.1C18.7 80.2 17.7 80.9 16.6 80.6L10.2 78.9C9.1 78.6 8.4 77.6 8.6 76.4C10 58 12.4 40 15.4 22.4C17 19 19.4 16.8 22.6 15.2L40.6 10.6C42.4 10.2 45.2 10 50 10Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M24.4 34C24.6 50 24.2 70 24.2 85.6C24.2 86.8 25.2 87.8 26.4 87.8L29.6 87.8C28.8 70 29 52 28.8 37.6Z"/><path fill="#fff" fill-opacity=".28" stroke="none" d="M61 30C64.8 42 65.6 58 63.6 74C67 58 67 42 61 30Z"/><path d="M40.6 10.6L50 50L59.4 10.6C56.6 12 53.4 12.6 50 12.6C46.6 12.6 43.4 12 40.6 10.6Z" fill="#f1ede4" stroke-width="1.2"/><path d="M50 12.6L46.4 17.4L43.4 12M50 12.6L53.6 17.4L56.6 12" fill="#f8f6f1" stroke-width="1"/><path fill="none" stroke="#000" stroke-opacity=".12" stroke-width="1" d="M50 14.4L50 50"/><path d="M59.4 10.6L63.8 12.2L63.4 22.2L60.6 24.4L63 26.4L51.6 49L50.6 50ZM40.6 10.6L36.2 12.2L36.6 22.2L39.4 24.4L37 26.4L48.4 49L49.4 50Z"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M62.4 27.6L51.8 47.6M37.6 27.6L48.2 47.6"/><path fill="none" d="M50 50L50 83.2"/><circle cx="51.6" cy="55.4" r="1.5" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="51.6" cy="65.4" r="1.5" fill="#000" fill-opacity=".28" stroke="none"/><path d="M57.4 67L69.6 67L69.4 71.2L57.6 71.2ZM42.6 67L30.4 67L30.6 71.2L42.4 71.2Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M57.6 71.2L69.4 71.2L69.3 72.4L57.7 72.4ZM42.4 71.2L30.6 71.2L30.7 72.4L42.3 72.4Z"/><path fill="none" d="M60.8 37.6L68.6 36.6L68.8 38.8L61 39.8Z"/><path fill="none" d="M75.6 33.6C77.8 27.6 78.8 21.6 78.4 16.4M24.4 33.6C22.2 27.6 21.2 21.6 21.6 16.4"/><circle cx="86.2" cy="75.6" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="87.8" cy="75.2" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="13.8" cy="75.6" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="12.2" cy="75.2" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/></g>',
+  "Smoking": '<g transform="translate(22 42.6) scale(0.56)" stroke-width="2.68"><path d="M50 9.2L68.14 9.2C69.15 9.2 69.91 10.1 69.99 11.3C71.5 30 73.02 60 73.02 89.6C73.02 90.7 72.26 91.6 71.34 91.6L55.46 91.6C54.54 91.6 53.78 90.8 53.7 89.7C53.19 70 52.02 50 51.18 39.6C51.01 38.2 50.59 37.4 50 37.2C49.41 37.4 48.99 38.2 48.82 39.6C47.98 50 46.81 70 46.3 89.7C46.22 90.8 45.46 91.6 44.54 91.6L28.66 91.6C27.74 91.6 26.98 90.7 26.98 89.6C26.98 60 28.5 30 30.01 11.3C30.09 10.1 30.85 9.2 31.86 9.2L50 9.2Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M48.82 40C47.98 50 47.14 70 46.14 89.6C46.14 90.8 45.46 91.6 44.46 91.6L42.1 91.6C43.62 72 45.3 54 46.98 38.4Z"/><path fill="none" d="M29.92 16.6L70.08 16.6"/><path fill="none" d="M61.42 16.6L70.83 28.6M38.58 16.6L29.17 28.6"/><path fill="none" d="M50 16.6L50 36.8"/><path fill="none" stroke="#000" stroke-opacity=".26" stroke-width="1" stroke-dasharray="1.8 1.8" d="M53.36 17L53.36 29.6C53.36 32.6 52.18 34.2 50.34 34.4"/><rect x="31.68" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="41.59" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="56.21" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="66.12" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="47.6" y="11.6" width="4.8" height="2.4" rx="1" fill="#000" fill-opacity=".22" stroke="none"/><path fill="none" d="M58.06 16.6L58.74 24.4M41.94 16.6L41.26 24.4"/><path fill="none" stroke="#000" stroke-opacity=".16" stroke-width="1.2" d="M58.74 24.4L63.27 91M41.26 24.4L36.73 91"/><path fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.4" d="M59.58 26C61.42 46 62.94 66 64.11 90.6M40.42 26C38.58 46 37.06 66 35.89 90.6"/></g><g transform="translate(19 -3.2) scale(0.62)" stroke-width="2.42"><path d="M50 10C54.8 10 57.6 10.2 59.4 10.6L77.4 15.2C80.6 16.8 83 19 84.6 22.4C87.6 40 90 58 91.4 76.4C91.6 77.6 90.9 78.6 89.8 78.9L83.4 80.6C82.3 80.9 81.3 80.2 81.1 79.1C80 64 78 48 75.6 33.6C75 50 75.6 70 75.6 85.6C75.6 86.8 74.6 87.8 73.4 87.8L56 87.8C53.2 87.8 51 86.2 50 83.2C49 86.2 46.8 87.8 44 87.8L26.6 87.8C25.4 87.8 24.4 86.8 24.4 85.6C24.4 70 25 50 24.4 33.6C22 48 20 64 18.9 79.1C18.7 80.2 17.7 80.9 16.6 80.6L10.2 78.9C9.1 78.6 8.4 77.6 8.6 76.4C10 58 12.4 40 15.4 22.4C17 19 19.4 16.8 22.6 15.2L40.6 10.6C42.4 10.2 45.2 10 50 10Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M24.4 34C24.6 50 24.2 70 24.2 85.6C24.2 86.8 25.2 87.8 26.4 87.8L29.6 87.8C28.8 70 29 52 28.8 37.6Z"/><path fill="#fff" fill-opacity=".28" stroke="none" d="M61 30C64.8 42 65.6 58 63.6 74C67 58 67 42 61 30Z"/><path d="M40.6 10.6L50 50L59.4 10.6C56.6 12 53.4 12.6 50 12.6C46.6 12.6 43.4 12 40.6 10.6Z" fill="#f1ede4" stroke-width="1.2"/><path d="M50 12.6L46.4 17.4L43.4 12M50 12.6L53.6 17.4L56.6 12" fill="#f8f6f1" stroke-width="1"/><path fill="none" stroke="#000" stroke-opacity=".12" stroke-width="1" d="M50 14.4L50 50"/><path d="M59.4 10.6L63.8 12.2L63.4 22.2L60.6 24.4L63 26.4L51.6 49L50.6 50ZM40.6 10.6L36.2 12.2L36.6 22.2L39.4 24.4L37 26.4L48.4 49L49.4 50Z"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M62.4 27.6L51.8 47.6M37.6 27.6L48.2 47.6"/><path fill="none" d="M50 50L50 83.2"/><circle cx="51.6" cy="55.4" r="1.5" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="51.6" cy="65.4" r="1.5" fill="#000" fill-opacity=".28" stroke="none"/><path d="M57.4 67L69.6 67L69.4 71.2L57.6 71.2ZM42.6 67L30.4 67L30.6 71.2L42.4 71.2Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M57.6 71.2L69.4 71.2L69.3 72.4L57.7 72.4ZM42.4 71.2L30.6 71.2L30.7 72.4L42.3 72.4Z"/><path fill="none" d="M60.8 37.6L68.6 36.6L68.8 38.8L61 39.8Z"/><path fill="none" d="M75.6 33.6C77.8 27.6 78.8 21.6 78.4 16.4M24.4 33.6C22.2 27.6 21.2 21.6 21.6 16.4"/><circle cx="86.2" cy="75.6" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="87.8" cy="75.2" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="13.8" cy="75.6" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="12.2" cy="75.2" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/></g><path d="M44.6 4.6L50 6.8L55.4 4.6C56 6 56 8.4 55.4 9.8L50 7.8L44.6 9.8C44 8.4 44 6 44.6 4.6Z" fill="#1e1f24" stroke="#000" stroke-opacity=".4" stroke-width=".8"/><circle cx="50" cy="7.2" r="1.3" fill="#1e1f24" stroke="none"/>',
+  "Hosenanzug": '<g transform="translate(22 42.6) scale(0.56)" stroke-width="2.68"><path d="M50 9.2L68.14 9.2C69.15 9.2 69.91 10.1 69.99 11.3C71.5 30 73.02 60 73.02 89.6C73.02 90.7 72.26 91.6 71.34 91.6L55.46 91.6C54.54 91.6 53.78 90.8 53.7 89.7C53.19 70 52.02 50 51.18 39.6C51.01 38.2 50.59 37.4 50 37.2C49.41 37.4 48.99 38.2 48.82 39.6C47.98 50 46.81 70 46.3 89.7C46.22 90.8 45.46 91.6 44.54 91.6L28.66 91.6C27.74 91.6 26.98 90.7 26.98 89.6C26.98 60 28.5 30 30.01 11.3C30.09 10.1 30.85 9.2 31.86 9.2L50 9.2Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M48.82 40C47.98 50 47.14 70 46.14 89.6C46.14 90.8 45.46 91.6 44.46 91.6L42.1 91.6C43.62 72 45.3 54 46.98 38.4Z"/><path fill="none" d="M29.92 16.6L70.08 16.6"/><path fill="none" d="M61.42 16.6L70.83 28.6M38.58 16.6L29.17 28.6"/><path fill="none" d="M50 16.6L50 36.8"/><path fill="none" stroke="#000" stroke-opacity=".26" stroke-width="1" stroke-dasharray="1.8 1.8" d="M53.36 17L53.36 29.6C53.36 32.6 52.18 34.2 50.34 34.4"/><rect x="31.68" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="41.59" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="56.21" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="66.12" y="8.4" width="2.2" height="9.2" rx=".8" stroke-width="1.1"/><rect x="47.6" y="11.6" width="4.8" height="2.4" rx="1" fill="#000" fill-opacity=".22" stroke="none"/><path fill="none" d="M58.06 16.6L58.74 24.4M41.94 16.6L41.26 24.4"/><path fill="none" stroke="#000" stroke-opacity=".16" stroke-width="1.2" d="M58.74 24.4L63.27 91M41.26 24.4L36.73 91"/><path fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.4" d="M59.58 26C61.42 46 62.94 66 64.11 90.6M40.42 26C38.58 46 37.06 66 35.89 90.6"/></g><g transform="translate(19 -3.2) scale(0.62)" stroke-width="2.42"><path d="M50 10C54.8 10 57.6 10.2 59.4 10.6L77.4 15.2C80.6 16.8 83 19 84.6 22.4C87.6 40 90 58 91.4 76.4C91.6 77.6 90.9 78.6 89.8 78.9L83.4 80.6C82.3 80.9 81.3 80.2 81.1 79.1C80 64 78 48 75.6 33.6C75 50 75.6 70 75.6 85.6C75.6 86.8 74.6 87.8 73.4 87.8L56 87.8C53.2 87.8 51 86.2 50 83.2C49 86.2 46.8 87.8 44 87.8L26.6 87.8C25.4 87.8 24.4 86.8 24.4 85.6C24.4 70 25 50 24.4 33.6C22 48 20 64 18.9 79.1C18.7 80.2 17.7 80.9 16.6 80.6L10.2 78.9C9.1 78.6 8.4 77.6 8.6 76.4C10 58 12.4 40 15.4 22.4C17 19 19.4 16.8 22.6 15.2L40.6 10.6C42.4 10.2 45.2 10 50 10Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M24.4 34C24.6 50 24.2 70 24.2 85.6C24.2 86.8 25.2 87.8 26.4 87.8L29.6 87.8C28.8 70 29 52 28.8 37.6Z"/><path fill="#fff" fill-opacity=".28" stroke="none" d="M61 30C64.8 42 65.6 58 63.6 74C67 58 67 42 61 30Z"/><path d="M40.6 10.6L50 50L59.4 10.6C56.6 12 53.4 12.6 50 12.6C46.6 12.6 43.4 12 40.6 10.6Z" fill="#f1ede4" stroke-width="1.2"/><path d="M50 12.6L46.4 17.4L43.4 12M50 12.6L53.6 17.4L56.6 12" fill="#f8f6f1" stroke-width="1"/><path fill="none" stroke="#000" stroke-opacity=".12" stroke-width="1" d="M50 14.4L50 50"/><path d="M59.4 10.6L63.8 12.2L63.4 22.2L60.6 24.4L63 26.4L51.6 49L50.6 50ZM40.6 10.6L36.2 12.2L36.6 22.2L39.4 24.4L37 26.4L48.4 49L49.4 50Z"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M62.4 27.6L51.8 47.6M37.6 27.6L48.2 47.6"/><path fill="none" d="M50 50L50 83.2"/><circle cx="51.6" cy="55.4" r="1.5" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="51.6" cy="65.4" r="1.5" fill="#000" fill-opacity=".28" stroke="none"/><path d="M57.4 67L69.6 67L69.4 71.2L57.6 71.2ZM42.6 67L30.4 67L30.6 71.2L42.4 71.2Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M57.6 71.2L69.4 71.2L69.3 72.4L57.7 72.4ZM42.4 71.2L30.6 71.2L30.7 72.4L42.3 72.4Z"/><path fill="none" d="M60.8 37.6L68.6 36.6L68.8 38.8L61 39.8Z"/><path fill="none" d="M75.6 33.6C77.8 27.6 78.8 21.6 78.4 16.4M24.4 33.6C22.2 27.6 21.2 21.6 21.6 16.4"/><circle cx="86.2" cy="75.6" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="87.8" cy="75.2" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="13.8" cy="75.6" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/><circle cx="12.2" cy="75.2" r="0.8" fill="#000" fill-opacity=".28" stroke="none"/></g>',
   "Bikini": '<path d="M51.6 36.6C53.4 29 56.8 21.2 61.2 15.6C66.6 21.4 71.4 29 73.8 37.4C66.4 38.6 58.6 38.4 51.6 36.6ZM48.4 36.6C46.6 29 43.2 21.2 38.8 15.6C33.4 21.4 28.6 29 26.2 37.4C33.6 38.6 41.4 38.4 48.4 36.6Z"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M61.2 15.6C63.2 22 64.8 30 65 37.8M38.8 15.6C36.8 22 35.2 30 35 37.8"/><path fill="#fff" fill-opacity=".28" stroke="none" d="M53.4 34.6C57 30.8 59.6 25 61 18.8M46.6 34.6C43 30.8 40.4 25 39 18.8"/><path fill="none" stroke-width="1.4" d="M18 38.6C30 37.6 40 37.2 51.6 36.6M82 38.6C70 37.6 60 37.2 48.4 36.6M61.2 15.6L66.4 5.4M38.8 15.6L33.6 5.4"/><circle cx="50" cy="36.8" r="1.8" fill="none" stroke-width="1.2"/><path d="M50 58C58 58.2 66 57.4 73 55.6C73.6 57.4 73.4 59.2 72.6 60.8C66.6 66 59 74.4 55.2 82C53.6 82.8 52 83 50 83C48 83 46.4 82.8 44.8 82C41 74.4 33.4 66 27.4 60.8C26.6 59.2 26.4 57.4 27 55.6C34 57.4 42 58.2 50 58Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M50 58.4C44 58.4 36.6 58 29 56.2L29.6 59.4C36.6 61 44 61.6 50 61.6C56 61.6 63.4 61 70.4 59.4L71 56.2C63.4 58 56 58.4 50 58.4Z"/><path fill="none" stroke-width="1.4" d="M73 56.6C76.6 55 79.4 55.4 79.6 57.4C79.8 59.6 76.6 59.6 73.4 58.4M73.4 58C76.2 60.4 77.2 63.6 76 66.4M73.2 58.2C74.4 61.6 74 65 72 67.2M27 56.6C23.4 55 20.6 55.4 20.4 57.4C20.2 59.6 23.4 59.6 26.6 58.4M26.6 58C23.8 60.4 22.8 63.6 24 66.4M26.8 58.2C25.6 61.6 26 65 28 67.2"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M53.6 66C52.8 71 51.8 76 50 80.2C48.2 76 47.2 71 46.4 66"/>',
   "Badeanzug": '<path d="M50 31.4C56 31.2 59.2 24.6 59.6 11.6L64.2 11.6C64.6 19 66.2 24 69.8 28.4C71.4 40 66.4 50 66.8 60C67 65.4 69 69.4 71 72.2C66 79.6 59.8 85.4 55.2 87.6L50 87.6L44.8 87.6C40.2 85.4 34 79.6 29 72.2C31 69.4 33 65.4 33.2 60C33.6 50 28.6 40 30.2 28.4C33.8 24 35.4 19 35.8 11.6L40.4 11.6C40.8 24.6 44 31.2 50 31.4Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M33.6 32C33.2 46 34.2 58 33.4 68C36 66 37.8 60 37.6 50C37.4 42 35.8 36 33.6 32Z"/><path fill="#fff" fill-opacity=".28" stroke="none" d="M62.4 34C65.4 42 65.6 52 63.2 62C67.6 52 67.4 42 62.4 34Z"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M59.6 13.4L64.2 13.4M40.4 13.4L35.8 13.4"/><path fill="none" stroke="#000" stroke-opacity=".26" stroke-width="1" stroke-dasharray="1.8 1.8" d="M58.2 27.4C62 30 65.4 30.4 69.2 29.6M41.8 27.4C38 30 34.6 30.4 30.8 29.6"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M30.6 72.4C37 74 44 75 50 75C56 75 63 74 69.4 72.4"/><path fill="#000" fill-opacity=".22" stroke="none" d="M55.2 87.6C53.6 88 52 88.2 50 88.2C48 88.2 46.4 88 44.8 87.6"/>',
   "Badehose": '<path d="M50 34L73.4 34C74.6 34 75.4 34.8 75.4 36L76.4 50.4C69 53 61.4 60 56.4 70.4C54.4 71.2 52.4 71.4 50 71.4C47.6 71.4 45.6 71.2 43.6 70.4C38.6 60 31 53 23.6 50.4L24.6 36C24.6 34.8 25.4 34 26.6 34L50 34Z"/><path fill="none" d="M24.8 40.2L75.2 40.2"/><path fill="#000" fill-opacity=".12" stroke="none" d="M24.9 40.4L75.1 40.4L75.6 43.6L24.4 43.6Z"/><path fill="none" stroke-width="1.3" d="M48.6 38.4C47.6 42.6 46.4 45.4 44.6 47.6M51.4 38.4C52.4 42.6 53.6 45.4 55.4 47.6"/><path fill="#fff" fill-opacity=".28" stroke="none" d="M27.4 46C27 49.4 26.2 50.6 24 51.6"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M62 46C64 50 67 51.8 72 52M38 46C36 50 33 51.8 28 52"/><path fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.1" d="M50 44.4L50 66"/>',
@@ -1086,7 +1216,7 @@ PATHS.jewelry = TYPE_PATHS["Armband"];
 PATHS.shoes = TYPE_PATHS["Sneaker"];
 // Ohne Art: eine neutrale Skizze je Kategorie
 PATHS.top = TYPE_PATHS["T-Shirt"]; PATHS.bottom = TYPE_PATHS["Chino"]; PATHS.dress = TYPE_PATHS["Etuikleid"]; PATHS.jacket = TYPE_PATHS["Jacke"];
-PATHS.swim = TYPE_PATHS["Badeanzug"]; PATHS.bag = PATHS.acc;
+PATHS.swim = TYPE_PATHS["Badeanzug"]; PATHS.bag = PATHS.acc; PATHS.suit = TYPE_PATHS["Anzug"];
 function sketchBody(it, fill) {
   const t = TYPE_PATHS[it.type];
   return (t || PATHS[it.cat] || PATHS.top).replaceAll("{c}", fill);
@@ -1219,9 +1349,10 @@ function dbErrorText(e) {
 /* ---------- outfit logic ---------- */
 function generateOutfit(occ, weather, used, rain = 0) {
   const pool = state.items.filter(i => i.status === "schrank" && (!i.occasions?.length || i.occasions.includes(occ)) && (i.type !== "Skihose" || occ === "sport"));
-  const pick = cat => {
+  const pick = (cat, pref) => {
     let c = pool.filter(i => i.cat === cat);
     if (!c.length) return null;
+    if (pref) { const p = c.filter(pref); if (p.length) c = p; }
     const fit = c.filter(i => weather === "warm" ? warmthOf(i) < 2 : weather === "kalt" ? warmthOf(i) > 0 : true);
     if (fit.length) c = fit;
     // Höchstens ein gemustertes Kleidungsstück pro Outfit, sonst wird es unruhig
@@ -1233,12 +1364,17 @@ function generateOutfit(occ, weather, used, rain = 0) {
   };
   const ids = [];
   const hasDress = pool.some(i => i.cat === "dress" && !used.has(i.id));
-  if (hasDress && (occ === "abend" ? Math.random() < 0.6 : Math.random() < 0.15)) ids.push(pick("dress"));
+  const hasSuit = (occ === "buero" || occ === "abend") && pool.some(i => i.cat === "suit" && !used.has(i.id));
+  // Anzug: ersetzt Hose und Jacke, dazu Hemd oder Bluse und feine Schuhe
+  const suit = hasSuit && Math.random() < (occ === "abend" ? .45 : .35);
+  if (suit) { ids.push(pick("suit")); ids.push(pick("top", i => ["Hemd", "Bluse", "Top", "Polo"].includes(i.type) || i.neck === "rolli")); }
+  else if (hasDress && (occ === "abend" ? Math.random() < 0.6 : Math.random() < 0.15)) ids.push(pick("dress"));
   else { ids.push(pick("top")); ids.push(pick("bottom")); }
-  if (weather !== "warm" || rain >= 60) ids.push(pick("jacket"));
-  ids.push(pick("shoes"));
+  if (suit) { if (weather === "kalt" || rain >= 60) ids.push(pick("jacket", i => ["Mantel", "Parka", "Daunenjacke", "Regenjacke"].includes(i.type))); }
+  else if (weather !== "warm" || rain >= 60) ids.push(pick("jacket"));
+  ids.push(pick("shoes", suit ? i => ["Halbschuhe", "Pumps", "Stiefeletten"].includes(i.type) : null));
   const tights = pool.filter(i => i.type === "Strumpfhose");
-  if (tights.length && weather !== "warm" && ids.some(id => { const x = byId(id); return x && (x.cat === "dress" || x.type === "Rock"); }))
+  if (tights.length && weather !== "warm" && ids.some(id => { const x = byId(id); return x && (x.cat === "dress" || x.type === "Rock" || x.type === "Kostüm"); }))
     ids.push(tights[Math.floor(Math.random() * tights.length)].id);
   const accPool = pool.filter(i => i.cat === "acc" && i.type !== "Strumpfhose" && (ACC_WEATHER[i.type] ? ACC_WEATHER[i.type] === weather || (ACC_WEATHER[i.type] === "warm" && rain < 30 && weather === "mild") : true));
   const seasonal = accPool.filter(i => ACC_WEATHER[i.type] === weather);
@@ -1269,7 +1405,7 @@ async function planWithAI() {
   const prompt = `Du bist Stylist in einer Kleiderschrank-App. Stelle für jeden der 7 Tage dieser Woche ein Outfit NUR aus den verfügbaren Teilen unten zusammen.
 Wetter: ${meta.city && meta.wxCache ? DAYS.map(([k, n]) => { const w = dayWx(k); return w ? `${n} ${w.max}°C, Regen ${w.rain} %` : `${n} ${WEATHER[state.plan.weather]}`; }).join("; ") : WEATHER[state.plan.weather]}.
 Anlässe: ${anl}.
-Regeln: Pro Outfit entweder ein Kleid ODER ein Oberteil plus Hose/Rock, dazu Schuhe. Gern ein passendes Accessoire (Sonnenbrille nur bei Sonne, Schal/Mütze bei Kälte) und ein Schmuckstück, wenn vorhanden. Bei kaltem oder mildem Wetter eine Jacke, wenn vorhanden. Teile müssen zum Anlass passen. Farben sollen harmonieren. Höchstens ein gemustertes Teil und höchstens eine Tasche pro Outfit. Strumpfhose nur zu Kleid oder Rock bei Kälte. Oberteile und Hosen nicht an zwei Tagen hintereinander. Selten oder lange nicht getragene Teile bevorzugen.
+Regeln: Pro Outfit entweder ein Kleid ODER ein Oberteil plus Hose/Rock, dazu Schuhe. Gern ein passendes Accessoire (Sonnenbrille nur bei Sonne, Schal/Mütze bei Kälte) und ein Schmuckstück, wenn vorhanden. Bei kaltem oder mildem Wetter eine Jacke, wenn vorhanden. Teile müssen zum Anlass passen. Farben sollen harmonieren. Ein Anzug oder Kostüm ersetzt Hose und Jacke, dazu ein Hemd oder eine Bluse und feine Schuhe. Höchstens ein gemustertes Teil und höchstens eine Tasche pro Outfit. Strumpfhose nur zu Kleid oder Rock bei Kälte. Oberteile und Hosen nicht an zwei Tagen hintereinander. Selten oder lange nicht getragene Teile bevorzugen.
 Verfügbare Teile (JSON): ${JSON.stringify(avail)}
 Antworte nur mit JSON in genau dieser Form: {"days":[{"day":"mo","items":["id1","id2"],"note":"kurzer Grund, höchstens 10 Wörter, auf Deutsch"}]} mit day aus mo, di, mi, do, fr, sa, so.`;
   state.aiBusy = true; render();
@@ -1518,6 +1654,7 @@ function viewWaesche() {
     <div class="carelabel"><div><div class="big">${w.length}</div><p class="sub">${w.length === 1 ? "Teil" : "Teile"} im Wäschekorb · ${r.length} in der Reinigung · ${l.length} verliehen${kf.length ? ` · ${kf.length} im Koffer` : ""}${st.length ? ` · ${st.length} eingelagert` : ""}</p></div><div class="sym">${STATUS_ICON.waesche}</div></div>
     ${w.length ? `<button class="btn btn-primary btn-wide" data-act="laundry-done">Alles aus der Wäsche zurück (${w.length})</button>` : ""}
     ${r.length > 1 ? `<button class="btn btn-ghost btn-wide" data-act="cleaning-done">Alles aus der Reinigung abgeholt (${r.length})</button>` : ""}
+    ${washPlanHtml(w)}
     ${sec("Wäschekorb", w, back, "Wäschekorb ist leer.")}
     ${sec("Reinigung", r, it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Abgeholt</button>`, "Nichts in der Reinigung.")}
     ${sec("Verliehen", l, it => `${isOverdue(it) ? `<button class="btn btn-ghost" data-act="lend-remind" data-v="${it.id}">Erinnern</button>` : ""}<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Zurück</button>`, "Nichts verliehen.")}
@@ -1585,7 +1722,7 @@ function packSuggest(kind, days, weather) {
   if (kind === "strand") add(take(i => i.cat === "swim", 2)); else if (weather === "warm") add(take(i => i.cat === "swim", 1));
   const accW = weather === "kalt" || kind === "ski" ? ["Mütze", "Schal", "Handschuhe"] : weather === "warm" ? ["Sonnenbrille", "Cap", "Hut"] : ["Schal"];
   for (const t of accW) add(take(has(t), 1));
-  if (kind === "business") { add(take(has("Gürtel"), 1)); add(take(has("Krawatte"), 1)); }
+  if (kind === "business") { add(take(i => i.cat === "suit", 1)); add(take(has("Gürtel"), 1)); add(take(has("Krawatte"), 1)); }
   if (weather !== "warm" && [...out].some(id => { const x = byId(id); return x && (x.cat === "dress" || x.type === "Rock"); })) add(take(has("Strumpfhose"), 1));
   add(take(i => i.cat === "bag" && (i.type === "Rucksack" || i.type === "Tasche" || !i.type), 1));
   return out;
@@ -1739,7 +1876,7 @@ function itemKv(it) {
   return `${it.brand ? `<dt>Marke</dt><dd>${esc(it.brand)}</dd>` : ""}${it.size ? `<dt>Größe</dt><dd>${esc(it.size)}</dd>` : ""}
       <dt>Kategorie</dt><dd>${CATS[it.cat]}${it.type ? " · " + esc(it.type) : ""}${it.fit && FITS[it.fit] ? " · " + FITS[it.fit] : ""}${it.neck && NECKS[it.neck] ? " · " + NECKS[it.neck] : ""}${it.basic ? " · Basic" : ""}</dd>
       <dt>Farbe</dt><dd>${esc(it.color)}${PATTERNS[it.pattern] && PATTERN_CATS.has(it.cat) ? ` · ${PATTERNS[it.pattern]} mit ${esc(color2Of(it))}` : ""}</dd>
-      ${it.material?.length ? `<dt>Stoff</dt><dd>${esc(matText(it))}</dd>` : ""}${tip ? `<dt>Pflege</dt><dd>${tip}</dd>` : ""}
+      ${it.material?.length ? `<dt>Stoff</dt><dd>${esc(matText(it))}</dd>` : ""}${it.care ? `<dt>Etikett</dt><dd><span class="care-mini">${careIcons(it.care)}</span><span class="care-txt">${careText(it.care)}</span></dd>` : ""}${tip ? `<dt>Pflege-Tipp</dt><dd>${tip}</dd>` : ""}${it.origin ? `<dt>Hergestellt in</dt><dd>${esc(it.origin)}</dd>` : ""}
       <dt>Anlass</dt><dd>${(it.occasions || []).map(o => OCC[o]).join(", ") || "–"}</dd>
       <dt>Getragen</dt><dd>${it.wears || 0}× · ${lastWornText(it)}</dd>
       ${it.price > 0 ? `<dt>Pro Tragen</dt><dd>${euro(it.price / Math.max(1, it.wears || 0))}${(it.wears || 0) < 1 ? " (noch nie getragen)" : ""}</dd>` : ""}`;
@@ -1761,10 +1898,11 @@ function itemSheet(id, fromTag) {
       <div class="set-row"><button class="btn btn-ghost btn-sm" data-act="lend-ics" data-v="${it.id}">Rückgabe in Kalender</button><button class="btn btn-ghost btn-sm" data-act="lend-remind" data-v="${it.id}">Freundlich erinnern</button></div></div>` : ""}
     ${washEvery(it) ? `<div class="field"><span class="lbl">Waschen nach ca.</span>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="stepper"><button data-act="wash-every" data-v="${it.id}" data-d="-1" aria-label="Weniger">−</button><b>${washEvery(it)}</b><button data-act="wash-every" data-v="${it.id}" data-d="1" aria-label="Mehr">+</button></div><span class="hint">× Tragen · seit der letzten Wäsche ${it.sinceWash || 0}× getragen</span></div></div>` : ""}
-    <details class="fb-more"${!(it.type || it.basic) || state.openDetails === it.id ? " open" : ""}><summary>Art, Muster, Stoff, Schnitt und Stil ${it.type || it.basic || it.pattern || it.material?.length ? "ändern" : "ergänzen"}</summary>
-      <div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${detailFields(it, "i").replace(/data-act="i-(type|neck|fit|pattern|color2|mat)" data-v="/g, `data-act="i-$1" data-v="${it.id}|`).replace(/data-act="i-basic"/, `data-act="i-basic" data-v="${it.id}"`)}</div></details>
+    <details class="fb-more"${!(it.type || it.basic) || state.openDetails === it.id ? " open" : ""}><summary>Art, Muster, Stoff, Pflegeetikett und Stil ${it.type || it.basic || it.pattern || it.material?.length || it.care ? "ändern" : "ergänzen"}</summary>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${detailFields(it, "i").replace(/data-act="i-(type|neck|fit|pattern|color2|mat|care|caremode)" data-v="/g, `data-act="i-$1" data-v="${it.id}|`).replace(/data-act="i-basic"/, `data-act="i-basic" data-v="${it.id}"`)}</div></details>
     <div class="field"><label for="itemBrand">Marke (optional)</label><input type="text" id="itemBrand" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(it.brand || "")}">${brandList()}</div>
     ${SIZE_CATS.has(it.cat) ? `<div class="field"><label for="itemSize">Größe (optional)</label><input type="text" id="itemSize" list="sizeList" maxlength="12" autocomplete="off" placeholder="${SIZE_HINT[it.cat] || "z. B. M oder 38"}" value="${esc(it.size || "")}" style="max-width:220px">${sizeList(it.cat)}</div>` : ""}
+    ${originField("itemOrigin", it.origin)}
     <div class="field"><label for="priceInput">Kaufpreis (optional)</label><input type="text" id="priceInput" inputmode="decimal" placeholder="z. B. 49" value="${it.price > 0 ? String(it.price).replace(".", ",") : ""}" style="max-width:160px"><p class="hint">Damit siehst du, was dich jedes Tragen kostet. Je öfter getragen, desto günstiger und nachhaltiger.</p></div>
     <div class="actions">
       <button class="btn btn-ghost" data-act="worn" data-v="${it.id}">Heute getragen</button>
@@ -1779,8 +1917,11 @@ function itemSheet(id, fromTag) {
   const ib = document.getElementById("itemBrand");
   const kv = () => { const x = byId(id), el = document.getElementById("itemKv"); if (x && el) el.innerHTML = itemKv(x); };
   ib?.addEventListener("change", () => { const b = cleanBrand(ib.value) || null; patchItem(id, { brand: b }); ib.value = b || ""; kv(); });
+  const ior = document.getElementById("itemOrigin");
+  ior?.addEventListener("change", () => { const v = cleanOrigin(ior.value) || null; patchItem(id, { origin: v }); ior.value = v || ""; kv(); });
   const isz = document.getElementById("itemSize");
   isz?.addEventListener("change", () => { const v = cleanSize(isz.value) || null; patchItem(id, { size: v }); isz.value = v || ""; kv(); });
+  document.querySelectorAll(".care-info").forEach(x => x.addEventListener("toggle", e => { state.careInfo = e.target.open; }));
   let matRows = (it.material || []).map(r => ({ ...r }));
   bindMat("i", () => matRows, r => { matRows = r; }, () => { patchItem(id, { material: matRows.length ? matRows : null }); kv(); });
   const pr = document.getElementById("priceInput");
@@ -1792,7 +1933,7 @@ function itemSheet(id, fromTag) {
 
 let addDraft = null;
 function addSheet() {
-  addDraft = { name: "", brand: "", size: "", pattern: null, color2: null, material: [], type: null, neck: null, basic: false, cat: "top", color: "Schwarz", occasions: Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"], file: null, preview: null };
+  addDraft = { name: "", brand: "", size: "", origin: "", care: null, pattern: null, color2: null, material: [], type: null, neck: null, basic: false, cat: "top", color: "Schwarz", occasions: Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"], file: null, preview: null };
   drawAdd();
 }
 function drawAdd(focusName) {
@@ -1821,11 +1962,12 @@ function drawAdd(focusName) {
       <div class="field"><span class="lbl">Farbe · ${esc(d.color)}</span><div class="swatches">${sw}</div></div>
       <div class="field"><span class="lbl">Passt zu</span><div class="chips wrap">${occChips}</div></div>
       <div class="field"><span class="lbl">Anzahl</span><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="stepper"><button type="button" data-act="d-qty" data-d="-1" aria-label="Weniger">−</button><b>${d.qty || 1}</b><button type="button" data-act="d-qty" data-d="1" aria-label="Mehr">+</button></div><span class="hint">Mehrere gleiche Teile auf einmal, z. B. 4 weiße Basic-Shirts.</span></div></div>
-      <details class="fb-more" id="addMore"${d.moreOpen ? " open" : ""}><summary>Mehr Details (optional): ${["Marke", SIZE_CATS.has(d.cat) && "Größe", PATTERN_CATS.has(d.cat) && "Muster", MAT_CATS.has(d.cat) && "Stoff"].filter(Boolean).join(", ")} und mehr${PATTERNS[d.pattern] || d.material?.length || d.size ? " · " + [PATTERNS[d.pattern], d.material?.length && d.material.map(r => r.m).join("/"), d.size && "Gr. " + esc(d.size)].filter(Boolean).join(" · ") : ""}</summary>
+      <details class="fb-more" id="addMore"${d.moreOpen ? " open" : ""}><summary>Mehr Details (optional): ${["Marke", SIZE_CATS.has(d.cat) && "Größe", PATTERN_CATS.has(d.cat) && "Muster", MAT_CATS.has(d.cat) && "Stoff", d.cat !== "jewelry" && "Pflegeetikett"].filter(Boolean).join(", ")} und mehr${PATTERNS[d.pattern] || d.material?.length || d.size ? " · " + [PATTERNS[d.pattern], d.material?.length && d.material.map(r => r.m).join("/"), d.size && "Gr. " + esc(d.size)].filter(Boolean).join(" · ") : ""}</summary>
         <div style="display:flex;flex-direction:column;gap:16px;margin-top:12px">
       <div class="field"><label for="brandInput">Marke</label><input type="text" id="brandInput" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(d.brand)}">${brandList()}</div>
       ${SIZE_CATS.has(d.cat) ? `<div class="field"><label for="sizeInput">Größe</label><input type="text" id="sizeInput" list="sizeList" maxlength="12" autocomplete="off" placeholder="${SIZE_HINT[d.cat] || "z. B. M oder 38"}" value="${esc(d.size || "")}" style="max-width:220px">${sizeList(d.cat)}</div>` : ""}
-        ${patternFields(d, "d")}${matFields(d, "d")}
+        ${patternFields(d, "d")}${matFields(d, "d")}${careFields(d, "d")}
+        ${originField("originInput", d.origin)}
         ${extraFields(d, "d")}
         </div></details>
       <div class="set-row"><button class="btn btn-primary" type="submit" id="saveBtn">In den Schrank legen</button><button class="btn btn-ghost" type="submit" data-next="1">Speichern + nächstes</button></div>
@@ -1834,6 +1976,9 @@ function drawAdd(focusName) {
   nameInput.addEventListener("input", () => { addDraft.name = nameInput.value; });
   const brandInput = document.getElementById("brandInput");
   brandInput.addEventListener("input", () => { addDraft.brand = brandInput.value; });
+  const originInput = document.getElementById("originInput");
+  originInput?.addEventListener("input", () => { addDraft.origin = originInput.value; });
+  document.querySelectorAll(".care-info").forEach(x => x.addEventListener("toggle", e => { state.careInfo = e.target.open; }));
   const sizeInput = document.getElementById("sizeInput");
   sizeInput?.addEventListener("input", () => { addDraft.size = sizeInput.value; });
   bindMat("d", () => addDraft?.material || [], r => { if (addDraft) addDraft.material = r; });
@@ -1872,6 +2017,8 @@ function drawAdd(focusName) {
     const mats = (addDraft.material || []).filter(r => MATERIALS.includes(r.m));
     if (mats.length && MAT_CATS.has(addDraft.cat)) data.material = mats.map(r => ({ ...r }));
     const sz = cleanSize(addDraft.size); if (sz && SIZE_CATS.has(addDraft.cat)) data.size = sz;
+    if (addDraft.care && addDraft.cat !== "jewelry") data.care = { ...addDraft.care };
+    const org = cleanOrigin(addDraft.origin); if (org) data.origin = org;
     if (photo) data.photo = photo;
     const qty = addDraft.qty || 1;
     meta.lastOcc = [...addDraft.occasions]; saveMeta();
@@ -1894,7 +2041,7 @@ async function shrink(file, max = 1000) {
 }
 function recognizePrompt() {
   return `Das Foto zeigt ein Kleidungsstück oder Accessoire. Antworte nur mit JSON:
-{"name": "kurzer deutscher Name, 2-3 Wörter, z.B. Navy Strickpullover", "brand": "Marke, nur wenn ein Logo oder Etikett klar lesbar ist, sonst leerer Text", "type": passende Art aus ${JSON.stringify(TYPES)} zur gewählten Kategorie, "neck": eins von ${JSON.stringify(Object.keys(NECKS))} oder leer (nur bei Oberteil und Kleid), "cat": eins von ${JSON.stringify(CAT_ORDER)} (top=Oberteil, bottom=Hose oder Rock, dress=Kleid, jacket=Jacke oder Mantel, shoes=Schuhe, swim=Bademode, acc=Accessoire, bag=Tasche oder Gepäck, jewelry=Schmuck), "color": eins von ${JSON.stringify(COLORS.map(c => c[0]))}, "occasions": Teilmenge von ${JSON.stringify(OCC_KEYS)}}`;
+{"name": "kurzer deutscher Name, 2-3 Wörter, z.B. Navy Strickpullover", "brand": "Marke, nur wenn ein Logo oder Etikett klar lesbar ist, sonst leerer Text", "type": passende Art aus ${JSON.stringify(TYPES)} zur gewählten Kategorie, "neck": eins von ${JSON.stringify(Object.keys(NECKS))} oder leer (nur bei Oberteil und Kleid), "cat": eins von ${JSON.stringify(CAT_ORDER)} (top=Oberteil, bottom=Hose oder Rock, dress=Kleid, jacket=Jacke oder Mantel, shoes=Schuhe, suit=Anzug oder Kostüm, swim=Bademode, acc=Accessoire, bag=Tasche oder Gepäck, jewelry=Schmuck), "color": eins von ${JSON.stringify(COLORS.map(c => c[0]))}, "occasions": Teilmenge von ${JSON.stringify(OCC_KEYS)}}`;
 }
 async function recognize() {
   const btn = document.getElementById("aiBtn");
@@ -2073,7 +2220,7 @@ function localListing(d) {
   const parts = [A.brand, art, d.color, A.size && "Gr. " + A.size, cond];
   let titel = "";
   for (const p of parts.filter(Boolean)) { const next = titel ? titel + " " + p : p; if (next.length <= 60) titel = next; }
-  const base = { top: 30, bottom: 40, dress: 45, jacket: 70, shoes: 60, acc: 25, jewelry: 30 };
+  const base = { top: 30, bottom: 40, dress: 45, suit: 120, jacket: 70, shoes: 60, swim: 25, acc: 25, bag: 45, jewelry: 30 };
   const tier = brandTier(A.brand);
   const tierF = { fast: .6, premium: 1.6, luxury: 4 }[tier] || 1;
   const neu = parseFloat(String(A.originalPrice || "").replace(",", ".")) || Math.round((base[d.cat] || 35) * tierF);
@@ -2111,7 +2258,7 @@ function sketchSrc(it) {
 }
 function fallbackPicks(d) {
   const neutral = ["Schwarz", "Weiß", "Grau", "Navy", "Beige", "Denim"];
-  const want = d.cat === "bottom" ? ["top", "shoes", "jacket"] : d.cat === "shoes" ? ["top", "bottom", "jacket"] : d.cat === "dress" ? ["jacket", "shoes", "acc"] : d.cat === "jacket" ? ["top", "bottom", "shoes"] : ["bottom", "shoes", "jacket"];
+  const want = d.cat === "bottom" ? ["top", "shoes", "jacket"] : d.cat === "shoes" ? ["top", "bottom", "jacket"] : d.cat === "dress" ? ["jacket", "shoes", "acc"] : d.cat === "suit" ? ["top", "shoes", "acc"] : d.cat === "jacket" ? ["top", "bottom", "shoes"] : ["bottom", "shoes", "jacket"];
   const out = [];
   for (const c of want) {
     const cand = state.items.filter(i => i.cat === c && i.id !== d.itemId).sort((a, b) => neutral.includes(b.color) - neutral.includes(a.color));
@@ -2511,6 +2658,10 @@ document.addEventListener("click", async e => {
     case "d-pattern": addDraft.pattern = v === "uni" ? null : v; drawAdd(); break;
     case "d-color2": addDraft.color2 = v; drawAdd(); break;
     case "d-mat": addDraft.material = toggleMat(addDraft.material, v); drawAdd(); break;
+    case "d-care": addDraft.care = toggleCare(addDraft.care, v); drawAdd(); break;
+    case "d-caremode": if (addDraft.care) { addDraft.care = { ...addDraft.care }; if (v === "normal") delete addDraft.care.mode; else addDraft.care.mode = v; } drawAdd(); break;
+    case "i-care": { const k = (v || "").indexOf("|"), iid = v.slice(0, k); state.openDetails = iid; const it = byId(iid); if (!it) break; await patchItem(iid, { care: toggleCare(it.care, v.slice(k + 1)) }); itemSheet(iid); break; }
+    case "i-caremode": { const [iid, mv] = (v || "").split("|"); state.openDetails = iid; const it = byId(iid); if (!it?.care) break; const c = { ...it.care }; if (mv === "normal") delete c.mode; else c.mode = mv; await patchItem(iid, { care: c }); itemSheet(iid); break; }
     case "i-pattern": { const [iid, pv] = (v || "").split("|"); state.openDetails = iid; const it = byId(iid); if (!it) break; await patchItem(iid, { pattern: pv === "uni" ? null : pv, ...(pv !== "uni" && !it.color2 ? { color2: color2Of(it) } : {}) }); itemSheet(iid); break; }
     case "i-color2": { const [iid, cv] = (v || "").split("|"); state.openDetails = iid; if (!byId(iid)) break; await patchItem(iid, { color2: cv }); itemSheet(iid); break; }
     case "i-mat": { const [iid, mv] = (v || "").split("|"); state.openDetails = iid; const it = byId(iid); if (!it) break; const rows = toggleMat(it.material, mv); await patchItem(iid, { material: rows.length ? rows : null }); itemSheet(iid); break; }
@@ -2669,7 +2820,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.14";
+const APP_VERSION = "0.15";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {

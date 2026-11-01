@@ -29,19 +29,21 @@ Einstellungen → „Deine Daten“ → **Sicherung speichern** legt eine JSON-D
   "app": "schrankblick", "version": 1, "exportedAt": "ISO-Datum",
   "settings": { "palette", "city": { "name", "lat", "lon" }, "view", "lastOcc", "trip", "appVersion" },
   "data": {
-    "items":    { "<id>": { name, cat, type, color, brand, size, pattern, color2, material[], fit, neck, basic, occasions[], status, wears, lastWorn, price, lentTo, lentUntil, photo … } },
+    "items":    { "<id>": { name, cat, type, color, brand, size, pattern, color2, material[], care, origin, fit, neck, basic, occasions[], status, wears, lastWorn, price, lentTo, lentUntil, photo … } },
     "listings": { "<id>": Verkaufs-Inserate },
     "plan":     Wochenplan
   },
   "photos": { "<foto-schlüssel>": "data:image/jpeg;base64,…" }
 }
 ```
-- `cat`: `top`, `bottom`, `dress`, `jacket`, `shoes`, `swim` (Bademode), `acc`, `bag` (Tasche & Gepäck), `jewelry`
+- `cat`: `top`, `bottom`, `dress`, `suit` (Anzug & Kostüm), `jacket`, `shoes`, `swim` (Bademode), `acc`, `bag` (Tasche & Gepäck), `jewelry`
 - `status`: `schrank`, `waesche`, `reinigung`, `verliehen`, `koffer` (Reise, wird nicht eingeplant) oder `eingelagert` (Saisonwechsel, wird nicht eingeplant)
 - `settings.trip`: laufende Reise `{ kind, days, weather, bag, packedAt }` oder `null`
 - `pattern`: `streifen`, `karo`, `punkte` oder `blumen` (fehlt = uni), `color2` ist die zweite Farbe des Musters
 - `material`: Liste wie `[{ "m": "Baumwolle", "p": 95 }, { "m": "Elastan", "p": 5 }]`, `p` in Prozent (optional), `a: true` heißt „Rest automatisch aufgefüllt“
 - `size`: freier Text, z. B. `M`, `38`, `W32/L32`
+- `care`: Pflegeetikett, z. B. `{ "wash": "40", "mode": "schon", "bleach": "no", "dry": "1", "iron": "2", "pro": "P" }`. `wash`: `30`, `40`, `60`, `95`, `hand` oder `no`; `mode`: `schon` oder `fein` (fehlt = normal); `bleach`: `any`, `oxy`, `no`; `dry`: `1`, `2`, `no`; `iron`: `1`, `2`, `3`, `no`; `pro`: `P`, `F`, `W`, `no`. Fehlende Felder = nicht angegeben.
+- `origin`: Herstellungsland als Text, z. B. `Portugal` („Made in …“)
 
 Fotos stehen als Data-URL unter `photos`, die Teile verweisen per Schlüssel darauf. „Sicherung laden“ ersetzt alle Teile, Fotos, Inserate und den Wochenplan auf dem Gerät.
 
