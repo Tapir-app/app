@@ -27,7 +27,7 @@ Einstellungen → „Deine Daten“ → **Sicherung speichern** legt eine JSON-D
 ```
 {
   "app": "schrankblick", "version": 1, "exportedAt": "ISO-Datum",
-  "settings": { "palette", "city": { "name", "lat", "lon" }, "view", "lastOcc", "trip", "appVersion" },
+  "settings": { "palette", "city": { "name", "lat", "lon" }, "view", "lastOcc", "trip", "avatar", "appVersion" },
   "data": {
     "items":    { "<id>": { name, cat, type, color, brand, size, pattern, color2, material[], care, origin, fit, neck, basic, occasions[], status, wears, lastWorn, price, lentTo, lentUntil, photo … } },
     "listings": { "<id>": Verkaufs-Inserate },
@@ -39,6 +39,7 @@ Einstellungen → „Deine Daten“ → **Sicherung speichern** legt eine JSON-D
 - `cat`: `top`, `bottom`, `dress`, `suit` (Anzug & Kostüm), `jacket`, `shoes`, `swim` (Bademode), `acc`, `bag` (Tasche & Gepäck), `jewelry`
 - `status`: `schrank`, `waesche`, `reinigung`, `verliehen`, `koffer` (Reise, wird nicht eingeplant) oder `eingelagert` (Saisonwechsel, wird nicht eingeplant)
 - `settings.trip`: laufende Reise `{ kind, days, weather, bag, packedAt }` oder `null`
+- `settings.avatar`: deine Figur `{ skin, hair, hairColor, beard, glasses, build }` oder `null` (neutrale Figur). `skin`: `neutral`, `s1` … `s5`; `hair`: `none`, `kurz`, `mittel`, `lang`, `zopf`, `dutt`; `hairColor`: `schwarz`, `braun`, `blond`, `rot`, `grau`; `beard`: `none`, `stoppeln`, `kurz`, `voll`; `glasses`: `none`, `rund`, `eckig`; `build`: `schmal`, `normal`, `kraeftig`
 - `pattern`: `streifen`, `karo`, `punkte` oder `blumen` (fehlt = uni), `color2` ist die zweite Farbe des Musters
 - `material`: Liste wie `[{ "m": "Baumwolle", "p": 95 }, { "m": "Elastan", "p": 5 }]`, `p` in Prozent (optional), `a: true` heißt „Rest automatisch aufgefüllt“
 - `size`: freier Text, z. B. `M`, `38`, `W32/L32`
