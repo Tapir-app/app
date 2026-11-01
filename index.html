@@ -53,6 +53,7 @@
   --st-koffer-soft: #dcecea;
   --st-eingelagert-soft: #eee8df;
   --garment-stroke: rgba(0, 0, 0, .22); --inv-garment-stroke: rgba(255, 255, 255, .3);
+  --fig-skin: #e2dfdc;
   --shadow: 0 1px 2px rgba(20, 20, 19, .04), 0 8px 24px rgba(20, 20, 19, .05);
   --shadow-float: 0 10px 40px rgba(20, 20, 19, .14), 0 2px 6px rgba(20, 20, 19, .06);
   --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
@@ -75,6 +76,7 @@
     --st-eingelagert: #c9b79c; --st-eingelagert-soft: #2b2620;
     --st-koffer: #86c9c4; --st-koffer-soft: #182b2a;
     --garment-stroke: rgba(255, 255, 255, .3); --inv-garment-stroke: rgba(0, 0, 0, .24);
+    --fig-skin: #4b4b4f;
     --shadow: 0 1px 2px rgba(0, 0, 0, .4); --shadow-float: 0 10px 40px rgba(0, 0, 0, .5);
     color-scheme: dark;
   }
@@ -91,6 +93,7 @@
     --st-eingelagert: #c9b79c; --st-eingelagert-soft: #2b2620;
     --st-koffer: #86c9c4; --st-koffer-soft: #182b2a;
   --garment-stroke: rgba(255, 255, 255, .3); --inv-garment-stroke: rgba(0, 0, 0, .24);
+  --fig-skin: #4b4b4f;
   --shadow: 0 1px 2px rgba(0, 0, 0, .4); --shadow-float: 0 10px 40px rgba(0, 0, 0, .5);
   color-scheme: dark;
 }
@@ -268,6 +271,20 @@ a.btn { text-decoration: none; }
 .mini .thumb { border-radius: 14px; aspect-ratio: 4 / 5; }
 .mini span { font-size: 11.5px; color: var(--muted); line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .mini.warn .thumb { box-shadow: inset 0 0 0 2px var(--st-waesche); }
+.figure { display: block; width: 100%; height: auto; overflow: visible; }
+.fig-body { fill: var(--fig-skin); }
+.today .fig-body, .day.is-today .fig-body { fill: rgb(150 150 150 / .45); fill: color-mix(in srgb, var(--inv-fg) 22%, var(--inv-bg)); }
+.look { display: flex; gap: 16px; align-items: center; }
+.look-fig { flex: none; width: 104px; }
+.look-list { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.look-item { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; color: inherit; text-align: left; font: inherit; min-width: 0; }
+.look-item .thumb { width: 42px; flex: none; aspect-ratio: 1; border-radius: 11px; background: rgba(127, 127, 120, .16); }
+.look-item .thumb svg.garment { width: 74%; height: 74%; filter: none; }
+.look-item .thumb svg.garment.wide { width: 90%; height: 90%; }
+.look-item span { font-size: 13.5px; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.look-item.warn .thumb { box-shadow: inset 0 0 0 2px var(--st-waesche); }
+.mini-fig { flex: none; width: 60px; align-self: flex-start; }
+@media (max-width: 340px) { .look-fig { width: 92px; } .look { gap: 12px; } }
 .warn-line { font-size: 12.5px; color: var(--st-waesche); font-weight: 600; margin: 0; display: flex; gap: 6px; align-items: baseline; }
 .day.is-today .warn-line { color: inherit; opacity: .8; }
 
@@ -1250,6 +1267,65 @@ function thumb(it) {
   const u = it.photo ? SB.blobs.url(it.photo) : ""; const img = u ? `<img src="${esc(u)}" alt="" loading="lazy" onerror="this.remove()">` : "";
   return garmentSvg(it) + img;
 }
+
+/* ---------- Figur: das Outfit an einer schlichten Puppe ---------- */
+// Koordinaten wie die Oberteil-Skizzen, 1 Einheit ≈ 1 cm. Oberteile und Jacken passen ohne Umrechnung,
+// alles andere wird auf Hüfte, Schultern, Kopf oder Füße gesetzt. Neutrale Puppe ohne Gesicht.
+const FIG_BODY = '<ellipse cx="50" cy="-9" rx="8.6" ry="11.4"/><path d="M45.6 0.5h8.8l.6 15.5h-10Z"/>'
+  + '<path d="M44 13.2C38 14.6 31.5 15.4 28.6 17.4 26.2 19 25.9 23 26.6 27.4L29.8 40.6C31.6 47 33.6 51.6 33.8 57 33.9 62.8 31.4 68.2 30.8 75.4 30.6 79 33.4 82 37 82H63C66.6 82 69.4 79 69.2 75.4 68.6 68.2 66.1 62.8 66.2 57 66.4 51.6 68.4 47 70.2 40.6L73.4 27.4C74.1 23 73.8 19 71.4 17.4 68.5 15.4 62 14.6 56 13.2Z"/>'
+  + '<path d="M29.4 16.9C25.4 18 23.3 21 22.4 25.6L13.4 76.4C13.1 78.2 14.4 79.6 16 79.6H17.6C18.9 79.6 19.9 78.6 20.1 77.4L26.6 37.6 28.6 27.6Z"/><path d="M70.6 16.9C74.6 18 76.7 21 77.6 25.6L86.6 76.4C86.9 78.2 85.6 79.6 84 79.6H82.4C81.1 79.6 80.1 78.6 79.9 77.4L73.4 37.6 71.4 27.6Z"/>'
+  + '<ellipse cx="16.6" cy="83.4" rx="3.4" ry="4.6" transform="rotate(8 16.6 83.4)"/><ellipse cx="83.4" cy="83.4" rx="3.4" ry="4.6" transform="rotate(-8 83.4 83.4)"/>'
+  + '<path d="M31 74C30.4 84 31.6 96 33.6 108 35.2 118 37.4 134 38.8 152.6 38.9 154.4 40.2 155.6 41.9 155.6H44.1C45.6 155.6 46.8 154.4 46.7 152.9 46.4 136 47.2 120 48 108 48.6 98 49.2 88 50 80Z"/><path d="M69 74C69.6 84 68.4 96 66.4 108 64.8 118 62.6 134 61.2 152.6 61.1 154.4 59.8 155.6 58.1 155.6H55.9C54.4 155.6 53.2 154.4 53.3 152.9 53.6 136 52.8 120 52 108 51.4 98 50.8 88 50 80Z"/>';
+const FIG_FEET = '<path d="M38.6 153.5C35 155 31.6 156.6 29.8 158.4 28.8 159.6 29.6 161 31 161H45.4C46.6 161 47.4 160 47.2 158.8L46.6 153.5Z"/><path d="M61.4 153.5C65 155 68.4 156.6 70.2 158.4 71.2 159.6 70.4 161 69 161H54.6C53.4 161 52.6 160 52.8 158.8L53.4 153.5Z"/>';
+const FIG_SANDAL = '<path d="M28.6 159.6H47.8V161.8H28.6Z"/><path d="M52.2 159.6H71.4V161.8H52.2Z"/><path d="M32.2 156.6 37.6 159.6M35.6 155.4 41 159.6M44.6 153.6 47 155.2M67.8 156.6 62.4 159.6M64.4 155.4 59 159.6M55.4 153.6 53 155.2" fill="none" stroke="{c}" stroke-width="1.7"/>';
+const FIG_BOW = '<path d="M45 14.2 50 16.4 55 14.2V19.6L50 17.4 45 19.6Z" fill="#1e1f24"/>';
+// Hosen und Röcke: [Bund in der Skizze, Bundbreite]
+const FIG_BOTTOM = { "Jeans": [8.25, 40.2], "Chino": [8.25, 40.2], "Stoffhose": [7.75, 40.8], "Jogginghose": [8.5, 40.8], "Leggings": [8.75, 36.8], "Shorts": [25.25, 42.2], "Rock": [13.25, 40.8], "Skihose": [6.75, 36.2], "Strumpfhose": [7.25, 39.2] };
+// Kleider: [oberste Kante in der Skizze, Brustbreite, Höhe der Kante an der Figur]
+const FIG_DRESS = { "Sommerkleid": [5.75, 41.5, 6], "Etuikleid": [12, 38.2, 12], "Abendkleid": [4, 37.8, 6], "Maxikleid": [10.5, 40.8, 9], "Strickkleid": [4, 41.8, 4.5], "Blusenkleid": [9.5, 43.2, 9.5], "Jumpsuit": [10.75, 37.8, 8] };
+// Schuhe (Seitenansicht): [Ferse x, Spitze x, Sohle y]
+const FIG_SHOE = { "Sneaker": [7.3, 95.8, 78], "Halbschuhe": [10.8, 95, 78.4], "Stiefel": [19.8, 96.3, 78.5], "Stiefeletten": [19.5, 95.3, 78.5], "Pumps": [12.8, 94, 80], "Sportschuhe": [8.8, 97.3, 77.1] };
+// Accessoires: [Breite in der Skizze, Mitte x, Bezugshöhe, Breite an der Figur, Höhe an der Figur]
+const FIG_ACC = { "Mütze": [66, 50, 78.5, 21, -5.5], "Cap": [56, 46, 73.5, 21, -7.5], "Hut": [84, 50, 76, 31, -8.5], "Schal": [44, 50, 13, 24, 5], "Sonnenbrille": [92, 50, 51, 18, -9.5], "Krawatte": [26, 50, 7, 10.4, 12] };
+const FIG_SUIT = { "Anzug": "Stoffhose", "Hosenanzug": "Stoffhose", "Smoking": "Stoffhose", "Kostüm": "Rock" };
+const FIG_DEFAULT = { top: "T-Shirt", bottom: "Jeans", dress: "Etuikleid", jacket: "Jacke", shoes: "Sneaker", suit: "Anzug" };
+const figTf = (tx, ty, sx, sy) => `translate(${+tx.toFixed(2)} ${+ty.toFixed(2)}) scale(${+sx.toFixed(4)} ${+sy.toFixed(4)})`;
+const figType = it => TYPE_PATHS[it.type] ? it.type : FIG_DEFAULT[it.cat];
+const canFigure = list => list.some(i => i && ["top", "bottom", "dress", "suit"].includes(i.cat));
+function figureLayers(list) {
+  const out = [], first = c => list.find(i => i.cat === c);
+  const add = (it, type, t) => { if (TYPE_PATHS[type]) out.push({ it, body: TYPE_PATHS[type], t }); };
+  const HIP_Y = 62, HIP_W = 38, LEG_K = 1.14;
+  const bottomTf = type => { const [wy, ww] = FIG_BOTTOM[type] || FIG_BOTTOM.Jeans, s = HIP_W / ww; return figTf(50 - 50 * s, HIP_Y - wy * s * LEG_K, s, s * LEG_K); };
+  const suit = first("suit"), dress = suit ? null : first("dress"), top = first("top"), jacket = first("jacket"), shoes = first("shoes");
+  const tights = list.find(i => i.type === "Strumpfhose");
+  if (tights) add(tights, "Strumpfhose", bottomTf("Strumpfhose"));
+  if (shoes) {
+    const f = FIG_SHOE[figType(shoes)];
+    if (f) { const s = 24 / (f[1] - f[0]), ty = 161 - f[2] * s; add(shoes, figType(shoes), figTf(53.4 - f[0] * s, ty, s, s)); add(shoes, figType(shoes), figTf(46.6 + f[0] * s, ty, -s, s)); }
+    else out.push({ it: shoes, body: FIG_SANDAL, t: "" });
+  }
+  const bottom = suit || (dress ? null : first("bottom"));
+  if (bottom) { const t = suit ? FIG_SUIT[figType(suit)] || "Stoffhose" : figType(bottom); add(bottom, t, bottomTf(FIG_BOTTOM[t] ? t : "Jeans")); }
+  if (dress) { const t = figType(dress), [y0, cw, ty] = FIG_DRESS[t] || FIG_DRESS.Etuikleid, s = 45 / cw, sy = s * 1.1; add(dress, t, figTf(50 - 50 * s, ty - y0 * sy, s, sy)); }
+  if (top && !dress) add(top, figType(top), "");
+  const acc = t => { const it = list.find(i => i.type === t); if (!it) return; const [w, cx, y0, tw, ty] = FIG_ACC[t], s = tw / w; add(it, t, figTf(50 - cx * s, ty - y0 * s, s, s)); };
+  if (top && !dress && !suit) acc("Krawatte");
+  if (suit) { add(suit, "Blazer", ""); if (suit.type === "Smoking") out.push({ it: suit, body: FIG_BOW, t: "" }); }
+  if (jacket) add(jacket, figType(jacket), "");
+  for (const t of ["Schal", "Sonnenbrille", "Mütze", "Cap", "Hut"]) acc(t);
+  return out;
+}
+function figureSvg(list, cls) {
+  list = list.filter(Boolean);
+  const closed = list.some(i => i.cat === "shoes" && FIG_SHOE[figType(i)]);
+  const layers = figureLayers(list).map(({ it, body, t }) => {
+    const fill = COLOR_HEX[it.color] || "#9b9ea6", pt = body === FIG_SANDAL || body === FIG_BOW ? null : patternDef(it, fill);
+    return `${pt ? pt.def : ""}<g${t ? ` transform="${t}"` : ""}><g fill="${pt ? `url(#${pt.id})` : fill}" stroke="var(--garment-stroke)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">${body.replaceAll("{c}", fill)}</g></g>`;
+  }).join("");
+  const names = list.filter(i => i.cat !== "jewelry" && i.cat !== "bag").map(i => i.name).join(", ");
+  return `<svg class="figure${cls ? " " + cls : ""}" viewBox="0 -30 100 194" role="img" aria-label="Figur im Outfit: ${esc(names)}"><g class="fig-body">${FIG_BODY}${closed ? "" : FIG_FEET}</g>${layers}</svg>`;
+}
 const STATUS_ICON = {
   schrank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M12 10.2 3.9 15.9a1.2 1.2 0 0 0 .7 2.2h14.8a1.2 1.2 0 0 0 .7-2.2Z"/><path d="M10.2 6.3a1.9 1.9 0 1 1 2.7 1.7c-.6.3-.9.8-.9 1.4v.8"/></svg>',
   waesche: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.25" y="3" width="15.5" height="18" rx="3.5"/><circle class="d" cx="12" cy="13.25" r="4.5"/><path d="M10 14.5c.7-.6 1.3-.6 2 0s1.3.6 2 0"/><path d="M7.5 6.25h.01M10 6.25h.01" stroke-width="2.2"/></svg>',
@@ -1542,7 +1618,8 @@ function viewSchrank() {
   const dayName = DAYS.find(d => d[0] === tk)[1];
   const todayCard = `<section class="today" aria-label="Outfit für heute">
       <div class="today-top"><div><span class="eyebrow">Heute · ${dayName} · ${OCC[state.plan.days[tk]?.occ] || ""}</span><h2>${todayItems.length ? "Dein <em>Outfit</em>" : "Noch <em>nichts</em> geplant"}</h2></div><button class="link" data-act="tab" data-v="woche">Woche ›</button></div>
-      ${todayItems.length ? `<div class="outfit">${todayItems.map(it => `<button class="mini${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div>
+      ${todayItems.length ? `${canFigure(todayItems) ? `<div class="look"><div class="look-fig">${figureSvg(todayItems)}</div><div class="look-list">${todayItems.map(it => `<button class="look-item${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div></div>`
+        : `<div class="outfit">${todayItems.map(it => `<button class="mini${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div>`}
       <button class="btn btn-inv btn-wide" data-act="worn-today">Heute getragen</button>` : `<p class="note">Lass dir die Woche aus sauberen Teilen zusammenstellen.</p><button class="btn btn-inv btn-wide" data-act="tab" data-v="woche">Woche planen</button>`}
     </section>`;
   const filtered = state.fCat !== "all" || state.fStatus !== "all" || state.fBasic || !!state.fColor;
@@ -1621,7 +1698,7 @@ function viewWoche() {
           <button class="icon-btn" data-act="reroll" data-v="${k}" aria-label="Anderes Outfit für ${name}">${ICON_REROLL}</button>
         </div>
       </div>
-      ${minis ? `<div class="outfit">${minis}</div>` : '<p class="note">Noch kein Outfit. Tippe ↻ oder plane die ganze Woche.</p>'}
+      ${minis ? `<div class="outfit">${canFigure(items) ? `<div class="mini-fig">${figureSvg(items)}</div>` : ""}${minis}</div>` : '<p class="note">Noch kein Outfit. Tippe ↻ oder plane die ganze Woche.</p>'}
       ${d.note ? `<p class="note">${esc(d.note)}</p>` : ""}
       ${dirty.length ? `<p class="warn-line">${dirty.map(i => esc(i.name)).join(", ")}: ${dirty.length === 1 ? "ist" : "sind"} gerade nicht im Schrank.</p>` : ""}
       ${k === tk && minis ? '<button class="btn btn-ghost" data-act="worn-today">Heute getragen</button>' : ""}
@@ -2818,7 +2895,7 @@ function settingsSheet(msg) {
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
-const APP_VERSION = "0.15.1";
+const APP_VERSION = "0.16";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
