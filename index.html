@@ -304,7 +304,7 @@ svg .d { fill: currentColor; fill-opacity: 0; transition: fill-opacity .2s ease;
 /* ---------- sheet ---------- */
 .scrim { position: fixed; inset: 0; background: var(--scrim); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); z-index: 40; display: flex; align-items: flex-end; justify-content: center; animation: fade .2s ease; }
 .sheet {
-  background: var(--bg); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
+  background: var(--bg); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; overscroll-behavior: contain;
   border-radius: 28px 28px 0 0;
   padding-left: max(20px, env(safe-area-inset-left, 0px));
   padding-right: max(20px, env(safe-area-inset-right, 0px));
@@ -313,6 +313,9 @@ svg .d { fill: currentColor; fill-opacity: 0; transition: fill-opacity .2s ease;
   animation: up .32s cubic-bezier(.2, .8, .2, 1);
 }
 @keyframes up { from { transform: translateY(40px); opacity: .4; } }
+/* Tastatur offen: Sheet sitzt direkt über der Tastatur statt dahinter (iPhone schiebt sonst die Ansicht) */
+html.kb-open .scrim { top: var(--vv-top, 0px); bottom: auto; height: var(--vv-h, 100%); }
+html.kb-open .sheet { max-height: calc(var(--vv-h, 100vh) - 8px); animation: none; }
 @keyframes fade { from { opacity: 0; } }
 @media (min-width: 600px) { .scrim { align-items: center; } .sheet { border-radius: 28px; max-height: 86vh; } }
 .grab { width: 38px; height: 5px; border-radius: 5px; background: var(--line-strong); margin: 0 auto; flex: none; }
@@ -339,7 +342,7 @@ svg .d { fill: currentColor; fill-opacity: 0; transition: fill-opacity .2s ease;
 /* ---------- forms ---------- */
 .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .field > label, .field > .lbl { font-family: var(--font-label); font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-.field input[type=text], .tag-input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font-size: 15px; transition: box-shadow .15s ease; }
+.field input[type=text], .tag-input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font-size: 16px; transition: box-shadow .15s ease; }
 .field input[type=text]:focus, .ta:focus, .tag-input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
 .photo-pick { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 16px; align-items: center; }
 .photo-pick .thumb { border-radius: var(--r); }
@@ -380,7 +383,7 @@ svg .d { fill: currentColor; fill-opacity: 0; transition: fill-opacity .2s ease;
 .checks .ok, .checks .todo { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex: none; margin-top: 1px; }
 .checks .ok { color: var(--st-schrank); background: var(--st-schrank-soft); }
 .checks .todo { color: var(--st-verliehen); background: var(--st-verliehen-soft); }
-.ta { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font: inherit; line-height: 1.5; resize: vertical; }
+.ta { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font: inherit; font-size: 16px; line-height: 1.5; resize: vertical; }
 .cond-list { display: flex; flex-direction: column; gap: 6px; }
 .cond { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 12px 14px; text-align: left; display: flex; flex-direction: column; gap: 2px; }
 .cond b { font-size: 14px; font-weight: 600; }
@@ -414,7 +417,7 @@ img { max-width: 100%; }
 .set-group { display: flex; flex-direction: column; gap: 10px; }
 .set-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .set-row .btn { flex: 1 1 150px; }
-.key-input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font-family: var(--font-label); font-size: 13px; }
+.key-input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font-family: var(--font-label); font-size: 16px; }
 /* sb-0.5: Fraunces + Geist, Labels ohne Mono, schmale Leiste oben beim Scrollen */
 .eyebrow, .field > label, .field > .lbl { font-weight: 600; letter-spacing: .06em; }
 .brand { letter-spacing: -0.03em; font-size: clamp(28px, 8.4vw, 44px); white-space: nowrap; }
@@ -445,8 +448,8 @@ img { max-width: 100%; }
 .q-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .q-f { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .q-sel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; }
-.q-f input, .q-f select, .wl-row input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 12px; padding: 10px 12px; width: 100%; min-width: 0; font-size: 15px; }
-.q-f select { padding: 9px 8px; font-size: 14px; }
+.q-f input, .q-f select, .wl-row input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 12px; padding: 10px 12px; width: 100%; min-width: 0; font-size: 16px; }
+.q-f select { padding: 9px 8px; font-size: 16px; }
 .q-f input:focus, .q-f select:focus, .wl-row input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
 .wl-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .wl-row input { flex: 1 1 180px; }
@@ -475,7 +478,7 @@ img { max-width: 100%; }
 .stepper button { width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--surface-2); font-size: 18px; line-height: 1; }
 .stepper b { min-width: 28px; text-align: center; font-variant-numeric: tabular-nums; }
 .lend-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 8px; }
-.lend-grid input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 12px 12px; width: 100%; min-width: 0; font-size: 15px; }
+.lend-grid input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 12px 12px; width: 100%; min-width: 0; font-size: 16px; }
 .chips-q { display: flex; gap: 6px; flex-wrap: wrap; }
 .chip-sm { padding: 6px 12px; font-size: 12.5px; }
 .tree { display: flex; flex-direction: column; gap: 22px; }
@@ -1115,7 +1118,10 @@ function render() {
   lcEl.textContent = lc; lcEl.hidden = !lc;
   renderBanner();
   const v = document.getElementById("view");
+  const y = window.scrollY, field = focusedField(v);
   v.innerHTML = state.tab === "schrank" ? viewSchrank() : state.tab === "woche" ? viewWoche() : state.tab === "verkaufen" ? viewVerkaufen() : viewWaesche();
+  if (Math.abs(window.scrollY - y) > 2) window.scrollTo({ top: y });
+  restoreField(field);
 }
 
 function renderBanner() {
@@ -1306,11 +1312,61 @@ function viewWaesche() {
 /* ---------- sheets ---------- */
 const scrim = document.getElementById("scrim"), sheet = document.getElementById("sheet");
 let sheetOnClose = null;
-function openSheet(html, onClose) { sheet.innerHTML = '<div class="grab"></div>' + html; scrim.hidden = false; sheetOnClose = onClose || null; sheet.querySelector("button, input")?.focus({ preventScroll: true }); }
-function closeSheet() { scrim.hidden = true; sheet.innerHTML = ""; state.armedDelete = null; if (sheetOnClose) sheetOnClose(); sheetOnClose = null; }
+let sheetPageY = 0, sheetTab = null;
+function openSheet(html, onClose) {
+  const reopen = !scrim.hidden, top = sheet.scrollTop, field = reopen ? focusedField(sheet) : null;
+  if (!reopen) { sheetPageY = window.scrollY; sheetTab = state.tab; }
+  sheet.innerHTML = '<div class="grab"></div>' + html; scrim.hidden = false; sheetOnClose = onClose || null;
+  if (reopen) { sheet.scrollTop = top; restoreField(field); }
+  else sheet.querySelector("button, input")?.focus({ preventScroll: true });
+}
+function closeSheet() {
+  scrim.hidden = true; sheet.innerHTML = ""; state.armedDelete = null; if (sheetOnClose) sheetOnClose(); sheetOnClose = null;
+  // Hat das Handy beim Tippen die Seite dahinter verschoben, wieder an die alte Stelle
+  if (state.tab === sheetTab && Math.abs(window.scrollY - sheetPageY) > 2) window.scrollTo({ top: sheetPageY });
+}
+/* Fokus und Cursor eines Eingabefelds über ein Neuzeichnen retten, damit Tastatur und Ansicht nicht springen */
+function focusedField(box) {
+  const a = document.activeElement;
+  if (!a || !a.id || !box.contains(a) || !/^(INPUT|TEXTAREA)$/.test(a.tagName) || /^(file|checkbox|radio)$/.test(a.type)) return null;
+  let s0 = null, s1 = null; try { s0 = a.selectionStart; s1 = a.selectionEnd; } catch {}
+  return { id: a.id, s0, s1 };
+}
+function restoreField(f) {
+  const el = f && document.getElementById(f.id); if (!el) return;
+  el.focus({ preventScroll: true });
+  try { if (f.s0 != null) el.setSelectionRange(f.s0, f.s1); } catch {}
+}
+/* Tastatur auf dem Handy: sichtbaren Bereich messen, Sheet darin halten und Eingabefeld sichtbar scrollen */
+(function keyboardAware() {
+  const vv = window.visualViewport; if (!vv) return;
+  const root = document.documentElement;
+  const update = () => {
+    const open = Math.abs(vv.scale - 1) < .02 && vv.height < root.clientHeight - 120;
+    root.classList.toggle("kb-open", open);
+    if (!open) { root.style.removeProperty("--vv-top"); root.style.removeProperty("--vv-h"); return; }
+    root.style.setProperty("--vv-top", Math.round(vv.offsetTop) + "px");
+    root.style.setProperty("--vv-h", Math.round(vv.height) + "px");
+    const a = document.activeElement;
+    if (!scrim.hidden && a && sheet.contains(a) && a !== sheet) requestAnimationFrame(() => {
+      const r = a.getBoundingClientRect(), b = sheet.getBoundingClientRect();
+      if (r.bottom > b.bottom - 16) sheet.scrollTop += r.bottom - b.bottom + 32;
+      else if (r.top < b.top + 16) sheet.scrollTop -= b.top - r.top + 32;
+    });
+  };
+  vv.addEventListener("resize", update); vv.addEventListener("scroll", update);
+})();
 scrim.addEventListener("click", e => { if (e.target === scrim) closeSheet(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !scrim.hidden) closeSheet(); });
 
+function itemKv(it) {
+  return `${it.brand ? `<dt>Marke</dt><dd>${esc(it.brand)}</dd>` : ""}
+      <dt>Kategorie</dt><dd>${CATS[it.cat]}${it.type ? " · " + esc(it.type) : ""}${it.fit && FITS[it.fit] ? " · " + FITS[it.fit] : ""}${it.neck && NECKS[it.neck] ? " · " + NECKS[it.neck] : ""}${it.basic ? " · Basic" : ""}</dd>
+      <dt>Farbe</dt><dd>${esc(it.color)}</dd>
+      <dt>Anlass</dt><dd>${(it.occasions || []).map(o => OCC[o]).join(", ") || "–"}</dd>
+      <dt>Getragen</dt><dd>${it.wears || 0}× · ${lastWornText(it)}</dd>
+      ${it.price > 0 ? `<dt>Pro Tragen</dt><dd>${euro(it.price / Math.max(1, it.wears || 0))}${(it.wears || 0) < 1 ? " (noch nie getragen)" : ""}</dd>` : ""}`;
+}
 function itemSheet(id, fromTag) {
   const it = byId(id); if (!it) return;
   const tagUrl = ART_URL + "#" + it.id;
@@ -1321,14 +1377,7 @@ function itemSheet(id, fromTag) {
   openSheet(`${quick}
     <div class="hero"><div class="thumb">${thumb(it)}</div>
       <div style="min-width:0;display:flex;flex-direction:column;gap:10px;align-items:flex-start"><h2>${esc(it.name)}</h2><span class="pill solid st-${it.status}"><i></i>${STATUS[it.status].label}</span></div></div>
-    <dl class="kv">
-      ${it.brand ? `<dt>Marke</dt><dd>${esc(it.brand)}</dd>` : ""}
-      <dt>Kategorie</dt><dd>${CATS[it.cat]}${it.type ? " · " + esc(it.type) : ""}${it.fit && FITS[it.fit] ? " · " + FITS[it.fit] : ""}${it.neck && NECKS[it.neck] ? " · " + NECKS[it.neck] : ""}${it.basic ? " · Basic" : ""}</dd>
-      <dt>Farbe</dt><dd>${esc(it.color)}</dd>
-      <dt>Anlass</dt><dd>${(it.occasions || []).map(o => OCC[o]).join(", ") || "–"}</dd>
-      <dt>Getragen</dt><dd>${it.wears || 0}× · ${lastWornText(it)}</dd>
-      ${it.price > 0 ? `<dt>Pro Tragen</dt><dd>${euro(it.price / Math.max(1, it.wears || 0))}${(it.wears || 0) < 1 ? " (noch nie getragen)" : ""}</dd>` : ""}
-    </dl>
+    <dl class="kv" id="itemKv">${itemKv(it)}</dl>
     <div class="field"><span class="lbl">Wo ist es gerade?</span><div class="status-grid">${opts}</div></div>
     ${it.status === "verliehen" ? `<div class="field"><span class="lbl">Verliehen</span>
       <div class="lend-grid"><input type="text" id="lendTo" maxlength="30" placeholder="An wen?" value="${esc(it.lentTo || "")}" aria-label="An wen verliehen"><input type="date" id="lendUntil" value="${esc(it.lentUntil || "")}" aria-label="Zurück bis"></div>
@@ -1345,14 +1394,15 @@ function itemSheet(id, fromTag) {
       <button class="btn btn-ghost" data-act="sell-item" data-v="${it.id}">Verkaufen</button>
     </div>
     <div class="field"><span class="lbl">NFC-Etikett</span>
-      <div style="display:flex;gap:8px"><input type="text" id="tagUrl" readonly value="${esc(tagUrl)}" class="tag-input" style="flex:1;min-width:0;font-family:var(--font-label);font-size:12px"><button class="btn btn-ghost" data-act="copy-tag">Kopieren</button></div>
+      <div style="display:flex;gap:8px"><input type="text" id="tagUrl" readonly value="${esc(tagUrl)}" class="tag-input" style="flex:1;min-width:0;font-family:var(--font-label)"><button class="btn btn-ghost" data-act="copy-tag">Kopieren</button></div>
       <p class="hint">Diesen Link mit einer App wie „NFC Tools“ auf das Etikett schreiben. Danach öffnet Antippen mit dem Handy genau dieses Teil.${state.usingExamples ? " Bei Beispielteilen klappt das nur zum Ausprobieren." : ""}</p></div>
     <button class="btn btn-danger${state.armedDelete === it.id ? " armed" : ""}" data-act="delete" data-v="${it.id}">${state.armedDelete === it.id ? "Wirklich löschen? Nochmal tippen" : "Teil löschen"}</button>
   `);
   const ib = document.getElementById("itemBrand");
-  ib?.addEventListener("change", () => { patchItem(id, { brand: cleanBrand(ib.value) || null }); itemSheet(id); });
+  const kv = () => { const x = byId(id), el = document.getElementById("itemKv"); if (x && el) el.innerHTML = itemKv(x); };
+  ib?.addEventListener("change", () => { const b = cleanBrand(ib.value) || null; patchItem(id, { brand: b }); ib.value = b || ""; kv(); });
   const pr = document.getElementById("priceInput");
-  pr?.addEventListener("change", () => { const n = parseFloat(pr.value.replace(/[^0-9,.]/g, "").replace(",", ".")); patchItem(id, { price: n > 0 ? Math.round(n * 100) / 100 : null }); itemSheet(id); });
+  pr?.addEventListener("change", () => { const n = parseFloat(pr.value.replace(/[^0-9,.]/g, "").replace(",", ".")); const v = n > 0 ? Math.round(n * 100) / 100 : null; patchItem(id, { price: v }); pr.value = v ? String(v).replace(".", ",") : ""; kv(); });
   const lt = document.getElementById("lendTo"), lu = document.getElementById("lendUntil");
   lt?.addEventListener("change", () => patchItem(id, { lentTo: lt.value.trim() || null }));
   lu?.addEventListener("change", () => patchItem(id, { lentUntil: lu.value || null }));
