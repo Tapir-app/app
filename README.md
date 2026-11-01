@@ -29,13 +29,18 @@ Einstellungen → „Deine Daten“ → **Sicherung speichern** legt eine JSON-D
   "app": "schrankblick", "version": 1, "exportedAt": "ISO-Datum",
   "settings": { "palette", "city": { "name", "lat", "lon" }, "view", "lastOcc", "appVersion" },
   "data": {
-    "items":    { "<id>": { name, cat, type, color, brand, fit, neck, basic, occasions[], status, wears, lastWorn, price, lentTo, lentUntil, photo … } },
+    "items":    { "<id>": { name, cat, type, color, brand, size, pattern, color2, material[], fit, neck, basic, occasions[], status, wears, lastWorn, price, lentTo, lentUntil, photo … } },
     "listings": { "<id>": Verkaufs-Inserate },
     "plan":     Wochenplan
   },
   "photos": { "<foto-schlüssel>": "data:image/jpeg;base64,…" }
 }
 ```
+- `status`: `schrank`, `waesche`, `reinigung`, `verliehen` oder `eingelagert` (Saisonwechsel, wird nicht eingeplant)
+- `pattern`: `streifen`, `karo`, `punkte` oder `blumen` (fehlt = uni), `color2` ist die zweite Farbe des Musters
+- `material`: Liste wie `[{ "m": "Baumwolle", "p": 95 }, { "m": "Elastan", "p": 5 }]`, `p` in Prozent (optional), `a: true` heißt „Rest automatisch aufgefüllt“
+- `size`: freier Text, z. B. `M`, `38`, `W32/L32`
+
 Fotos stehen als Data-URL unter `photos`, die Teile verweisen per Schlüssel darauf. „Sicherung laden“ ersetzt alle Teile, Fotos, Inserate und den Wochenplan auf dem Gerät.
 
 Bei Änderungen in `sw.js` die `VERSION` hochzählen, damit Handys die neue Version laden.
