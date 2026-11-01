@@ -304,7 +304,9 @@ svg .d { fill: currentColor; fill-opacity: 0; transition: fill-opacity .2s ease;
 /* ---------- sheet ---------- */
 .scrim { position: fixed; inset: 0; background: var(--scrim); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); z-index: 40; display: flex; align-items: flex-end; justify-content: center; animation: fade .2s ease; }
 .sheet {
-  background: var(--bg); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; overscroll-behavior: contain;
+  background: var(--bg); width: 100%; max-width: 560px; overflow-y: auto; overscroll-behavior: contain;
+  max-height: calc(100vh - max(72px, env(safe-area-inset-top, 0px) + 56px));
+  max-height: calc(100dvh - max(72px, env(safe-area-inset-top, 0px) + 56px));
   border-radius: 28px 28px 0 0;
   padding-left: max(20px, env(safe-area-inset-left, 0px));
   padding-right: max(20px, env(safe-area-inset-right, 0px));
@@ -319,6 +321,13 @@ html.kb-open .sheet { max-height: calc(var(--vv-h, 100vh) - 8px); animation: non
 @keyframes fade { from { opacity: 0; } }
 @media (min-width: 600px) { .scrim { align-items: center; } .sheet { border-radius: 28px; max-height: 86vh; } }
 .grab { width: 38px; height: 5px; border-radius: 5px; background: var(--line-strong); margin: 0 auto; flex: none; }
+/* Kopfzeile bleibt beim Scrollen sichtbar: Griff zum Runterwischen und Schließen-Knopf */
+.sheet-top { position: sticky; top: -10px; z-index: 3; flex: none; display: flex; align-items: center; justify-content: center; min-height: 44px; margin: -10px calc(-1 * max(20px, env(safe-area-inset-right, 0px))) -14px calc(-1 * max(20px, env(safe-area-inset-left, 0px))); padding: 8px 12px 6px; background: var(--bg); background: linear-gradient(var(--bg) 72%, transparent); touch-action: none; cursor: grab; }
+.sheet-x { position: absolute; right: 12px; top: 8px; width: 36px; height: 36px; border-radius: 999px; border: 0; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); display: grid; place-items: center; padding: 0; cursor: pointer; }
+.sheet-x svg { width: 18px; height: 18px; }
+.sheet-x:active { transform: scale(.94); }
+.sheet.dragging { transition: none; animation: none; }
+.sheet.settle { transition: transform .22s cubic-bezier(.2, .8, .2, 1); }
 .sheet h2 { font-family: var(--font-display); font-weight: 420; font-size: 32px; line-height: 1.05; margin: 0; letter-spacing: -0.015em; overflow-wrap: anywhere; }
 .sheet .hero { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 16px; align-items: end; }
 .sheet .hero .thumb { border-radius: var(--r); background: var(--surface-2); }
@@ -1316,15 +1325,51 @@ let sheetPageY = 0, sheetTab = null;
 function openSheet(html, onClose) {
   const reopen = !scrim.hidden, top = sheet.scrollTop, field = reopen ? focusedField(sheet) : null;
   if (!reopen) { sheetPageY = window.scrollY; sheetTab = state.tab; }
-  sheet.innerHTML = '<div class="grab"></div>' + html; scrim.hidden = false; sheetOnClose = onClose || null;
+  sheet.innerHTML = `<div class="sheet-top"><div class="grab"></div><button type="button" class="sheet-x" data-act="close-sheet" aria-label="Schließen">${ICON_X}</button></div>` + html; scrim.hidden = false; sheetOnClose = onClose || null;
+  sheet.style.transform = ""; sheet.classList.remove("dragging", "settle");
   if (reopen) { sheet.scrollTop = top; restoreField(field); }
-  else sheet.querySelector("button, input")?.focus({ preventScroll: true });
+  else sheet.querySelector(".sheet-x")?.focus({ preventScroll: true });
 }
 function closeSheet() {
-  scrim.hidden = true; sheet.innerHTML = ""; state.armedDelete = null; if (sheetOnClose) sheetOnClose(); sheetOnClose = null;
+  scrim.hidden = true; sheet.innerHTML = ""; sheet.style.transform = ""; sheet.classList.remove("dragging", "settle"); state.armedDelete = null; if (sheetOnClose) sheetOnClose(); sheetOnClose = null;
   // Hat das Handy beim Tippen die Seite dahinter verschoben, wieder an die alte Stelle
   if (state.tab === sheetTab && Math.abs(window.scrollY - sheetPageY) > 2) window.scrollTo({ top: sheetPageY });
 }
+const ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+(function swipeToClose() {
+  let y0 = 0, x0 = 0, t0 = 0, dy = 0, mode = null;
+  sheet.addEventListener("touchstart", e => {
+    if (e.touches.length !== 1 || document.documentElement.classList.contains("kb-open")) { mode = null; return; }
+    const onTop = !!e.target.closest(".sheet-top") && !e.target.closest(".sheet-x");
+    if (!onTop && sheet.scrollTop > 0) { mode = null; return; }
+    y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; t0 = Date.now(); dy = 0; mode = onTop ? "drag" : "maybe";
+  }, { passive: true });
+  sheet.addEventListener("touchmove", e => {
+    if (!mode) return;
+    const d = e.touches[0].clientY - y0, dx = e.touches[0].clientX - x0;
+    if (mode === "maybe") {
+      if (Math.abs(d) < 8 && Math.abs(dx) < 8) return;
+      if (d <= 0 || Math.abs(dx) > Math.abs(d) || sheet.scrollTop > 0) { mode = null; return; }
+      mode = "drag";
+    }
+    dy = Math.max(0, d);
+    if (e.cancelable) e.preventDefault();
+    sheet.classList.add("dragging"); sheet.style.transform = `translateY(${dy}px)`;
+  }, { passive: false });
+  const end = () => {
+    if (mode !== "drag") { mode = null; return; }
+    mode = null; sheet.classList.remove("dragging"); sheet.classList.add("settle");
+    const fast = dy > 40 && dy / Math.max(1, Date.now() - t0) > .6;
+    if (dy > Math.min(140, sheet.offsetHeight * .25) || fast) {
+      sheet.style.transform = "translateY(100%)";
+      setTimeout(() => { if (!scrim.hidden) closeSheet(); }, 200);
+    } else {
+      sheet.style.transform = "";
+      setTimeout(() => sheet.classList.remove("settle"), 240);
+    }
+  };
+  sheet.addEventListener("touchend", end); sheet.addEventListener("touchcancel", end);
+})();
 /* Fokus und Cursor eines Eingabefelds über ein Neuzeichnen retten, damit Tastatur und Ansicht nicht springen */
 function focusedField(box) {
   const a = document.activeElement;
@@ -2207,7 +2252,7 @@ function settingsSheet(msg) {
       <p class="hint">${meta.city ? `Die Woche wird nach dem Wetter in <b>${esc(meta.city.name)}</b> geplant.` : "Trag deinen Ort ein, dann plant die App die Woche nach der echten Vorhersage."}</p>
       <button class="btn btn-ghost btn-wide" data-act="wx-city">${meta.city ? "Ort ändern" : "Ort eintragen"}</button></div>
     <div class="set-group"><span class="eyebrow">Deine Daten</span>
-      <p class="hint">Alles bleibt nur auf diesem Gerät. Nichts wird hochgeladen. Mach ab und zu eine Sicherung, falls du das Handy wechselst oder den Browser leerst.</p>
+      <p class="hint">Alles bleibt nur auf diesem Gerät. Nichts wird hochgeladen. Die Sicherung ist eine Datei mit allen Teilen, Fotos, Inseraten, dem Wochenplan und deinen Einstellungen. Damit ziehst du auf ein neues Handy um, und auch die spätere richtige App kann sie übernehmen.</p>
       <p class="hint"><b>Letzte Sicherung:</b> ${meta.lastBackupAt ? (daysSince(meta.lastBackupAt) === 0 ? "heute" : daysSince(meta.lastBackupAt) === 1 ? "gestern" : `vor ${daysSince(meta.lastBackupAt)} Tagen`) : "noch nie"}</p>
       <div class="set-row">
         <button class="btn btn-ghost" data-act="backup">Sicherung speichern</button>
@@ -2230,7 +2275,7 @@ function settingsSheet(msg) {
   bindWaitlist();
   document.getElementById("restoreInput").addEventListener("change", async ev => {
     const f = ev.target.files?.[0]; if (!f) return;
-    try { await SB.importAll(f); state.usingExamples = !SB.hasData(); meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; saveMeta(); count("restore"); closeSheet(); toast("Sicherung geladen."); }
+    try { const st = await SB.importAll(f); if (st) { for (const k of ["palette", "city", "view", "lastOcc"]) if (st[k] != null) meta[k] = st[k]; meta.wxCache = null; applyPalette(); } state.usingExamples = !SB.hasData(); meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; saveMeta(); count("restore"); closeSheet(); toast("Sicherung geladen."); }
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
@@ -2239,10 +2284,11 @@ document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
     case "settings": state.armedWipe = false; settingsSheet(); break;
+    case "close-sheet": closeSheet(); break;
     case "install": if (installEvt) { installEvt.prompt(); installEvt = null; closeSheet(); } break;
     case "backup": {
       try {
-        const b = await SB.exportAll(); await SB.downloads.save({ filename: `schrankblick-sicherung-${todayIso()}.json`, data: b });
+        const b = await SB.exportAll({ palette: meta.palette || null, city: meta.city || null, view: meta.view || null, lastOcc: meta.lastOcc || null, appVersion: APP_VERSION }); await SB.downloads.save({ filename: `schrankblick-sicherung-${todayIso()}.json`, data: b });
         meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; meta.backupSnooze = null; saveMeta();
         toast("Sicherung erstellt. Heb die Datei gut auf."); render();
         if (!scrim.hidden && sheet.querySelector("#restoreInput")) settingsSheet();
@@ -2744,6 +2790,8 @@ function showOnboarding() {
   render();
   loadWeather();
   if (!meta.onboarded && !SB.hasData()) showOnboarding();
+  // Browser bitten, die Daten nicht automatisch zu löschen (wenn der Speicher knapp wird)
+  if (SB.hasData()) navigator.storage?.persist?.().catch(() => {});
 })();
 (() => {
   const bar = document.getElementById("minibar"), head = document.querySelector("header.top");

@@ -136,10 +136,10 @@ const downloads = {
 
 /* ---------- backup ---------- */
 const toDataUrl = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
-async function exportAll() {
+async function exportAll(settings) {
   const photos = {};
   for (const k of await blobs.keys()) { const b = await blobs.get(k); if (b) photos[k] = await toDataUrl(b); }
-  return new Blob([JSON.stringify({ app: "schrankblick", version: 1, exportedAt: new Date().toISOString(), data: store, photos })], { type: "application/json" });
+  return new Blob([JSON.stringify({ app: "schrankblick", version: 1, exportedAt: new Date().toISOString(), settings: settings || null, data: store, photos })], { type: "application/json" });
 }
 async function importAll(file) {
   const j = JSON.parse(await file.text());
@@ -148,6 +148,7 @@ async function importAll(file) {
   for (const [k, u] of Object.entries(j.photos || {})) { const b = await (await fetch(u)).blob(); await blobs.put(k, b); }
   store = { items: j.data.items || {}, listings: j.data.listings || {}, plan: j.data.plan || null };
   persist(); emit("items"); emit("listings"); emit("plan");
+  return j.settings || null;
 }
 async function wipe() {
   store = { items: {}, listings: {}, plan: null };
