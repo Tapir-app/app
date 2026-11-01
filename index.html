@@ -204,6 +204,28 @@ a.btn { text-decoration: none; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); box-shadow: none; }
 
 /* ---------- wardrobe grid ---------- */
+.cat-secs { display: flex; flex-direction: column; gap: 6px; }
+.cat-sec { display: flex; flex-direction: column; gap: 6px; }
+.cat-sec + .cat-sec { border-top: 1px solid var(--line); padding-top: 2px; }
+.cat-h { margin: 0; display: block; }
+.cat-head { width: 100%; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 6px 2px; border: 0; background: none; color: inherit; font: inherit; font-size: 15px; font-weight: 600; text-align: left; }
+.cat-head svg { width: 18px; height: 18px; flex: none; color: var(--muted); transition: transform .18s ease; }
+.cat-head .n { font-family: var(--font-label); font-size: 11px; color: var(--muted); font-weight: 500; }
+.cat-sec.is-folded .cat-head svg { transform: rotate(-90deg); }
+.cat-sec > .grid { padding-bottom: 12px; }
+.seg-row { display: flex; gap: 8px; align-items: stretch; }
+.seg-row .seg { flex: 1; min-width: 0; }
+.seg-row .btn { flex: none; gap: 6px; }
+.seg-row .btn svg { width: 16px; height: 16px; }
+.cat-list { display: flex; flex-direction: column; }
+.cat-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-top: 1px solid var(--line); }
+.cat-row:first-child { border-top: 0; }
+.cat-row .cr-name { flex: 1; min-width: 0; font-size: 15px; font-weight: 500; }
+.cat-row .cr-name small { margin-left: 8px; font-family: var(--font-label); font-size: 11px; color: var(--muted); }
+.cat-mv { width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--ink); display: grid; place-items: center; }
+.cat-mv svg { width: 18px; height: 18px; }
+.cat-mv.up svg { transform: rotate(180deg); }
+.cat-mv:disabled { opacity: .3; }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; }
 @media (min-width: 480px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .tile { background: none; border: 0; padding: 0; text-align: left; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
@@ -696,6 +718,8 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
 
 const CATS = { top: "Oberteil", bottom: "Hose & Rock", dress: "Kleid", suit: "Anzug & Kostüm", jacket: "Jacke", shoes: "Schuhe", swim: "Bademode", acc: "Accessoire", bag: "Tasche & Gepäck", jewelry: "Schmuck" };
 const CAT_ORDER = ["top", "bottom", "dress", "suit", "jacket", "shoes", "swim", "acc", "bag", "jewelry"];
+// Eigene Reihenfolge (meta.catOrder); neue Kategorien hängen hinten an. Eingeklappt: meta.catFold (Kategorie oder "stored")
+const catOrder = () => [...new Set([...(meta.catOrder || []).filter(c => CAT_ORDER.includes(c)), ...CAT_ORDER])];
 const STATUS = {
   schrank: { label: "Im Schrank", short: "Schrank" },
   waesche: { label: "In der Wäsche", short: "Wäsche" },
@@ -868,7 +892,7 @@ const TRACKED = {
   "copy-tag": "NFC-Link kopiert", "backup": "Sicherung gespeichert", "open-add": "Neues Teil geöffnet", "q-ai": "Schnellerfassung mit KI",
   "invite": "Freunde eingeladen", "stats": "Schrank in Zahlen angesehen", "stats-share": "Zahlen als Bild geteilt",
   "lend-remind": "An Rückgabe erinnert", "lend-ics": "Rückgabe in Kalender", "wx-pick": "Ort fürs Wetter gewählt", "wash-every": "Waschrhythmus angepasst", "wash-all": "Doch alle gewaschen",
-  "av-set": "Figur angepasst", "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt"
+  "av-set": "Figur angepasst", "cat-fold": "Kategorie ein-/ausgeklappt", "cat-move": "Kategorien umsortiert", "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt"
 };
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
@@ -1459,7 +1483,8 @@ const isForgotten = it => {
   return (Date.now() - new Date(ref).getTime()) / 86400000 > 30;
 };
 function sortItems(list) {
-  return [...list].sort((a, b) => CAT_ORDER.indexOf(a.cat) - CAT_ORDER.indexOf(b.cat) || a.name.localeCompare(b.name, "de"));
+  const ord = catOrder();
+  return [...list].sort((a, b) => ord.indexOf(a.cat) - ord.indexOf(b.cat) || a.name.localeCompare(b.name, "de"));
 }
 function lastWornText(it) {
   if (!it.lastWorn) return "Noch nie getragen";
@@ -1710,16 +1735,29 @@ function viewSchrank() {
   if (state.fStatus === "all") list = [...list.filter(i => i.status !== "eingelagert"), ...list.filter(i => i.status === "eingelagert")];
   const storedN = all.filter(i => i.status === "eingelagert").length;
   const stat = (k, n, label) => `<button class="stat${state.fStatus === k ? " is-on" : ""}" data-act="fstatus" data-v="${k}" aria-pressed="${state.fStatus === k}"><b>${n}</b><span>${label}</span></button>`;
-  const catChips = [["all", "Alle"], ...CAT_ORDER.filter(c => state.fCat === c || all.some(i => i.cat === c)).map(c => [c, CATS[c]])].map(([k, l]) => `<button class="chip" data-act="fcat" data-v="${k}" aria-pressed="${state.fCat === k}">${l}</button>`).join("");
+  const catChips = [["all", "Alle"], ...catOrder().filter(c => state.fCat === c || all.some(i => i.cat === c)).map(c => [c, CATS[c]])].map(([k, l]) => `<button class="chip" data-act="fcat" data-v="${k}" aria-pressed="${state.fCat === k}">${l}</button>`).join("");
   const typesHere = state.fCat === "all" ? [] : TYPES[state.fCat].filter(t => all.some(i => i.cat === state.fCat && i.type === t));
   const typeChips = typesHere.length ? `<div class="chips" role="group" aria-label="Art">${[["all", "Alle " + CATS[state.fCat]], ...typesHere.map(t => [t, t])].map(([k, l]) => `<button class="chip chip-sm" data-act="ftype" data-v="${esc(k)}" aria-pressed="${state.fType === k}">${esc(l)}</button>`).join("")}</div>` : "";
   const basicChip = (all.some(i => i.basic) ? `<button class="chip" data-act="fbasic" aria-pressed="${state.fBasic}">Basics</button>` : "")
     + (storedN ? `<button class="chip" data-act="fstatus" data-v="eingelagert" aria-pressed="${state.fStatus === "eingelagert"}">Eingelagert · ${storedN}</button>` : "");
-  const tiles = list.map(it => `<button class="tile${it.status !== "schrank" ? " is-dim" : ""}" data-act="open-item" data-v="${it.id}">
+  const filtered0 = state.fCat !== "all" || state.fStatus !== "all" || state.fBasic || !!state.fColor;
+  const tileOf = it => `<button class="tile${it.status !== "schrank" ? " is-dim" : ""}" data-act="open-item" data-v="${it.id}">
       <div class="thumb">${thumb(it)}${pill(it.status)}</div>
       <div class="name">${esc(it.name)}</div>
-      <div class="meta">${esc(it.type || CATS[it.cat])}${it.brand ? " · " + esc(it.brand) : ""} · ${it.wears || 0}×</div></button>`).join("");
+      <div class="meta">${esc(it.type || CATS[it.cat])}${it.brand ? " · " + esc(it.brand) : ""} · ${it.wears || 0}×</div></button>`;
   const addTile = `<button class="tile-add" data-act="open-add">${ICON_PLUS}Neues Teil</button>`;
+  // Alle Kategorien: je Kategorie eine einklappbare Überschrift. Eine gewählte Kategorie: flache Kacheln wie bisher.
+  const grouped = state.fCat === "all" && !state.fromTree;
+  const folded = new Set(meta.catFold || []);
+  const secs = [];
+  const sec = (key, label, items) => { if (!items.length) return; const open = !folded.has(key); secs.push(`<section class="cat-sec${open ? "" : " is-folded"}" data-cat="${key}">${catHead(key, label, items.length, open)}${open ? `<div class="grid">${items.map(tileOf).join("")}</div>` : ""}</section>`); };
+  if (grouped) {
+    const keep = state.fStatus === "all" ? list.filter(i => i.status !== "eingelagert") : list, known = new Set(catOrder());
+    for (const c of catOrder()) sec(c, CATS[c], keep.filter(i => i.cat === c));
+    sec("other", "Weitere", keep.filter(i => !known.has(i.cat)));
+    if (state.fStatus === "all") sec("stored", "Eingelagert", list.filter(i => i.status === "eingelagert"));
+  }
+  const tiles = list.length ? (grouped ? `<div class="cat-secs">${secs.join("")}${filtered0 ? "" : `<div class="grid">${addTile}</div>`}</div>` : `<div class="grid">${list.map(tileOf).join("")}${filtered0 ? "" : addTile}</div>`) : "";
   const tk = todayKey();
   const todayItems = (state.plan.days[tk]?.items || []).map(byId).filter(Boolean);
   const dayName = DAYS.find(d => d[0] === tk)[1];
@@ -1729,9 +1767,9 @@ function viewSchrank() {
         : `<div class="outfit">${todayItems.map(it => `<button class="mini${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div>`}
       <button class="btn btn-inv btn-wide" data-act="worn-today">Heute getragen</button>` : `<p class="note">Lass dir die Woche aus sauberen Teilen zusammenstellen.</p><button class="btn btn-inv btn-wide" data-act="tab" data-v="woche">Woche planen</button>`}
     </section>`;
-  const filtered = state.fCat !== "all" || state.fStatus !== "all" || state.fBasic || !!state.fColor;
+  const filtered = filtered0;
   const tree = meta.view === "tree" && !state.fromTree;
-  const viewSeg = `<div class="seg" role="group" aria-label="Ansicht"><button data-act="view" data-v="grid" aria-pressed="${!tree}">Kacheln</button><button data-act="view" data-v="tree" aria-pressed="${tree}">Übersicht</button></div>`;
+  const viewSeg = `<div class="seg-row"><div class="seg" role="group" aria-label="Ansicht"><button data-act="view" data-v="grid" aria-pressed="${!tree}">Kacheln</button><button data-act="view" data-v="tree" aria-pressed="${tree}">Übersicht</button></div><button class="btn btn-ghost btn-sm" data-act="cats" aria-label="Kategorien ordnen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h5"/></svg>Ordnen</button></div>`;
   const crumb = state.fromTree ? `<div class="wx-line"><button class="back" data-act="tree-back">${ICON_BACK} Übersicht</button><span class="sub" style="margin:0">${[state.fType === "__none" ? "Ohne Art" : state.fType !== "all" ? state.fType : CATS[state.fCat], state.fColor].filter(Boolean).map(esc).join(" · ")} · ${list.length} ${list.length === 1 ? "Teil" : "Teile"}</span></div>` : "";
   const wN = all.filter(i => i.status === "waesche").length;
   const quickbar = !filtered && wN ? `<div class="quickbar">${STATUS_ICON.waesche}<span>${wN} ${wN === 1 ? "Teil" : "Teile"} im Wäschekorb</span><button class="btn btn-ghost" data-act="laundry-done">Alles zurück</button></div>` : "";
@@ -1746,17 +1784,18 @@ function viewSchrank() {
       ${tree ? "" : typeChips}
     </div>`}
     ${state.fStatus === "forgotten" ? '<p class="sub" style="margin:0">Seit über 30 Tagen nicht getragen. Gute Kandidaten für die nächste Woche oder zum Weitergeben.</p>' : ""}
-    ${tree ? treeView(list) : tiles ? `<div class="grid">${tiles}${filtered ? "" : addTile}</div>` : `<div class="empty">Keine Teile in dieser Auswahl.</div>`}
+    ${tree ? treeView(list) : tiles || `<div class="empty">Keine Teile in dieser Auswahl.</div>`}
     ${filtered ? "" : `<div class="banner"><p><b>Gefällt dir die App?</b> Lad Freunde zum Testen ein. Je mehr mitmachen, desto besser wird sie.</p><button class="btn btn-ghost" data-act="invite">Freunde einladen</button></div>`}
   </div>`;
 }
 function countText(map, label) {
   return [...map.entries()].sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0]), "de")).map(([k, n]) => `${esc(label ? label(k) : k)} ${n}`).join(" · ");
 }
+const catHead = (key, label, n, open) => `<h3 class="h3 cat-h"><button type="button" class="cat-head" data-act="cat-fold" data-v="${key}" aria-expanded="${open}">${ICON_CHEV}<span>${esc(label)}</span><span class="n">${n}</span></button></h3>`;
 function treeView(list) {
   if (!list.length) return `<div class="empty">Keine Teile in dieser Auswahl.</div>`;
-  const out = [];
-  for (const c of CAT_ORDER) {
+  const out = [], folded = new Set(meta.catFold || []);
+  for (const c of catOrder()) {
     const items = list.filter(i => i.cat === c);
     if (!items.length) continue;
     const order = [...(TYPES[c] || []), ...new Set(items.map(i => i.type).filter(t => t && !(TYPES[c] || []).includes(t))), ""];
@@ -1775,7 +1814,8 @@ function treeView(list) {
       }).join("");
       return `<div class="tree-type"><button class="tree-head" data-act="tree-open" data-v="${c}|${esc(t)}|"${t ? "" : ' data-none="1"'}><b>${esc(t || "Ohne Art")}</b><span>${gl.length}</span></button>${rows}</div>`;
     }).join("");
-    out.push(`<section class="tree-cat"><h3 class="h3">${CATS[c]} <span class="n">${items.length}</span></h3>${cards}</section>`);
+    const open = !folded.has(c);
+    out.push(`<section class="tree-cat cat-sec${open ? "" : " is-folded"}" data-cat="${c}">${catHead(c, CATS[c], items.length, open)}${open ? cards : ""}</section>`);
   }
   const untyped = list.filter(i => !i.type).length;
   return `<div class="tree">${out.join("")}${untyped ? `<p class="hint">${untyped} ${untyped === 1 ? "Teil hat" : "Teile haben"} noch keine Art. Teil antippen und unter „Art, Schnitt …“ ergänzen, dann wird die Übersicht genauer.</p>` : ""}</div>`;
@@ -2791,6 +2831,11 @@ document.addEventListener("click", async e => {
     case "ftype": state.fType = v; render(); break;
     case "fbasic": state.fBasic = !state.fBasic; render(); break;
     case "fstatus": state.fStatus = state.fStatus === v ? "all" : v; render(); break;
+    case "cat-fold": {
+      const f = new Set(meta.catFold || []); if (!f.delete(v)) f.add(v);
+      meta.catFold = [...f]; saveMeta(); render();
+      document.querySelector(`#view [data-act=cat-fold][data-v="${v}"]`)?.focus({ preventScroll: true }); break;
+    }
     case "open-item": state.armedDelete = null; state.openDetails = null; itemSheet(v); break;
     case "set-status": {
       const s = el.dataset.s;
@@ -3001,7 +3046,7 @@ function settingsSheet(msg) {
   bindWaitlist();
   document.getElementById("restoreInput").addEventListener("change", async ev => {
     const f = ev.target.files?.[0]; if (!f) return;
-    try { const st = await SB.importAll(f); if (st) { for (const k of ["palette", "city", "view", "lastOcc", "trip", "avatar"]) if (st[k] != null) meta[k] = st[k]; meta.wxCache = null; applyPalette(); } state.usingExamples = !SB.hasData(); meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; saveMeta(); count("restore"); closeSheet(); toast("Sicherung geladen."); }
+    try { const st = await SB.importAll(f); if (st) { for (const k of ["palette", "city", "view", "lastOcc", "trip", "avatar", "catOrder", "catFold"]) if (st[k] != null) meta[k] = st[k]; meta.wxCache = null; applyPalette(); } state.usingExamples = !SB.hasData(); meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; saveMeta(); count("restore"); closeSheet(); toast("Sicherung geladen."); }
     catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
   });
 }
@@ -3025,19 +3070,44 @@ function avatarSheet() {
       </div></div>
     <div class="set-row"><button class="btn btn-primary" data-act="close-sheet">Fertig</button>${changed ? '<button class="btn btn-ghost" data-act="av-reset">Zurücksetzen</button>' : ""}</div>`);
 }
-const APP_VERSION = "0.17";
+function catSheet(focus) {
+  const ord = catOrder(), n = c => state.items.filter(i => i.cat === c).length, vis = ord.filter(n);
+  const rows = vis.map((c, i) => `<div class="cat-row"><span class="cr-name">${esc(CATS[c])}<small>${n(c)}</small></span>`
+    + `<button type="button" class="cat-mv up" data-act="cat-move" data-v="${c}" data-d="-1" aria-label="${esc(CATS[c])} nach oben"${i === 0 ? " disabled" : ""}>${ICON_CHEV}</button>`
+    + `<button type="button" class="cat-mv" data-act="cat-move" data-v="${c}" data-d="1" aria-label="${esc(CATS[c])} nach unten"${i === vis.length - 1 ? " disabled" : ""}>${ICON_CHEV}</button></div>`).join("");
+  const custom = !!meta.catOrder && ord.some((c, i) => c !== CAT_ORDER[i]);
+  openSheet(`<h2>Deine <em>Kategorien</em></h2>
+    <p class="hint">Was oben stehen soll, schiebst du nach oben. Im Schrank klappst du eine Kategorie mit einem Tipp auf ihre Überschrift ein oder aus.</p>
+    <div class="cat-list">${rows}</div>
+    <div class="set-row"><button class="btn btn-ghost" data-act="cat-fold-all" data-v="1">Alle einklappen</button><button class="btn btn-ghost" data-act="cat-fold-all" data-v="0">Alle ausklappen</button></div>
+    <div class="set-row"><button class="btn btn-primary" data-act="close-sheet">Fertig</button>${custom ? '<button class="btn btn-ghost" data-act="cat-reset">Reihenfolge zurücksetzen</button>' : ""}</div>`);
+  if (focus) { const b = sheet.querySelector(`[data-act=cat-move][data-v="${focus[0]}"][data-d="${focus[1]}"]:not(:disabled)`) || sheet.querySelector(`[data-act=cat-move][data-v="${focus[0]}"]:not(:disabled)`); b?.focus({ preventScroll: true }); }
+}
+const APP_VERSION = "0.18";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
     case "settings": state.armedWipe = false; settingsSheet(); break;
     case "avatar": avatarSheet(); break;
+    case "cats": catSheet(); break;
+    case "cat-move": {
+      const c = el.dataset.v, d = +el.dataset.d, ord = catOrder(), vis = ord.filter(x => state.items.some(i => i.cat === x)), k = vis.indexOf(c), nb = vis[k + d];
+      if (k < 0 || !nb) break;
+      const o = ord.filter(x => x !== c); o.splice(o.indexOf(nb) + (d > 0 ? 1 : 0), 0, c);
+      meta.catOrder = o; saveMeta(); catSheet([c, d]); render(); break;
+    }
+    case "cat-reset": meta.catOrder = null; saveMeta(); catSheet(); render(); break;
+    case "cat-fold-all": {
+      const keys = [...catOrder().filter(c => state.items.some(i => i.cat === c)), "other", "stored"];
+      meta.catFold = el.dataset.v === "1" ? keys : []; saveMeta(); render(); closeSheet(); break;
+    }
     case "av-set": { const k = el.dataset.k; if (!AV_OPTS[k]) break; meta.avatar = { ...avatar(), [k]: el.dataset.v }; meta.avatar = avatar(); saveMeta(); avatarSheet(); render(); break; }
     case "av-reset": meta.avatar = null; saveMeta(); avatarSheet(); render(); break;
     case "close-sheet": closeSheet(); break;
     case "install": if (installEvt) { installEvt.prompt(); installEvt = null; closeSheet(); } break;
     case "backup": {
       try {
-        const b = await SB.exportAll({ palette: meta.palette || null, city: meta.city || null, view: meta.view || null, lastOcc: meta.lastOcc || null, trip: meta.trip || null, avatar: meta.avatar || null, appVersion: APP_VERSION }); await SB.downloads.save({ filename: `schrankblick-sicherung-${todayIso()}.json`, data: b });
+        const b = await SB.exportAll({ palette: meta.palette || null, city: meta.city || null, view: meta.view || null, lastOcc: meta.lastOcc || null, trip: meta.trip || null, avatar: meta.avatar || null, catOrder: meta.catOrder || null, catFold: meta.catFold || null, appVersion: APP_VERSION }); await SB.downloads.save({ filename: `schrankblick-sicherung-${todayIso()}.json`, data: b });
         meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; meta.backupSnooze = null; saveMeta();
         toast("Sicherung erstellt. Heb die Datei gut auf."); render();
         if (!scrim.hidden && sheet.querySelector("#restoreInput")) settingsSheet();

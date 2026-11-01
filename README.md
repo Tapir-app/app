@@ -40,6 +40,7 @@ Einstellungen → „Deine Daten“ → **Sicherung speichern** legt eine JSON-D
 - `status`: `schrank`, `waesche`, `reinigung`, `verliehen`, `koffer` (Reise, wird nicht eingeplant) oder `eingelagert` (Saisonwechsel, wird nicht eingeplant)
 - `settings.trip`: laufende Reise `{ kind, days, weather, bag, packedAt }` oder `null`
 - `settings.avatar`: deine Figur `{ skin, hair, hairColor, beard, glasses, build }` oder `null` (neutrale Figur). `skin`: `neutral`, `s1` … `s5`; `hair`: `none`, `kurz`, `mittel`, `lang`, `zopf`, `dutt`; `hairColor`: `schwarz`, `braun`, `blond`, `rot`, `grau`; `beard`: `none`, `stoppeln`, `kurz`, `voll`; `glasses`: `none`, `rund`, `eckig`; `build`: `schmal`, `normal`, `kraeftig`
+- `settings.catOrder`: eigene Reihenfolge der Kategorien im Schrank (Liste von Kategorie-Schlüsseln) oder `null` (Standard). `settings.catFold`: eingeklappte Kategorien (`top`, `bottom`, … sowie `stored` für „Eingelagert“)
 - `pattern`: `streifen`, `karo`, `punkte` oder `blumen` (fehlt = uni), `color2` ist die zweite Farbe des Musters
 - `material`: Liste wie `[{ "m": "Baumwolle", "p": 95 }, { "m": "Elastan", "p": 5 }]`, `p` in Prozent (optional), `a: true` heißt „Rest automatisch aufgefüllt“
 - `size`: freier Text, z. B. `M`, `38`, `W32/L32`
