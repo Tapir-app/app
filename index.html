@@ -578,6 +578,13 @@ img { max-width: 100%; }
 @media (max-width: 359px) { .td-row { grid-template-columns: 58px minmax(0, 1fr) auto; gap: 8px; padding: 8px 10px; } .td-items .thumb { width: 34px; } .td-items { gap: 4px; } }
 .pack-extra { background: var(--surface-2); border-radius: var(--r); padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
 .pack-extra p { margin: 0; font-size: 14.5px; }
+.gear { display: flex; flex-direction: column; gap: 10px; flex: none; }
+.gear .list { flex: none; }
+.gear-row { padding: 0 6px 0 0; gap: 4px; flex-wrap: nowrap; }
+.gear-tick { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 12px; border: 0; background: none; color: inherit; font: inherit; padding: 11px 12px; text-align: left; }
+.gear-tick[aria-pressed="true"] .txt b { color: var(--muted); text-decoration: line-through; }
+.gear-x { flex: none; width: 36px; height: 36px; border: 0; background: none; color: var(--muted); display: grid; place-items: center; border-radius: 50%; padding: 0; }
+.gear-x svg { width: 16px; height: 16px; }
 .rem-list { display: flex; flex-direction: column; gap: 10px; }
 .rem-row { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
 .rem-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -791,7 +798,7 @@ const TYPES = {
   shoes: ["Sneaker", "Halbschuhe", "Stiefel", "Stiefeletten", "Sandalen", "Pumps", "Sportschuhe"],
   suit: ["Anzug", "Hosenanzug", "Kostüm", "Smoking"],
   swim: ["Bikini", "Badeanzug", "Badehose", "Badeshorts"],
-  acc: ["Sonnenbrille", "Gürtel", "Schal", "Mütze", "Cap", "Hut", "Handschuhe", "Strumpfhose", "Krawatte", "Haarschmuck"],
+  acc: ["Sonnenbrille", "Gürtel", "Schal", "Mütze", "Cap", "Hut", "Handschuhe", "Strumpfhose", "Krawatte", "Haarschmuck", "Regenschirm"],
   bag: ["Tasche", "Rucksack", "Sporttasche", "Reisetasche", "Koffer"],
   jewelry: ["Armband", "Kette", "Ohrringe", "Ring", "Uhr", "Brosche", "Fußkettchen"]
 };
@@ -948,7 +955,7 @@ const TRACKED = {
   "lend-remind": "An Rückgabe erinnert", "lend-ics": "Rückgabe in Kalender", "wx-pick": "Ort fürs Wetter gewählt", "wash-every": "Waschrhythmus angepasst", "wash-all": "Doch alle gewaschen",
   "av-set": "Figur angepasst", "cat-fold": "Kategorie ein-/ausgeklappt", "cat-move": "Kategorien umsortiert", "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt",
   "review": "Wochenrückblick angesehen", "review-share": "Wochenrückblick als Bild geteilt", "share-outfit": "Outfit als Bild geteilt",
-  "csv-open": "Listen-Import geöffnet", "csv-import": "Liste importiert", "csv-export": "Als Liste gespeichert", "mail-probe": "„Aus Bestellung übernehmen“ angesehen", "value-sell": "Vom Schrankwert zum Verkaufen"
+  "csv-open": "Listen-Import geöffnet", "csv-import": "Liste importiert", "csv-export": "Als Liste gespeichert", "mail-probe": "„Aus Bestellung übernehmen“ angesehen", "value-sell": "Vom Schrankwert zum Verkaufen", "gear-tog": "Ausrüstung abgehakt", "gear-add": "Eigene Ausrüstung hinzugefügt"
 };
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
@@ -1323,7 +1330,8 @@ const TYPE_PATHS = {
   "Handschuhe": '<path d="M30 88V56l-9-14c-2-3 2-6 5-3l4 5V22c0-3 4-3 4 0v18-24c0-3 4-3 4 0v24-26c0-3 4-3 4 0v26-22c0-3 4-3 4 0v34c0 12-4 20-10 24v14Z"/>',
   "Krawatte": '<path d="M43 8h14l-3 10h-8Z"/><path d="M46 18h8l9 54-13 18-13-18Z"/>',
   "Rucksack": '<rect x="24" y="22" width="52" height="68" rx="14"/><path fill="none" stroke-width="4" d="M38 22c0-8 5-12 12-12s12 4 12 12"/><rect x="34" y="56" width="32" height="20" rx="5" fill="none"/>',
-  "Haarschmuck": '<path d="M16 60c10-28 58-28 68 0" fill="none" stroke="{c}" stroke-width="8"/><circle cx="50" cy="36" r="7"/>'
+  "Haarschmuck": '<path d="M16 60c10-28 58-28 68 0" fill="none" stroke="{c}" stroke-width="8"/><circle cx="50" cy="36" r="7"/>',
+  "Regenschirm": '<path fill="none" stroke-width="3" d="M50 9v7"/><path d="M8 53C8 31 27 16 50 16S92 31 92 53C87.5 48.5 80.5 48.5 76 53C71.5 48.5 64.5 48.5 60 53C56 48.5 44 48.5 40 53C35.5 48.5 28.5 48.5 24 53C19.5 48.5 12.5 48.5 8 53Z"/><path fill="none" stroke="#000" stroke-opacity=".2" stroke-width="1.4" d="M50 16C43 25 40.5 39 40 53M50 16C57 25 59.5 39 60 53M50 16C35 21 26.5 37 24 53M50 16C65 21 73.5 37 76 53"/><path fill="#fff" fill-opacity=".22" stroke="none" d="M50 16C35 21 26.5 37 24 53C19.5 48.5 12.5 48.5 8 53C8 33 24 18 50 16Z"/><path fill="none" stroke="#8a7f75" stroke-width="3.8" stroke-linecap="round" d="M50 51v28c0 5.5-3 8.5-6.8 8.5S37 84.5 37 80.5"/>'
 };
 PATHS.jewelry = TYPE_PATHS["Armband"];
 PATHS.shoes = TYPE_PATHS["Sneaker"];
@@ -1643,7 +1651,7 @@ function generateOutfit(occ, weather, used, rain = 0) {
   const tights = pool.filter(i => i.type === "Strumpfhose");
   if (tights.length && weather !== "warm" && ids.some(id => { const x = byId(id); return x && (x.cat === "dress" || x.type === "Rock" || x.type === "Kostüm"); }))
     ids.push(tights[Math.floor(Math.random() * tights.length)].id);
-  const accPool = pool.filter(i => i.cat === "acc" && i.type !== "Strumpfhose" && (ACC_WEATHER[i.type] ? ACC_WEATHER[i.type] === weather || (ACC_WEATHER[i.type] === "warm" && rain < 30 && weather === "mild") : true));
+  const accPool = pool.filter(i => i.cat === "acc" && i.type !== "Strumpfhose" && i.type !== "Regenschirm" && (ACC_WEATHER[i.type] ? ACC_WEATHER[i.type] === weather || (ACC_WEATHER[i.type] === "warm" && rain < 30 && weather === "mild") : true));
   const seasonal = accPool.filter(i => ACC_WEATHER[i.type] === weather);
   const accFrom = seasonal.length ? seasonal : accPool;
   if (accFrom.length && Math.random() < (seasonal.length ? .85 : .5)) ids.push(accFrom[Math.floor(Math.random() * accFrom.length)].id);
@@ -1824,7 +1832,8 @@ function viewSchrank() {
   const todayItems = (state.plan.days[tk]?.items || []).map(byId).filter(Boolean);
   const dayName = DAYS.find(d => d[0] === tk)[1];
   const tw = dayWx(tk);
-  const wxStrip = tw ? `<div class="today-wx"><span class="wx"><b>${tw.max}°</b>/${tw.min}°${tw.rain >= 30 ? ` · Regen ${tw.rain} %` : ""}</span>${tw.rain >= RAIN_UMB ? `<span class="umb">${ICON_UMB}Schirm mitnehmen</span>` : ""}</div>`
+  const myUmb = state.items.find(i => i.type === "Regenschirm"), umbTxt = myUmb?.status === "verliehen" ? `Schirm mitnehmen, deiner ist ${myUmb.lentTo ? "bei " + esc(myUmb.lentTo) : "verliehen"}` : "Schirm mitnehmen";
+  const wxStrip = tw ? `<div class="today-wx"><span class="wx"><b>${tw.max}°</b>/${tw.min}°${tw.rain >= 30 ? ` · Regen ${tw.rain} %` : ""}</span>${tw.rain >= RAIN_UMB ? `<span class="umb">${ICON_UMB}${umbTxt}</span>` : ""}</div>`
     : meta.city ? "" : `<button class="link wx-nudge" data-act="wx-city">Wetter und Regen für deinen Ort anzeigen ›</button>`;
   const todayCard = `<section class="today" aria-label="Outfit für heute">
       <div class="today-top"><div><span class="eyebrow">Heute · ${dayName} · ${OCC[state.plan.days[tk]?.occ] || ""}</span><h2>${todayItems.length ? "Dein <em>Outfit</em>" : "Noch <em>nichts</em> geplant"}</h2></div><button class="link" data-act="tab" data-v="woche">Woche ›</button></div>
@@ -1995,6 +2004,21 @@ function drawSeason() {
 const TRIP_KINDS = { strand: "Strand", stadt: "Stadt", ski: "Ski", business: "Geschäftsreise" };
 const TRIP_OCC = { strand: ["freizeit", "abend", "sport"], stadt: ["freizeit", "abend"], ski: ["sport", "freizeit"], business: ["buero", "abend"] };
 const TRIP_WX = { strand: "warm", ski: "kalt" };
+const GEAR = {
+  strand: ["Sonnencreme", "Strandtuch", "Badeschlappen", "Wasserflasche"],
+  stadt: ["Ausweis", "Ladekabel", "Powerbank", "Tickets"],
+  ski: ["Skihelm", "Skibrille", "Skihandschuhe", "Skisocken", "Funktionsunterwäsche", "Ski oder Snowboard", "Skipass", "Sonnencreme"],
+  business: ["Ausweis", "Laptop und Ladekabel", "Unterlagen", "Visitenkarten"]
+};
+const gearOf = kind => { const g = meta.gear?.[kind] || {}; return [...(GEAR[kind] || []).filter(x => !(g.del || []).includes(x)), ...(g.add || [])]; };
+function gearSet(kind, fn) { const all = meta.gear || {}; const g = { add: [...(all[kind]?.add || [])], del: [...(all[kind]?.del || [])] }; fn(g); meta.gear = { ...all, [kind]: g }; saveMeta(); }
+function gearAdd() {
+  const inp = document.getElementById("gearInput"), name = (inp?.value || "").trim().replace(/\s+/g, " ").slice(0, 30);
+  if (!trip || !name) return;
+  if (gearOf(trip.kind).some(x => x.toLowerCase() === name.toLowerCase())) { toast("Steht schon auf der Liste."); return; }
+  gearSet(trip.kind, g => { if ((GEAR[trip.kind] || []).includes(name)) g.del = g.del.filter(x => x !== name); else g.add.push(name); });
+  drawTrip(); document.getElementById("gearInput")?.focus({ preventScroll: true });
+}
 const PACK_BAGS = new Set(["Koffer", "Reisetasche", "Sporttasche", "Rucksack"]);
 let trip = null;
 function packSuggest(kind, days, weather, withDirty = false, rain = false) {
@@ -2022,6 +2046,7 @@ function packSuggest(kind, days, weather, withDirty = false, rain = false) {
   if (kind === "strand") add(take(i => i.cat === "swim", 2)); else if (weather === "warm") add(take(i => i.cat === "swim", 1));
   const accW = weather === "kalt" || kind === "ski" ? ["Mütze", "Schal", "Handschuhe"] : weather === "warm" ? ["Sonnenbrille", "Cap", "Hut"] : ["Schal"];
   for (const t of accW) add(take(has(t), 1));
+  if (rain) add(take(has("Regenschirm"), 1));
   if (kind === "business") { add(take(i => i.cat === "suit", 1)); add(take(has("Gürtel"), 1)); add(take(has("Krawatte"), 1)); }
   if (weather !== "warm" && [...out].some(id => { const x = byId(id); return x && (x.cat === "dress" || x.type === "Rock"); })) add(take(has("Strumpfhose"), 1));
   add(take(i => i.cat === "bag" && (i.type === "Rucksack" || i.type === "Tasche" || !i.type), 1));
@@ -2109,7 +2134,7 @@ function drawTrip() {
       <div class="field days"><span class="lbl">Wie viele Tage?</span><div style="display:flex;align-items:center;gap:12px;min-height:46px"><div class="stepper"><button type="button" data-act="trip-days" data-d="-1" aria-label="Weniger">−</button><b>${t.days}</b><button type="button" data-act="trip-days" data-d="1" aria-label="Mehr">+</button></div><span class="hint">${t.days === 1 ? "Tag" : "Tage"}</span></div></div></div>
     <div class="field"><span class="lbl">Wetter am Ziel</span><div class="seg" role="group" aria-label="Wetter am Ziel">${Object.entries(WEATHER).map(([k, l]) => `<button type="button" data-act="trip-wx" data-v="${k}" aria-pressed="${t.weather === k}">${l}</button>`).join("")}</div>
       <div class="chips wrap"><button type="button" class="chip" data-act="trip-rain" aria-pressed="${!!t.rain}">Regen erwartet</button></div>
-      ${t.rain ? `<p class="hint umb-hint">Dann kommt die Regenjacke mit, falls du eine hast. Den Schirm findest du unten bei „Nicht vergessen“.</p>` : ""}</div>
+      ${t.rain ? `<p class="hint umb-hint">Dann kommen Regenjacke und Regenschirm mit, falls sie in deinem Schrank sind. Sonst steht der Schirm unten bei „Nicht vergessen“.</p>` : ""}</div>
     ${bags.length ? `<div class="field"><span class="lbl">Packen in (optional)</span><div class="chips wrap">${bags.map(b => `<button type="button" class="chip" data-act="trip-bag" data-v="${b.id}" aria-pressed="${t.bag === b.id}">${esc(b.name)}</button>`).join("")}</div></div>` : ""}
     ${outs.length ? `<h3 class="h3">Deine Outfits <span class="n">${t.days} ${t.days === 1 ? "Tag" : "Tage"} + 1 Reserve</span></h3>
     <div class="trip-days">${outs.map((o, i) => { const day = t.date ? addDays(t.date, i) : null, w = i < t.days && day ? t.wx?.days.find(x => x.d === day) : null;
@@ -2117,13 +2142,19 @@ function drawTrip() {
     <p class="hint">Aus deiner Packliste zusammengestellt. Hosen und Schuhe trägst du mehrmals, deshalb reichen weniger.</p>` : ""}
     <h3 class="h3">Packliste <span class="n">${n} ${n === 1 ? "Teil" : "Teile"}</span></h3>
     ${chosen.length ? groups(chosen) : `<div class="empty">Noch nichts ausgewählt.</div>`}
-    <div class="pack-extra"><span class="eyebrow">Nicht vergessen</span><p>${t.days + 1}× Unterwäsche · ${t.days + 1}× Socken · Schlafsachen${t.rain ? " · Regenschirm" : ""}</p><span class="hint">Steht nicht im Schrank, nur als Erinnerung.</span></div>
+    ${(() => { const gl = gearOf(t.kind), done = gl.filter(g => t.gear?.has(g)).length, hidden = (meta.gear?.[t.kind]?.del || []).length;
+      return `<div class="gear"><h3 class="h3">Ausrüstung · ${TRIP_KINDS[t.kind]} <span class="n">${gl.length ? `${done} von ${gl.length} eingepackt` : "leer"}</span></h3>
+      ${gl.length ? `<div class="list">${gl.map(g => `<div class="row-item gear-row"><button type="button" class="pick-row gear-tick" data-act="gear-tog" data-v="${esc(g)}" aria-pressed="${!!t.gear?.has(g)}"><span class="check">${ICON_CHECK}</span><span class="txt"><b>${esc(g)}</b></span></button><button type="button" class="gear-x" data-act="gear-del" data-v="${esc(g)}" aria-label="${esc(g)} von der Liste nehmen">${ICON_X}</button></div>`).join("")}</div>` : ""}
+      <div class="wl-row"><input type="text" id="gearInput" maxlength="30" autocomplete="off" placeholder="Eigenes, z. B. Fahrradhelm" aria-label="Eigene Ausrüstung hinzufügen"><button type="button" class="btn btn-ghost" data-act="gear-add">Hinzufügen</button></div>
+      <p class="hint">Abhaken, was schon eingepackt ist. Was du hinzufügst oder entfernst, merkt sich Giyo für die nächste Reise dieser Art.${hidden ? ` <button type="button" class="linkbtn" data-act="gear-reset">${hidden} entfernte zurückholen</button>` : ""}</p></div>`; })()}
+    <div class="pack-extra"><span class="eyebrow">Nicht vergessen</span><p>${t.days + 1}× Unterwäsche · ${t.days + 1}× Socken · Schlafsachen${t.rain && ![...t.sel].some(id => byId(id)?.type === "Regenschirm") ? " · Regenschirm" : ""}</p><span class="hint">Steht nicht im Schrank, nur als Erinnerung.</span></div>
     ${rest.length ? `<details class="fb-more" id="tripMore"${t.more ? " open" : ""}><summary>Mehr aus dem Schrank (${rest.length})</summary><div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${groups(rest)}</div></details>` : ""}
     ${needWash.length ? `<p class="hint"><b>Würde passen, liegt aber im Wäschekorb:</b> ${needWash.slice(0, 5).map(i => esc(i.name)).join(", ")}${needWash.length > 5 ? " …" : ""}. Erst waschen, dann sind sie hier dabei.</p>` : dirty ? `<p class="hint">${dirty} ${dirty === 1 ? "Teil liegt" : "Teile liegen"} noch in der Wäsche und ${dirty === 1 ? "fehlt" : "fehlen"} hier.</p>` : ""}
     <button class="btn btn-primary btn-wide" data-act="trip-go"${n ? "" : " disabled"}>${n ? `${n} ${n === 1 ? "Teil" : "Teile"} einpacken` : "Nichts ausgewählt"}</button>
     <p class="hint">Nach der Reise unter Wäsche &amp; Co. auf „Auspacken“ tippen. Dann kommt alles in die Wäsche oder zurück in den Schrank.</p>`, () => { trip = null; });
   document.getElementById("tripMore")?.addEventListener("toggle", e => { if (trip) trip.more = e.target.open; });
   document.getElementById("tripDest")?.addEventListener("input", e => { if (trip) { trip.dest = e.target.value; trip.geo = null; } });
+  document.getElementById("gearInput")?.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); gearAdd(); } });
   document.getElementById("tripDest")?.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); tripWx(true); } });
   document.getElementById("tripDate")?.addEventListener("change", e => { if (!trip) return; trip.date = e.target.value || ""; if (trip.geo && trip.wx || trip.wxMsg && trip.geo) tripWx(); else drawTrip(); });
 }
@@ -3062,6 +3093,10 @@ document.addEventListener("click", async e => {
     case "trip-days": if (trip) { trip.days = Math.max(1, Math.min(21, trip.days + Number(el.dataset.d))); trip.sel = packSuggest(trip.kind, trip.days, trip.weather, false, trip.rain); drawTrip(); if (trip.geo && trip.wx) tripWx(); } break;
     case "trip-wx": if (trip) { trip.weather = v; trip.sel = packSuggest(trip.kind, trip.days, trip.weather, false, trip.rain); drawTrip(); } break;
     case "trip-rain": if (trip) { trip.rain = !trip.rain; trip.sel = packSuggest(trip.kind, trip.days, trip.weather, false, trip.rain); drawTrip(); } break;
+    case "gear-tog": if (trip) { trip.gear = trip.gear || new Set(); trip.gear.has(v) ? trip.gear.delete(v) : trip.gear.add(v); drawTrip(); } break;
+    case "gear-add": gearAdd(); break;
+    case "gear-del": if (trip) { gearSet(trip.kind, g => { if ((GEAR[trip.kind] || []).includes(v)) g.del.push(v); g.add = g.add.filter(x => x !== v); }); trip.gear?.delete(v); drawTrip(); } break;
+    case "gear-reset": if (trip) { gearSet(trip.kind, g => { g.del = []; }); drawTrip(); } break;
     case "trip-bag": if (trip) { trip.bag = trip.bag === v ? null : v; drawTrip(); } break;
     case "trip-tog": if (trip) { trip.sel.has(v) ? trip.sel.delete(v) : trip.sel.add(v); drawTrip(); } break;
     case "trip-go": {
@@ -3446,7 +3481,7 @@ const CSV_HEAD = ["Name", "Kategorie", "Art", "Farbe", "Marke", "Größe", "Prei
 const CSV_COLS = { name: ["name", "bezeichnung", "teil", "artikel", "titel", "kleidungsstueck", "item"], cat: ["kategorie", "category", "gruppe"], type: ["art", "typ", "type", "sorte"], color: ["farbe", "color", "colour"], brand: ["marke", "brand", "hersteller", "label"], size: ["groesse", "size", "gr"], price: ["preis", "price", "kaufpreis", "neupreis", "eur", "euro"], occ: ["anlass", "anlaesse", "occasion", "occasions"] };
 const CAT_WORDS = { top: ["oberteil", "oberteile", "top", "tops", "shirt", "shirts", "tshirt", "hemd", "bluse", "pullover", "pulli"], bottom: ["hose", "hosen", "rock", "roecke", "unterteil", "jeans", "shorts", "hoserock", "hosenundroecke", "bottom"], dress: ["kleid", "kleider", "dress", "jumpsuit"], suit: ["anzug", "anzuege", "kostuem", "anzugkostuem", "suit"], jacket: ["jacke", "jacken", "mantel", "maentel", "jacket", "blazer"], shoes: ["schuhe", "schuh", "shoes", "sneaker"], swim: ["bademode", "badesachen", "swim", "bikini"], acc: ["accessoire", "accessoires", "zubehoer", "acc", "accessory"], bag: ["tasche", "taschen", "gepaeck", "taschegepaeck", "bag", "koffer", "rucksack"], jewelry: ["schmuck", "jewelry", "jewellery"] };
 const COLOR_WORDS = { dunkelblau: "Navy", marine: "Navy", marineblau: "Navy", khaki: "Oliv", creme: "Beige", cremeweiss: "Beige", ecru: "Beige", sand: "Beige", pink: "Rosa", weinrot: "Bordeaux", dunkelrot: "Bordeaux", jeans: "Denim", jeansblau: "Denim", anthrazit: "Grau", hellgrau: "Grau", dunkelgrau: "Grau", black: "Schwarz", white: "Weiß", grey: "Grau", gray: "Grau", blue: "Blau", green: "Grün", red: "Rot", brown: "Braun", yellow: "Gelb" };
-const TYPE_ALIAS = [["kapuzenpulli", "Hoodie"], ["kapuzenpullover", "Hoodie"], ["strickpulli", "Pullover"], ["pulli", "Pullover"], ["sweater", "Pullover"], ["tshirt", "T-Shirt"], ["trenchcoat", "Mantel"], ["trench", "Mantel"], ["coat", "Mantel"], ["sneakers", "Sneaker"], ["turnschuh", "Sneaker"], ["laufschuh", "Sportschuhe"], ["jeanshose", "Jeans"]];
+const TYPE_ALIAS = [["kapuzenpulli", "Hoodie"], ["kapuzenpullover", "Hoodie"], ["strickpulli", "Pullover"], ["pulli", "Pullover"], ["sweater", "Pullover"], ["tshirt", "T-Shirt"], ["trenchcoat", "Mantel"], ["trench", "Mantel"], ["coat", "Mantel"], ["sneakers", "Sneaker"], ["turnschuh", "Sneaker"], ["laufschuh", "Sportschuhe"], ["jeanshose", "Jeans"], ["regenschirm", "Regenschirm"], ["schirm", "Regenschirm"], ["knirps", "Regenschirm"]];
 const OCC_WORDS = { buero: ["buero", "arbeit", "job", "office", "business", "beruf"], freizeit: ["freizeit", "alltag", "casual"], schule: ["schule", "uni", "studium"], sport: ["sport", "training", "gym", "fitness"], abend: ["abend", "party", "ausgehen", "festlich", "feier"] };
 function parseCsv(text) {
   text = String(text).replace(/^﻿/, "");
