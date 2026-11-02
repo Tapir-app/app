@@ -948,7 +948,7 @@ const TRACKED = {
   "lend-remind": "An Rückgabe erinnert", "lend-ics": "Rückgabe in Kalender", "wx-pick": "Ort fürs Wetter gewählt", "wash-every": "Waschrhythmus angepasst", "wash-all": "Doch alle gewaschen",
   "av-set": "Figur angepasst", "cat-fold": "Kategorie ein-/ausgeklappt", "cat-move": "Kategorien umsortiert", "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt",
   "review": "Wochenrückblick angesehen", "review-share": "Wochenrückblick als Bild geteilt", "share-outfit": "Outfit als Bild geteilt",
-  "csv-open": "Listen-Import geöffnet", "csv-import": "Liste importiert", "csv-export": "Als Liste gespeichert", "mail-probe": "„Aus Bestellung übernehmen“ angesehen"
+  "csv-open": "Listen-Import geöffnet", "csv-import": "Liste importiert", "csv-export": "Als Liste gespeichert", "mail-probe": "„Aus Bestellung übernehmen“ angesehen", "value-sell": "Vom Schrankwert zum Verkaufen"
 };
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
@@ -1895,6 +1895,8 @@ function treeView(list) {
 function statsTeaser() {
   const e = ecoSaved(state.items);
   const priced = state.items.filter(i => i.price > 0);
+  const v = priced.length >= 3 ? wardrobeValue(state.items) : null;
+  if (v) return `Schrankwert ${v.nEst ? "ca. " + roundEuro(v.total) : euro(v.total)}${e.n ? ` · ${e.n}× nochmal getragen statt gewaschen` : " · Kosten pro Tragen"}`;
   if (e.n) return `${e.n}× nochmal getragen statt gewaschen · ≈ ${e.liter} l Wasser gespart`;
   if (priced.length) return "Kosten pro Tragen, Lieblingsteile, vergessene Teile";
   return "Lieblingsteile, vergessene Teile, Wasser und Strom gespart";
@@ -3620,7 +3622,7 @@ function probeSummary() {
   return out.length ? "Geld-Tests: " + out.join(" · ") : "";
 }
 
-const APP_VERSION = "0.23";
+const APP_VERSION = "0.24";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -3694,6 +3696,7 @@ document.addEventListener("click", async e => {
     case "invite": invite(); break;
     case "stats": statsSheet(); break;
     case "review": reviewSheet(); sheet.scrollTop = 0; break;
+    case "value-sell": closeSheet(); state.tab = "verkaufen"; render(); requestAnimationFrame(() => { const h = [...document.querySelectorAll("#view .h3")].find(x => /Lange nicht getragen/.test(x.textContent)); if (h) window.scrollTo({ top: Math.max(0, h.getBoundingClientRect().top + window.scrollY - 80) }); else window.scrollTo({ top: 0 }); }); break;
     case "review-plan": closeSheet(); state.tab = "woche"; render(); window.scrollTo({ top: 0 }); break;
     case "review-share": shareReview(); break;
     case "share-outfit": shareOutfit(el.dataset.v); break;
@@ -3785,6 +3788,38 @@ async function citySearch() {
 }
 
 /* ---------- Dein Schrank in Zahlen ---------- */
+/* ---------- Schrankwert: bekannte Kaufpreise, Rest nach dem eigenen Median je Kategorie geschätzt ---------- */
+function wardrobeValue(list) {
+  const priced = list.filter(i => i.price > 0);
+  if (!priced.length) return null;
+  const med = new Map();
+  for (const c of new Set(priced.map(i => i.cat))) {
+    const v = priced.filter(i => i.cat === c).map(i => i.price).sort((a, b) => a - b), m = v.length >> 1;
+    med.set(c, v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2);
+  }
+  const worth = i => i.price > 0 ? i.price : med.get(i.cat) ?? null;
+  let known = 0, est = 0, nEst = 0, nNone = 0;
+  for (const i of list) { if (i.price > 0) known += i.price; else if (med.has(i.cat)) { est += med.get(i.cat); nEst++; } else nNone++; }
+  const idleItems = list.filter(i => isForgotten(i) && worth(i) != null).sort((a, b) => worth(b) - worth(a));
+  const idle = idleItems.reduce((a, i) => a + worth(i), 0);
+  return { total: known + est, known, est, nPriced: priced.length, nEst, nNone, idle, idleN: idleItems.length, idleTop: idleItems.slice(0, 3).map(i => ({ it: i, v: worth(i), guess: !(i.price > 0) })), idleGuess: idleItems.some(i => !(i.price > 0)) };
+}
+function roundEuro(n) { return euro(n >= 100 ? Math.round(n / 10) * 10 : Math.round(n)); }
+function valueBlock(v) {
+  if (!v) return "";
+  const ca = v.nEst ? "ca. " : "";
+  const parts = [`${v.nPriced} ${v.nPriced === 1 ? "Teil" : "Teile"} mit Kaufpreis`];
+  if (v.nEst) parts.push(`${v.nEst} geschätzt nach deinem Durchschnitt je Kategorie`);
+  if (v.nNone) parts.push(`${v.nNone} ohne Preis nicht mitgezählt`);
+  return `<div class="set-group"><span class="eyebrow">Schrankwert</span>
+    <div class="kpis">
+      <div class="kpi"><b>${ca}${v.nEst ? roundEuro(v.total) : euro(v.total)}</b><span>steckt in deinem Schrank</span></div>
+      <div class="kpi${v.idle ? "" : " green"}"><b>${v.idle ? (v.idleGuess ? "ca. " : "") + roundEuro(v.idle) : "0 €"}</b><span>${v.idle ? `hängen seit über 30 Tagen ungetragen (${v.idleN} ${v.idleN === 1 ? "Teil" : "Teile"})` : "ungetragen, alles ist im Einsatz"}</span></div>
+    </div>
+    ${v.idleTop.length ? `<p class="hint">Am meisten Wert ungetragen: ${v.idleTop.map(x => `${esc(x.it.name)} (${x.guess ? "ca. " : ""}${euro(x.v)})`).join(", ")}. Verkaufen, verleihen oder nächste Woche anziehen?</p>
+    <button class="btn btn-ghost btn-wide" data-act="value-sell">Ungetragenes verkaufen</button>` : ""}
+    <p class="hint">${parts.join(", ")}. Gerechnet mit dem Kaufpreis, nicht mit dem Wiederverkaufswert.</p></div>`;
+}
 function statsData() {
   const all = state.items, n = all.length;
   const wears = all.reduce((a, i) => a + (i.wears || 0), 0);
@@ -3792,11 +3827,11 @@ function statsData() {
   const top = [...all].filter(i => i.wears).sort((a, b) => b.wears - a.wears).slice(0, 3);
   const forgotten = all.filter(isForgotten);
   const priced = all.filter(i => i.price > 0).map(i => ({ it: i, cpw: i.price / Math.max(1, i.wears || 0) })).sort((a, b) => a.cpw - b.cpw);
-  const value = priced.reduce((a, p) => a + p.it.price, 0);
+  const value = priced.reduce((a, p) => a + p.it.price, 0), worth = wardrobeValue(all);
   const bm = new Map();
   for (const i of all) if (i.brand) { const b = bm.get(i.brand) || { n: 0, w: 0 }; b.n++; b.w += i.wears || 0; bm.set(i.brand, b); }
   const brands = [...bm.entries()].sort((a, b) => b[1].w - a[1].w || b[1].n - a[1].n).slice(0, 3);
-  return { n, wears, active, activePct: n ? Math.round(active / n * 100) : 0, top, forgotten, priced, value, eco: ecoSaved(all), brands, branded: all.filter(i => i.brand).length };
+  return { n, wears, active, activePct: n ? Math.round(active / n * 100) : 0, top, forgotten, priced, value, worth, eco: ecoSaved(all), brands, branded: all.filter(i => i.brand).length };
 }
 function statsSheet() {
   const s = statsData(), e = s.eco;
@@ -3809,6 +3844,7 @@ function statsSheet() {
       <div class="kpi"><b>${s.wears}</b><span>Mal getragen, insgesamt</span></div>
       <div class="kpi"><b>${s.forgotten.length}</b><span>vergessen (über 30 Tage nicht getragen)</span></div>
     </div>
+    ${s.worth ? valueBlock(s.worth) : `<p class="hint"><b>Schrankwert:</b> Trag bei ein paar Teilen den Kaufpreis ein, dann siehst du, was in deinem Schrank steckt.</p>`}
     <button class="cardlink" data-act="review"><div><b>Deine Woche im Rückblick</b><span>Was du in den letzten 7 Tagen getragen hast</span></div>${ICON_CHEV}</button>
     <div class="set-group"><span class="eyebrow">Öfter tragen, seltener waschen</span>
       <div class="kpis">
@@ -3826,7 +3862,7 @@ Quellen: Utopia.de (Waschgang-Rechner Uni Bonn, EU-Datenbank EPREL), Umweltbunde
     <div class="set-group"><span class="eyebrow">Kosten pro Tragen</span>
       ${s.priced.length ? `<ul class="rank">${s.priced.slice(0, 3).map(p => li(p.it.name, euro(p.cpw))).join("")}</ul>
       ${s.priced.length > 3 ? `<p class="hint">Am teuersten pro Tragen: ${esc(s.priced[s.priced.length - 1].it.name)} mit ${euro(s.priced[s.priced.length - 1].cpw)}. Vielleicht diese Woche anziehen oder verkaufen?</p>` : ""}
-      <p class="hint">${s.priced.length} Teile mit Preis, zusammen ${euro(s.value)}.</p>` : `<p class="hint">Tipp ein Teil an und trag den Kaufpreis ein. Dann siehst du, was dich jedes Tragen kostet.</p>`}
+` : `<p class="hint">Tipp ein Teil an und trag den Kaufpreis ein. Dann siehst du, was dich jedes Tragen kostet.</p>`}
     </div>
     ${s.forgotten.length ? `<div class="set-group"><span class="eyebrow">Vergessen</span><p class="hint">${s.forgotten.slice(0, 4).map(i => esc(i.name)).join(", ")}${s.forgotten.length > 4 ? " …" : ""}. Diese Woche einplanen, verleihen oder verkaufen?</p></div>` : ""}
     ${plusProbe()}
