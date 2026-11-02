@@ -566,6 +566,9 @@ img { max-width: 100%; }
 .field input[type=date]:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
 .trip-wx { display: flex; gap: 8px; align-items: flex-start; margin: 0; }
 .trip-wx svg { width: 17px; height: 17px; flex: none; margin-top: 2px; }
+.wx-src { font-size: 11.5px; }
+.trip-wx .wx-src { display: block; margin-top: 4px; }
+a.wx-credit { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .trip-days { flex: none; display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow), inset 0 0 0 1px var(--line); overflow: hidden; }
 .td-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 12px; }
 .td-row + .td-row { border-top: 1px solid var(--line); }
@@ -972,6 +975,8 @@ function weekDateOf(k) {
 const wxClass = t => t < 12 ? "kalt" : t <= 20 ? "mild" : "warm";
 function dayWx(k) { return meta.city && meta.wxCache?.days?.[weekDateOf(k)] || null; }
 function dayWeather(k) { const w = dayWx(k); return w ? wxClass(w.max) : state.plan.weather; }
+// Pflicht der Lizenz CC BY 4.0: Open-Meteo als Quelle nennen
+function wxCredit() { return '<a class="wx-credit" href="https://open-meteo.com/" target="_blank" rel="noopener">Wetterdaten: Open-Meteo.com (CC BY 4.0)</a>'; }
 let wxLoading = false;
 async function loadWeather(force) {
   const c = meta.city; if (!c || wxLoading) return;
@@ -2123,7 +2128,7 @@ function drawTrip() {
   const needWash = dirty ? [...packSuggest(t.kind, t.days, t.weather, true, t.rain)].map(byId).filter(i => i && i.status === "waesche") : [];
   const outs = tripOutfits(t), wd = t.wx?.days || [];
   const rainN = wd.filter(x => x.rain >= RAIN_UMB).length;
-  const wxLine = t.wx && t.geo ? `<p class="hint trip-wx">${rainN ? ICON_UMB : ""}<span><b>${esc(t.geo.name)}${t.geo.country ? ", " + esc(t.geo.country) : ""}:</b> ${Math.min(...wd.map(x => x.min))} bis ${Math.max(...wd.map(x => x.max))}°, ${rainN ? `Regen an ${rainN} von ${wd.length} ${wd.length === 1 ? "Tag" : "Tagen"}` : "kaum Regen"}${wd.length < t.days ? ` (Vorhersage für die ersten ${wd.length} ${wd.length === 1 ? "Tag" : "Tage"})` : ""}. Wetter und Regen sind unten schon eingestellt.</span></p>`
+  const wxLine = t.wx && t.geo ? `<p class="hint trip-wx">${rainN ? ICON_UMB : ""}<span><b>${esc(t.geo.name)}${t.geo.country ? ", " + esc(t.geo.country) : ""}:</b> ${Math.min(...wd.map(x => x.min))} bis ${Math.max(...wd.map(x => x.max))}°, ${rainN ? `Regen an ${rainN} von ${wd.length} ${wd.length === 1 ? "Tag" : "Tagen"}` : "kaum Regen"}${wd.length < t.days ? ` (Vorhersage für die ersten ${wd.length} ${wd.length === 1 ? "Tag" : "Tage"})` : ""}. Wetter und Regen sind unten schon eingestellt.<span class="wx-src">${wxCredit()}</span></span></p>`
     : t.wxMsg ? `<p class="hint trip-wx">${esc(t.wxMsg)}</p>` : "";
   openSheet(`<h2>Koffer packen</h2>
     <p class="sub">Die App schlägt vor, was aus deinem Schrank mitkommt. Tippe ein Teil an, um es dazuzunehmen oder wegzulassen.</p>
@@ -3212,7 +3217,8 @@ function settingsSheet(msg) {
       <button class="btn btn-ghost btn-wide" data-act="avatar">Figur anpassen</button></div>
     <div class="set-group"><span class="eyebrow">Wetter</span>
       <p class="hint">${meta.city ? `Die Woche wird nach dem Wetter in <b>${esc(meta.city.name)}</b> geplant.` : "Trag deinen Ort ein, dann plant die App die Woche nach der echten Vorhersage."}</p>
-      <button class="btn btn-ghost btn-wide" data-act="wx-city">${meta.city ? "Ort ändern" : "Ort eintragen"}</button></div>
+      <button class="btn btn-ghost btn-wide" data-act="wx-city">${meta.city ? "Ort ändern" : "Ort eintragen"}</button>
+      <p class="hint wx-src">${wxCredit()}</p></div>
     <div class="set-group"><span class="eyebrow">Erinnerungen</span>
       <p class="hint">${(() => { const n = meta.remind ? Object.values(remState()).filter(s => s.on).length : 0; return n ? `${n} Erinnerung${n > 1 ? "en" : ""} ausgewählt. Sie laufen über deinen Kalender.` : "Lass dich morgens fragen, was du anziehst, oder sonntags die Woche planen. Das läuft über deinen Kalender, ganz ohne Konto."; })()}</p>
       <button class="btn btn-ghost btn-wide" data-act="remind">Erinnerungen einrichten</button></div>
@@ -3805,7 +3811,8 @@ function citySheet() {
     <p class="hint">Die Woche wird dann nach der Vorhersage für deinen Ort geplant: Jacke bei Kälte oder Regen, leichter bei Wärme. Dafür geht nur der Ortsname bzw. die ungefähre Lage der Stadt an den kostenlosen Wetterdienst Open-Meteo, nicht dein genauer Standort.</p>
     <div class="wl-row"><input type="text" id="cityInput" placeholder="z. B. Düsseldorf" autocomplete="address-level2" value="${esc(meta.city?.name || "")}" aria-label="Ort"><button class="btn btn-primary" data-act="wx-search">Suchen</button></div>
     <div id="cityResults" class="list" style="box-shadow:none"></div>
-    ${meta.city ? '<button class="btn btn-danger" data-act="wx-off">Echtes Wetter ausschalten</button>' : ""}`);
+    ${meta.city ? '<button class="btn btn-danger" data-act="wx-off">Echtes Wetter ausschalten</button>' : ""}
+    <p class="hint wx-src">${wxCredit()}</p>`);
   const ci = document.getElementById("cityInput");
   ci.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); citySearch(); } });
   ci.focus();
