@@ -1,6 +1,8 @@
-# Schrankblick – Test-App
+# Giyo – Test-App
 
 Installierbare Web-App (PWA) für den digitalen Kleiderschrank. Läuft komplett im Browser, Daten bleiben auf dem Gerät.
+
+Name: **Giyo** (früher „Schrankblick“). Die internen Speicher-Schlüssel heißen bewusst weiter `schrankblick:*`, und Sicherungen tragen `"app": "schrankblick"`. So bleiben die Daten der Tester:innen und alte Sicherungen gültig.
 
 ## Für Tester:innen
 1. Link öffnen (iPhone: in **Safari**, Android: in **Chrome**).

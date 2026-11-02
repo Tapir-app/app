@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Schrankblick</title>
+<title>Giyo</title>
 <meta name="description" content="Dein Kleiderschrank, immer dabei: Teile erfassen, Wäsche-Status, Outfits für die Woche und Verkaufen auf Vinted.">
 <meta name="theme-color" content="#f4f4f1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f0f0e" media="(prefers-color-scheme: dark)">
@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Schrankblick">
+<meta name="apple-mobile-web-app-title" content="Giyo">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>try { var m = JSON.parse(localStorage.getItem("schrankblick:meta") || "{}"); document.documentElement.dataset.palette = m.palette || "bordeaux"; } catch (e) { document.documentElement.dataset.palette = "bordeaux"; }</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -136,6 +136,7 @@ svg { flex: none; }
 .eyebrow { font-family: var(--font-label); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .brand { font-family: var(--font-display); font-weight: 420; font-size: 44px; letter-spacing: -0.02em; line-height: .95; margin: 0; }
 .brand em { font-style: italic; color: var(--accent); }
+.logo-mark { width: .7em; height: .92em; color: var(--accent); vertical-align: -.1em; margin-right: .16em; flex: none; }
 .fab { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--ink); color: var(--bg); display: grid; place-items: center; box-shadow: var(--shadow); transition: transform .15s ease; flex: none; }
 .fab:active { transform: scale(.94); }
 .fab svg { width: 22px; height: 22px; }
@@ -660,9 +661,10 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="giyo-mark" viewBox="8 3 32 42"><path d="M24 12.5C24 5.5 33 3 36 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M15 12.5H33L38.5 18V41A3 3 0 0 1 35.5 44H12.5A3 3 0 0 1 9.5 41V18Z" fill="currentColor"/><circle cx="24" cy="18" r="2.3" fill="var(--bg)"/><g fill="none" stroke="var(--bg)" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 24.5 24 33 32.5 24.5" stroke-width="3.4"/><path d="M24 33V40.5" stroke-width="4.2"/></g><circle cx="24" cy="35.3" r=".9" fill="currentColor"/><circle cx="24" cy="38.5" r=".9" fill="currentColor"/></symbol></svg>
 <div class="minibar" id="minibar" aria-hidden="true" inert>
   <div class="minibar-in">
-    <button class="brand-sm" data-act="to-top" aria-label="Nach oben">Schrank<em>blick</em></button>
+    <button class="brand-sm" data-act="to-top" aria-label="Nach oben">Gi<em>yo</em></button>
     <div class="top-r">
     <button class="fab fab-soft" data-act="feedback" aria-label="Feedback geben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M4.5 6.75A2.75 2.75 0 0 1 7.25 4h9.5a2.75 2.75 0 0 1 2.75 2.75v6.5A2.75 2.75 0 0 1 16.75 16H10.5l-4.25 3.5V16a2.75 2.75 0 0 1-1.75-2.75Z"/><path d="M8.75 8.75h6.5M8.75 11.75h4"/></svg></button>
     <button class="fab fab-soft" data-act="settings" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.5h8.5M17.5 7.5H20M4 16.5h2.5M11.5 16.5H20"/><circle class="d" cx="15" cy="7.5" r="2.5"/><circle class="d" cx="9" cy="16.5" r="2.5"/></svg></button>
@@ -674,7 +676,7 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
   <header class="top">
     <div class="top-l">
       <span class="eyebrow" id="kw">KW</span>
-      <h1 class="brand">Schrank<em>blick</em></h1>
+      <h1 class="brand"><svg class="logo-mark" aria-hidden="true"><use href="#giyo-mark"/></svg>Gi<em>yo</em></h1>
     </div>
     <div class="top-r">
     <button class="fab fab-soft" data-act="feedback" aria-label="Feedback geben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M4.5 6.75A2.75 2.75 0 0 1 7.25 4h9.5a2.75 2.75 0 0 1 2.75 2.75v6.5A2.75 2.75 0 0 1 16.75 16H10.5l-4.25 3.5V16a2.75 2.75 0 0 1-1.75-2.75Z"/><path d="M8.75 8.75h6.5M8.75 11.75h4"/></svg></button>
@@ -1696,7 +1698,7 @@ function renderBanner() {
       <div class="row"><button class="btn btn-primary" data-act="lend-remind" data-v="${it.id}">Freundlich erinnern</button><button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Ist zurück</button></div></div>`;
     } else if (r === "backup") b.innerHTML = `<div class="banner"><p><b>Zeit für eine Sicherung.</b> ${meta.lastBackupAt ? `Deine letzte ist ${daysSince(meta.lastBackupAt)} Tage alt.` : `Deine ${n} Teile liegen bisher nur auf diesem Handy.`} Wenn du den Browserverlauf löschst oder das Handy wechselst, wären sie weg. Speichere die Datei z. B. in iCloud, Google Drive oder schick sie dir selbst.</p>
       <div class="row"><button class="btn btn-primary" data-act="backup">Jetzt sichern</button><button class="btn btn-ghost" data-act="backup-later">Später</button></div></div>`;
-    else if (r === "feedback") b.innerHTML = `<div class="banner"><p><b>Wie findest du Schrankblick bisher?</b> Eine Minute Feedback hilft enorm, die App besser zu machen.</p>
+    else if (r === "feedback") b.innerHTML = `<div class="banner"><p><b>Wie findest du Giyo bisher?</b> Eine Minute Feedback hilft enorm, die App besser zu machen.</p>
       <div class="row"><button class="btn btn-primary" data-act="feedback">Feedback geben</button><button class="btn btn-ghost" data-act="feedback-later">Später</button></div></div>`;
     else b.innerHTML = "";
   } else b.innerHTML = "";
@@ -1704,7 +1706,7 @@ function renderBanner() {
 }
 const SOURCES = [["freunde", "Freund:in hat sie gezeigt"], ["dede", "Von Dede"], ["social", "Social Media"], ["anders", "Anders"]];
 function sourceCard() {
-  return `<div class="banner" style="margin-top:12px"><p><b>Kurze Frage:</b> Wie bist du auf Schrankblick gekommen?</p>
+  return `<div class="banner" style="margin-top:12px"><p><b>Kurze Frage:</b> Wie bist du auf Giyo gekommen?</p>
     <div class="chips-q">${SOURCES.map(([k, l]) => `<button class="chip" data-act="source" data-v="${k}">${l}</button>`).join("")}</div></div>`;
 }
 const daysSince = isoStr => Math.max(0, Math.floor((Date.now() - Date.parse(isoStr)) / 86400000));
@@ -3042,12 +3044,12 @@ function settingsSheet(msg) {
       <p class="hint">Was gefällt dir, was nervt, was fehlt? Jede Rückmeldung hilft.</p>
       <div class="set-row"><button class="btn btn-ghost" data-act="feedback">Feedback geben</button><button class="btn btn-ghost" data-act="invite">Freunde einladen</button></div></div>
     ${waitlistBlock()}
-    <p class="hint">Schrankblick · Test-Version ${APP_VERSION}</p>`, () => { state.armedWipe = false; });
+    <p class="hint">Giyo · Test-Version ${APP_VERSION}</p>`, () => { state.armedWipe = false; });
   bindWaitlist();
   document.getElementById("restoreInput").addEventListener("change", async ev => {
     const f = ev.target.files?.[0]; if (!f) return;
     try { const st = await SB.importAll(f); if (st) { for (const k of ["palette", "city", "view", "lastOcc", "trip", "avatar", "catOrder", "catFold"]) if (st[k] != null) meta[k] = st[k]; meta.wxCache = null; applyPalette(); } state.usingExamples = !SB.hasData(); meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; saveMeta(); count("restore"); closeSheet(); toast("Sicherung geladen."); }
-    catch { toast("Diese Datei ist keine Schrankblick-Sicherung."); }
+    catch { toast("Diese Datei ist keine Giyo-Sicherung."); }
   });
 }
 const AV_DEMO = [{ id: "av-demo-1", cat: "top", type: "T-Shirt", color: "Weiß", name: "T-Shirt" }, { id: "av-demo-2", cat: "bottom", type: "Jeans", color: "Denim", name: "Jeans" }, { id: "av-demo-3", cat: "shoes", type: "Sneaker", color: "Weiß", name: "Sneaker" }];
@@ -3083,7 +3085,7 @@ function catSheet(focus) {
     <div class="set-row"><button class="btn btn-primary" data-act="close-sheet">Fertig</button>${custom ? '<button class="btn btn-ghost" data-act="cat-reset">Reihenfolge zurücksetzen</button>' : ""}</div>`);
   if (focus) { const b = sheet.querySelector(`[data-act=cat-move][data-v="${focus[0]}"][data-d="${focus[1]}"]:not(:disabled)`) || sheet.querySelector(`[data-act=cat-move][data-v="${focus[0]}"]:not(:disabled)`); b?.focus({ preventScroll: true }); }
 }
-const APP_VERSION = "0.18";
+const APP_VERSION = "0.19";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -3107,7 +3109,7 @@ document.addEventListener("click", async e => {
     case "install": if (installEvt) { installEvt.prompt(); installEvt = null; closeSheet(); } break;
     case "backup": {
       try {
-        const b = await SB.exportAll({ palette: meta.palette || null, city: meta.city || null, view: meta.view || null, lastOcc: meta.lastOcc || null, trip: meta.trip || null, avatar: meta.avatar || null, catOrder: meta.catOrder || null, catFold: meta.catFold || null, appVersion: APP_VERSION }); await SB.downloads.save({ filename: `schrankblick-sicherung-${todayIso()}.json`, data: b });
+        const b = await SB.exportAll({ palette: meta.palette || null, city: meta.city || null, view: meta.view || null, lastOcc: meta.lastOcc || null, trip: meta.trip || null, avatar: meta.avatar || null, catOrder: meta.catOrder || null, catFold: meta.catFold || null, appVersion: APP_VERSION }); await SB.downloads.save({ filename: `giyo-sicherung-${todayIso()}.json`, data: b });
         meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; meta.backupSnooze = null; saveMeta();
         toast("Sicherung erstellt. Heb die Datei gut auf."); render();
         if (!scrim.hidden && sheet.querySelector("#restoreInput")) settingsSheet();
@@ -3169,8 +3171,8 @@ document.addEventListener("click", async e => {
 /* ---------- Freunde einladen ---------- */
 async function invite() {
   const url = location.origin + location.pathname + "?von=einladung";
-  const text = "Ich teste gerade Schrankblick, eine App für den digitalen Kleiderschrank: Wäsche im Blick, Outfits für die Woche, Vinted-Inserate in einer Minute. Läuft im Browser, deine Daten bleiben auf deinem Handy. Probier mal:";
-  if (navigator.share) { try { await navigator.share({ title: "Schrankblick", text, url }); toast("Danke fürs Weitersagen!"); return; } catch (e) { if (e?.name === "AbortError") return; } }
+  const text = "Ich teste gerade Giyo, eine App für den digitalen Kleiderschrank: Wäsche im Blick, Outfits für die Woche, Vinted-Inserate in einer Minute. Läuft im Browser, deine Daten bleiben auf deinem Handy. Probier mal:";
+  if (navigator.share) { try { await navigator.share({ title: "Giyo", text, url }); toast("Danke fürs Weitersagen!"); return; } catch (e) { if (e?.name === "AbortError") return; } }
   try { await navigator.clipboard.writeText(text + " " + url); toast("Einladung kopiert. Füg sie in WhatsApp oder eine Mail ein."); } catch { toast(url); }
 }
 
@@ -3189,7 +3191,7 @@ async function lendIcs(id) {
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   const clean = t => String(t).replace(/[\\;,]/g, m => "\\" + m).replace(/\n/g, " ");
   const title = clean(`${it.name} ${it.lentTo ? "von " + it.lentTo + " " : ""}zurückholen`);
-  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Schrankblick//DE", "BEGIN:VEVENT", `UID:${it.id}-${d1}@schrankblick`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d1}`, `DTEND;VALUE=DATE:${d2}`, `SUMMARY:${title}`,
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Giyo//DE", "BEGIN:VEVENT", `UID:${it.id}-${d1}@giyo`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d1}`, `DTEND;VALUE=DATE:${d2}`, `SUMMARY:${title}`,
     "BEGIN:VALARM", "TRIGGER:PT9H", "ACTION:DISPLAY", `DESCRIPTION:${title}`, "END:VALARM", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
   try { await SB.downloads.save({ filename: "rueckgabe.ics", data: new Blob([ics], { type: "text/calendar" }) }); toast("Termin erstellt. Öffne ihn, um ihn in den Kalender zu übernehmen."); }
   catch (e) { if (e?.code !== "declined") toast("Kalender-Termin hat nicht geklappt."); }
@@ -3272,7 +3274,7 @@ async function shareStats() {
   const x = c.getContext("2d");
   const PAL = PALETTES[curPalette()];
   x.fillStyle = PAL.bg; x.fillRect(0, 0, W, H);
-  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("SCHRANKBLICK", 72, 110);
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("GIYO", 72, 110);
   x.fillStyle = "#141413"; x.font = '420 96px "Fraunces", serif'; x.fillText("Mein Schrank", 72, 220);
   x.fillStyle = PAL.accent; x.font = 'italic 420 96px "Fraunces", serif'; x.fillText("in Zahlen", 72, 310);
   const box = (X, Y, big, small, green) => {
@@ -3363,12 +3365,12 @@ function drawFeedback() {
 }
 async function sendFeedback(viaShare) {
   if (!fb.mood && !fb.keep && !fb.text.trim()) { toast("Tipp kurz eine Bewertung an oder schreib ein paar Worte."); return; }
-  const lines = [`Schrankblick-Feedback (Test-Version ${APP_VERSION})`];
+  const lines = [`Giyo-Feedback (Test-Version ${APP_VERSION})`];
   if (fb.mood) lines.push(`Gefällt mir: ${MOODS.find(m => m[0] === fb.mood)[1]}`);
   if (fb.keep) lines.push(`Würde sie nutzen: ${KEEP.find(m => m[0] === fb.keep)[1]}`);
   if (fb.text.trim()) lines.push("", fb.text.trim());
   if (fb.stats) lines.push("", "Nutzung (nur Zählwerte):", usageSummary());
-  const ok = await sendText(lines.join("\n"), "Feedback zu Schrankblick", viaShare);
+  const ok = await sendText(lines.join("\n"), "Feedback zu Giyo", viaShare);
   if (!ok) return;
   meta.fbSent = new Date().toISOString(); saveMeta(); count("feedback-sent");
   fb = null; closeSheet(); render();
@@ -3393,7 +3395,7 @@ async function joinWaitlist() {
   if (CONTACT.waitlistForm) {
     const u = CONTACT.waitlistForm + (CONTACT.waitlistForm.includes("?") ? "&" : "?") + "email=" + encodeURIComponent(mail);
     window.open(u, "_blank", "noopener"); ok = true;
-  } else ok = await sendText(`Bitte setz mich auf die Warteliste für Schrankblick: ${mail}`, "Warteliste Schrankblick");
+  } else ok = await sendText(`Bitte setz mich auf die Warteliste für Giyo: ${mail}`, "Warteliste Giyo");
   if (!ok) return;
   meta.waitlist = new Date().toISOString(); saveMeta(); count("waitlist");
   toast("Danke! Du bekommst Bescheid, wenn es so weit ist.");
@@ -3537,8 +3539,8 @@ function showOnboarding() {
   ];
   const el = document.createElement("div");
   el.className = "onb"; el.id = "onb"; el.tabIndex = -1;
-  el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Einführung in Schrankblick");
-  el.innerHTML = `<div class="onb-top"><span class="brand-sm" aria-hidden="true">Schrank<em>blick</em></span><button class="linkbtn" data-onb="skip">Überspringen</button></div>
+  el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Einführung in Giyo");
+  el.innerHTML = `<div class="onb-top"><span class="brand-sm" aria-hidden="true"><svg class="logo-mark" aria-hidden="true"><use href="#giyo-mark"/></svg>Gi<em>yo</em></span><button class="linkbtn" data-onb="skip">Überspringen</button></div>
     <div class="onb-track" id="onbTrack">${slides.map((x, i) => `<section class="onb-slide" aria-label="${i + 1} von ${slides.length}"><div class="onb-art">${x.art}</div>
       <div class="onb-txt"><span class="eyebrow">${i + 1} von ${slides.length} · ${x.eb}</span><h2>${x.h}</h2><p>${x.p}</p></div></section>`).join("")}</div>
     <div class="onb-foot" id="onbFoot"></div>`;
