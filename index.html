@@ -537,6 +537,13 @@ img { max-width: 100%; }
 .set-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .set-row .btn { flex: 1 1 150px; }
 .key-input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font-family: var(--font-label); font-size: 16px; }
+.today-wx { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: -4px; }
+.today .wx { font-size: 12.5px; color: var(--inv-muted); }
+.today .wx b { color: var(--inv-fg); font-weight: 600; }
+.today .wx-nudge { text-align: left; margin-top: -4px; }
+.umb { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+.umb svg { width: 17px; height: 17px; flex: none; }
+.rain-line { margin: 0; }
 .rem-list { display: flex; flex-direction: column; gap: 10px; }
 .rem-row { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
 .rem-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -933,8 +940,11 @@ async function loadWeather(force) {
     (j.daily?.time || []).forEach((t, i) => { days[t] = { max: Math.round(j.daily.temperature_2m_max[i]), min: Math.round(j.daily.temperature_2m_min[i]), rain: j.daily.precipitation_probability_max?.[i] ?? 0 }; });
     meta.wxCache = { at: Date.now(), lat: c.lat, days }; saveMeta();
     if (state.tab === "woche" && !sell.draft) render();
+    else if (state.tab === "schrank" && scrim.hidden && !sell.draft) render();
   } catch {} finally { wxLoading = false; }
 }
+const ICON_UMB = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.5a8.5 8.5 0 0 1 17 0Z"/><path d="M12 12.5v6a2.2 2.2 0 0 1-4.4 0"/><path d="M12 3.2v.8"/></svg>';
+const RAIN_UMB = 50; // ab so viel Regenwahrscheinlichkeit (%) rät die App zum Schirm
 function wxText(w) { return `<b>${w.max}°</b>/${w.min}°${w.rain >= 30 ? ` · Regen ${w.rain} %` : ""}`; }
 
 /* ---------- öfter tragen, seltener waschen ---------- */
@@ -1774,8 +1784,12 @@ function viewSchrank() {
   const tk = todayKey();
   const todayItems = (state.plan.days[tk]?.items || []).map(byId).filter(Boolean);
   const dayName = DAYS.find(d => d[0] === tk)[1];
+  const tw = dayWx(tk);
+  const wxStrip = tw ? `<div class="today-wx"><span class="wx"><b>${tw.max}°</b>/${tw.min}°${tw.rain >= 30 ? ` · Regen ${tw.rain} %` : ""}</span>${tw.rain >= RAIN_UMB ? `<span class="umb">${ICON_UMB}Schirm mitnehmen</span>` : ""}</div>`
+    : meta.city ? "" : `<button class="link wx-nudge" data-act="wx-city">Wetter und Regen für deinen Ort anzeigen ›</button>`;
   const todayCard = `<section class="today" aria-label="Outfit für heute">
       <div class="today-top"><div><span class="eyebrow">Heute · ${dayName} · ${OCC[state.plan.days[tk]?.occ] || ""}</span><h2>${todayItems.length ? "Dein <em>Outfit</em>" : "Noch <em>nichts</em> geplant"}</h2></div><button class="link" data-act="tab" data-v="woche">Woche ›</button></div>
+      ${wxStrip}
       ${todayItems.length ? `${canFigure(todayItems) ? `<div class="look"><div class="look-fig">${figureSvg(todayItems)}</div><div class="look-list">${todayItems.map(it => `<button class="look-item${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div></div>`
         : `<div class="outfit">${todayItems.map(it => `<button class="mini${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div>`}
       <button class="btn btn-inv btn-wide" data-act="worn-today">Heute getragen</button>` : `<p class="note">Lass dir die Woche aus sauberen Teilen zusammenstellen.</p><button class="btn btn-inv btn-wide" data-act="tab" data-v="woche">Woche planen</button>`}
@@ -1864,6 +1878,7 @@ function viewWoche() {
         </div>
       </div>
       ${minis ? `<div class="outfit">${canFigure(items) ? `<div class="mini-fig">${figureSvg(items)}</div>` : ""}${minis}</div>` : '<p class="note">Noch kein Outfit. Tippe ↻ oder plane die ganze Woche.</p>'}
+      ${w && w.rain >= RAIN_UMB ? `<p class="rain-line umb">${ICON_UMB}Regenschirm mitnehmen</p>` : ""}
       ${d.note ? `<p class="note">${esc(d.note)}</p>` : ""}
       ${dirty.length ? `<p class="warn-line">${dirty.map(i => esc(i.name)).join(", ")}: ${dirty.length === 1 ? "ist" : "sind"} gerade nicht im Schrank.</p>` : ""}
       ${k === tk && minis ? '<button class="btn btn-ghost" data-act="worn-today">Heute getragen</button>' : ""}
@@ -1939,7 +1954,7 @@ const TRIP_OCC = { strand: ["freizeit", "abend", "sport"], stadt: ["freizeit", "
 const TRIP_WX = { strand: "warm", ski: "kalt" };
 const PACK_BAGS = new Set(["Koffer", "Reisetasche", "Sporttasche", "Rucksack"]);
 let trip = null;
-function packSuggest(kind, days, weather, withDirty = false) {
+function packSuggest(kind, days, weather, withDirty = false, rain = false) {
   const avail = state.items.filter(i => i.status === "schrank" || (withDirty && i.status === "waesche"));
   const fitsW = i => weather === "warm" ? warmthOf(i) < 2 : weather === "kalt" ? warmthOf(i) > 0 : true;
   const occOk = i => !i.occasions?.length || i.occasions.some(o => TRIP_OCC[kind].includes(o));
@@ -1951,7 +1966,9 @@ function packSuggest(kind, days, weather, withDirty = false) {
   add(take(clothes("top"), Math.min(8, Math.ceil(days * .8) + 1)));
   add(take(clothes("bottom"), Math.min(3, Math.ceil(days / 3))));
   if (kind === "strand" || kind === "stadt") add(take(clothes("dress"), Math.min(2, Math.ceil(days / 3))));
+  const rj = rain && kind !== "ski" ? take(has("Regenjacke"), 1) : [];
   if (kind === "ski") { add(take(has("Skijacke"), 1)); add(take(has("Skihose"), 1)); }
+  else if (rj.length) add(rj);
   else if (weather !== "warm") add(take(clothes("jacket"), 1));
   const shoes = avail.filter(i => i.cat === "shoes");
   const first = kind === "strand" || weather === "warm" ? shoes.filter(has("Sandalen")) : kind === "ski" ? shoes.filter(i => i.type === "Stiefel" || i.type === "Stiefeletten") : kind === "business" ? shoes.filter(i => i.type === "Halbschuhe" || i.type === "Pumps") : [];
@@ -1969,8 +1986,8 @@ function packSuggest(kind, days, weather, withDirty = false) {
 }
 function tripSheet() {
   const kind = "stadt";
-  trip = { kind, days: 4, weather: TRIP_WX[kind] || (meta.city && state.plan?.weather) || "mild", bag: null, more: false, dest: "" };
-  trip.sel = packSuggest(trip.kind, trip.days, trip.weather);
+  trip = { kind, days: 4, weather: TRIP_WX[kind] || (meta.city && state.plan?.weather) || "mild", bag: null, more: false, dest: "", rain: false };
+  trip.sel = packSuggest(trip.kind, trip.days, trip.weather, false, trip.rain);
   drawTrip();
 }
 function drawTrip() {
@@ -1981,13 +1998,15 @@ function drawTrip() {
   const rowP = it => `<button type="button" class="row-item pick-row" data-act="trip-tog" data-v="${it.id}" aria-pressed="${t.sel.has(it.id)}"><span class="thumb">${thumb(it)}</span><span class="txt"><b>${esc(it.name)}</b><span>${esc(it.type || CATS[it.cat])}</span></span><span class="check">${ICON_CHECK}</span></button>`;
   const groups = list => CAT_ORDER.map(c => { const l = list.filter(i => i.cat === c); return l.length ? `<div class="pack-group"><span class="eyebrow">${CATS[c]} · ${l.length}</span><div class="list">${l.map(rowP).join("")}</div></div>` : ""; }).join("");
   const dirty = state.items.filter(i => i.status === "waesche").length, n = t.sel.size;
-  const needWash = dirty ? [...packSuggest(t.kind, t.days, t.weather, true)].map(byId).filter(i => i && i.status === "waesche") : [];
+  const needWash = dirty ? [...packSuggest(t.kind, t.days, t.weather, true, t.rain)].map(byId).filter(i => i && i.status === "waesche") : [];
   openSheet(`<h2>Koffer packen</h2>
     <p class="sub">Die App schlägt vor, was aus deinem Schrank mitkommt. Tippe ein Teil an, um es dazuzunehmen oder wegzulassen.</p>
     <div class="field"><span class="lbl">Was für eine Reise?</span><div class="chips wrap">${Object.entries(TRIP_KINDS).map(([k, l]) => `<button type="button" class="chip" data-act="trip-kind" data-v="${k}" aria-pressed="${t.kind === k}">${l}</button>`).join("")}</div></div>
     <div class="field"><label class="lbl" for="tripDest">Wohin? (optional)</label><input type="text" id="tripDest" maxlength="40" autocomplete="off" placeholder="z. B. Lissabon" value="${esc(t.dest || "")}"></div>
     <div class="field"><span class="lbl">Wie viele Tage?</span><div style="display:flex;align-items:center;gap:12px"><div class="stepper"><button type="button" data-act="trip-days" data-d="-1" aria-label="Weniger">−</button><b>${t.days}</b><button type="button" data-act="trip-days" data-d="1" aria-label="Mehr">+</button></div><span class="hint">${t.days === 1 ? "Tag" : "Tage"}</span></div></div>
-    <div class="field"><span class="lbl">Wetter am Ziel</span><div class="seg" role="group" aria-label="Wetter am Ziel">${Object.entries(WEATHER).map(([k, l]) => `<button type="button" data-act="trip-wx" data-v="${k}" aria-pressed="${t.weather === k}">${l}</button>`).join("")}</div></div>
+    <div class="field"><span class="lbl">Wetter am Ziel</span><div class="seg" role="group" aria-label="Wetter am Ziel">${Object.entries(WEATHER).map(([k, l]) => `<button type="button" data-act="trip-wx" data-v="${k}" aria-pressed="${t.weather === k}">${l}</button>`).join("")}</div>
+      <div class="chips wrap"><button type="button" class="chip" data-act="trip-rain" aria-pressed="${!!t.rain}">Regen erwartet</button></div>
+      ${t.rain ? `<p class="hint umb-hint">Dann ist die Regenjacke dabei, falls du eine hast. Den Regenschirm packst du selbst ein, die App kennt ihn noch nicht.</p>` : ""}</div>
     ${bags.length ? `<div class="field"><span class="lbl">Packen in (optional)</span><div class="chips wrap">${bags.map(b => `<button type="button" class="chip" data-act="trip-bag" data-v="${b.id}" aria-pressed="${t.bag === b.id}">${esc(b.name)}</button>`).join("")}</div></div>` : ""}
     <h3 class="h3">Packliste <span class="n">${n} ${n === 1 ? "Teil" : "Teile"}</span></h3>
     ${chosen.length ? groups(chosen) : `<div class="empty">Noch nichts ausgewählt.</div>`}
@@ -2924,9 +2943,10 @@ document.addEventListener("click", async e => {
     }
     case "stored-back": bulkBack("eingelagert"); break;
     case "trip": tripSheet(); break;
-    case "trip-kind": if (trip) { trip.kind = v; if (TRIP_WX[v]) trip.weather = TRIP_WX[v]; trip.sel = packSuggest(trip.kind, trip.days, trip.weather); drawTrip(); } break;
-    case "trip-days": if (trip) { trip.days = Math.max(1, Math.min(21, trip.days + Number(el.dataset.d))); trip.sel = packSuggest(trip.kind, trip.days, trip.weather); drawTrip(); } break;
-    case "trip-wx": if (trip) { trip.weather = v; trip.sel = packSuggest(trip.kind, trip.days, trip.weather); drawTrip(); } break;
+    case "trip-kind": if (trip) { trip.kind = v; if (TRIP_WX[v]) trip.weather = TRIP_WX[v]; trip.sel = packSuggest(trip.kind, trip.days, trip.weather, false, trip.rain); drawTrip(); } break;
+    case "trip-days": if (trip) { trip.days = Math.max(1, Math.min(21, trip.days + Number(el.dataset.d))); trip.sel = packSuggest(trip.kind, trip.days, trip.weather, false, trip.rain); drawTrip(); } break;
+    case "trip-wx": if (trip) { trip.weather = v; trip.sel = packSuggest(trip.kind, trip.days, trip.weather, false, trip.rain); drawTrip(); } break;
+    case "trip-rain": if (trip) { trip.rain = !trip.rain; trip.sel = packSuggest(trip.kind, trip.days, trip.weather, false, trip.rain); drawTrip(); } break;
     case "trip-bag": if (trip) { trip.bag = trip.bag === v ? null : v; drawTrip(); } break;
     case "trip-tog": if (trip) { trip.sel.has(v) ? trip.sel.delete(v) : trip.sel.add(v); drawTrip(); } break;
     case "trip-go": {
@@ -3154,7 +3174,7 @@ function remindSheet() {
   sheet.querySelectorAll(".rem-time").forEach(i => ["input", "change"].forEach(ev => i.addEventListener(ev, () => { if (/^\d\d:\d\d$/.test(i.value)) remSet(i.dataset.k, { time: i.value }); })));
   sheet.querySelectorAll(".rem-days").forEach(i => i.addEventListener("change", () => remSet(i.dataset.k, { days: i.value })));
 }
-const APP_VERSION = "0.20";
+const APP_VERSION = "0.21";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
