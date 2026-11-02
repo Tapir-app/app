@@ -2145,7 +2145,7 @@ function drawTrip() {
     ${(() => { const gl = gearOf(t.kind), done = gl.filter(g => t.gear?.has(g)).length, hidden = (meta.gear?.[t.kind]?.del || []).length;
       return `<div class="gear"><h3 class="h3">Ausrüstung · ${TRIP_KINDS[t.kind]} <span class="n">${gl.length ? `${done} von ${gl.length} eingepackt` : "leer"}</span></h3>
       ${gl.length ? `<div class="list">${gl.map(g => `<div class="row-item gear-row"><button type="button" class="pick-row gear-tick" data-act="gear-tog" data-v="${esc(g)}" aria-pressed="${!!t.gear?.has(g)}"><span class="check">${ICON_CHECK}</span><span class="txt"><b>${esc(g)}</b></span></button><button type="button" class="gear-x" data-act="gear-del" data-v="${esc(g)}" aria-label="${esc(g)} von der Liste nehmen">${ICON_X}</button></div>`).join("")}</div>` : ""}
-      <div class="wl-row"><input type="text" id="gearInput" maxlength="30" autocomplete="off" placeholder="Eigenes, z. B. Fahrradhelm" aria-label="Eigene Ausrüstung hinzufügen"><button type="button" class="btn btn-ghost" data-act="gear-add">Hinzufügen</button></div>
+      <div class="wl-row"><input type="text" id="gearInput" maxlength="30" autocomplete="off" placeholder="z. B. Fahrradhelm" aria-label="Eigene Ausrüstung hinzufügen"><button type="button" class="btn btn-ghost" data-act="gear-add">Hinzufügen</button></div>
       <p class="hint">Abhaken, was schon eingepackt ist. Was du hinzufügst oder entfernst, merkt sich Giyo für die nächste Reise dieser Art.${hidden ? ` <button type="button" class="linkbtn" data-act="gear-reset">${hidden} entfernte zurückholen</button>` : ""}</p></div>`; })()}
     <div class="pack-extra"><span class="eyebrow">Nicht vergessen</span><p>${t.days + 1}× Unterwäsche · ${t.days + 1}× Socken · Schlafsachen${t.rain && ![...t.sel].some(id => byId(id)?.type === "Regenschirm") ? " · Regenschirm" : ""}</p><span class="hint">Steht nicht im Schrank, nur als Erinnerung.</span></div>
     ${rest.length ? `<details class="fb-more" id="tripMore"${t.more ? " open" : ""}><summary>Mehr aus dem Schrank (${rest.length})</summary><div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${groups(rest)}</div></details>` : ""}
@@ -3835,7 +3835,7 @@ function wardrobeValue(list) {
   const worth = i => i.price > 0 ? i.price : med.get(i.cat) ?? null;
   let known = 0, est = 0, nEst = 0, nNone = 0;
   for (const i of list) { if (i.price > 0) known += i.price; else if (med.has(i.cat)) { est += med.get(i.cat); nEst++; } else nNone++; }
-  const idleItems = list.filter(i => isForgotten(i) && worth(i) != null).sort((a, b) => worth(b) - worth(a));
+  const idleItems = list.filter(i => isForgotten(i) && worth(i) != null && i.type !== "Regenschirm" && !(i.cat === "bag" && PACK_BAGS.has(i.type) && i.type !== "Rucksack")).sort((a, b) => worth(b) - worth(a));
   const idle = idleItems.reduce((a, i) => a + worth(i), 0);
   return { total: known + est, known, est, nPriced: priced.length, nEst, nNone, idle, idleN: idleItems.length, idleTop: idleItems.slice(0, 3).map(i => ({ it: i, v: worth(i), guess: !(i.price > 0) })), idleGuess: idleItems.some(i => !(i.price > 0)) };
 }
@@ -3851,7 +3851,7 @@ function valueBlock(v) {
       <div class="kpi"><b>${ca}${v.nEst ? roundEuro(v.total) : euro(v.total)}</b><span>steckt in deinem Schrank</span></div>
       <div class="kpi${v.idle ? "" : " green"}"><b>${v.idle ? (v.idleGuess ? "ca. " : "") + roundEuro(v.idle) : "0 €"}</b><span>${v.idle ? `hängen seit über 30 Tagen ungetragen (${v.idleN} ${v.idleN === 1 ? "Teil" : "Teile"})` : "ungetragen, alles ist im Einsatz"}</span></div>
     </div>
-    ${v.idleTop.length ? `<p class="hint">Am meisten Wert ungetragen: ${v.idleTop.map(x => `${esc(x.it.name)} (${x.guess ? "ca. " : ""}${euro(x.v)})`).join(", ")}. Verkaufen, verleihen oder nächste Woche anziehen?</p>
+    ${v.idleTop.length ? `<p class="hint">Am meisten Wert ungetragen: ${v.idleTop.map(x => `${esc(x.it.name)} (${x.guess ? "ca. " + roundEuro(x.v) : euro(x.v)})`).join(", ")}. Verkaufen, verleihen oder nächste Woche anziehen?</p>
     <button class="btn btn-ghost btn-wide" data-act="value-sell">Ungetragenes verkaufen</button>` : ""}
     <p class="hint">${parts.join(", ")}. Gerechnet mit dem Kaufpreis, nicht mit dem Wiederverkaufswert.</p></div>`;
 }
