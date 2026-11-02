@@ -307,6 +307,10 @@ a.btn { text-decoration: none; }
 .look-item span { font-size: 13.5px; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .look-item.warn .thumb { box-shadow: inset 0 0 0 2px var(--st-waesche); }
 .mini-fig { flex: none; width: 60px; align-self: flex-start; }
+/* sb-0.22: Figur bleibt stehen, nur die Kleidung daneben wischt zur Seite */
+.outfit-row { display: flex; gap: 10px; align-items: flex-start; min-width: 0; }
+.outfit-row .outfit { flex: 1; min-width: 0; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent); }
+.outfit-row .outfit::after { content: ""; flex: none; width: 14px; }
 .fig-hair { stroke: var(--garment-stroke); stroke-width: .8; stroke-linejoin: round; }
 .fig-glasses { fill: rgba(255, 255, 255, .18); stroke: #2a2522; stroke-width: .7; stroke-linecap: round; }
 .fig-glasses.neutral { stroke: var(--fig-frame); }
@@ -1896,7 +1900,7 @@ function viewWoche() {
           <button class="icon-btn" data-act="reroll" data-v="${k}" aria-label="Anderes Outfit für ${name}">${ICON_REROLL}</button>
         </div>
       </div>
-      ${minis ? `<div class="outfit">${canFigure(items) ? `<div class="mini-fig">${figureSvg(items)}</div>` : ""}${minis}</div>` : '<p class="note">Noch kein Outfit. Tippe ↻ oder plane die ganze Woche.</p>'}
+      ${minis ? `<div class="outfit-row">${canFigure(items) ? `<div class="mini-fig">${figureSvg(items)}</div>` : ""}<div class="outfit">${minis}</div></div>` : '<p class="note">Noch kein Outfit. Tippe ↻ oder plane die ganze Woche.</p>'}
       ${w && w.rain >= RAIN_UMB ? `<p class="rain-line umb">${ICON_UMB}Regenschirm mitnehmen</p>` : ""}
       ${d.note ? `<p class="note">${esc(d.note)}</p>` : ""}
       ${dirty.length ? `<p class="warn-line">${dirty.map(i => esc(i.name)).join(", ")}: ${dirty.length === 1 ? "ist" : "sind"} gerade nicht im Schrank.</p>` : ""}
@@ -3261,7 +3265,7 @@ function remindSheet() {
   sheet.querySelectorAll(".rem-time").forEach(i => ["input", "change"].forEach(ev => i.addEventListener(ev, () => { if (/^\d\d:\d\d$/.test(i.value)) remSet(i.dataset.k, { time: i.value }); })));
   sheet.querySelectorAll(".rem-days").forEach(i => i.addEventListener("change", () => remSet(i.dataset.k, { days: i.value })));
 }
-const APP_VERSION = "0.21";
+const APP_VERSION = "0.22";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
