@@ -628,7 +628,6 @@ a.wx-credit { color: inherit; text-decoration: underline; text-underline-offset:
 .q-img { width: 72px; height: 90px; border-radius: 12px; overflow: hidden; background: var(--surface-2); }
 .q-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .q-f { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.q-sel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; }
 .q-f input, .q-f select, .wl-row input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 12px; padding: 10px 12px; width: 100%; min-width: 0; font-size: 16px; }
 .q-f select { padding: 9px 8px; font-size: 16px; }
 .q-f input:focus, .q-f select:focus, .wl-row input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
@@ -958,6 +957,7 @@ const TRACKED = {
   "lend-remind": "An Rückgabe erinnert", "lend-ics": "Rückgabe in Kalender", "wx-pick": "Ort fürs Wetter gewählt", "wash-every": "Waschrhythmus angepasst", "wash-all": "Doch alle gewaschen",
   "av-set": "Figur angepasst", "cat-fold": "Kategorie ein-/ausgeklappt", "cat-move": "Kategorien umsortiert", "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt",
   "review": "Wochenrückblick angesehen", "review-share": "Wochenrückblick als Bild geteilt", "share-outfit": "Outfit als Bild geteilt",
+  "type-open": "Aufschreiben geöffnet", "type-import": "Aufgeschriebene Teile übernommen", "quick-capture": "Mehrere Fotos auf einmal erfasst",
   "csv-open": "Listen-Import geöffnet", "csv-import": "Liste importiert", "csv-export": "Als Liste gespeichert", "mail-probe": "„Aus Bestellung übernehmen“ angesehen", "value-sell": "Vom Schrankwert zum Verkaufen", "gear-tog": "Ausrüstung abgehakt", "gear-add": "Eigene Ausrüstung hinzugefügt"
 };
 document.addEventListener("click", e => {
@@ -2364,7 +2364,8 @@ function drawAdd(focusName) {
         </div>
       </div>
       ${d.file ? "" : `<div class="banner"><p><b>Viele Teile auf einmal?</b> Mach erst alle Fotos und wähl sie dann hier zusammen aus. Die App schätzt die Farbe, du tippst nur noch Namen und Kategorie.</p><span class="btn btn-ghost file-btn">Mehrere Fotos auswählen<input type="file" id="multiInput" accept="image/*" multiple aria-label="Mehrere Fotos wählen"></span></div>
-      <div class="add-alt"><button type="button" class="cardlink" data-act="csv-open"><div><b>Liste importieren</b><span>Aus Excel, Numbers oder Google Tabellen</span></div>${ICON_CHEV}</button>
+      <div class="add-alt"><button type="button" class="cardlink" data-act="type-open"><div><b>Aufschreiben oder diktieren</b><span>Schneller als Fotos: einfach aufzählen, was du hast</span></div>${ICON_CHEV}</button>
+        <button type="button" class="cardlink" data-act="csv-open"><div><b>Liste importieren</b><span>Aus Excel, Numbers oder Google Tabellen</span></div>${ICON_CHEV}</button>
         <button type="button" class="cardlink" data-act="mail-probe"><div><b>Aus Bestellung übernehmen</b><span>Online gekauft? Bestellbestätigung weiterleiten</span></div>${ICON_CHEV}</button></div>`}
       <div class="field"><label for="nameInput">Name</label><input type="text" id="nameInput" maxlength="40" placeholder="${autoName ? `z. B. ${esc(autoName)}` : "z. B. Navy Strickpullover"}" value="${esc(d.name)}"></div>
       <div class="field"><span class="lbl">Kategorie</span><div class="chips wrap">${catChips}</div></div>
@@ -3543,6 +3544,114 @@ function csvItems(rows) {
   }
   return { out, skipped, guessed, colorless, cut: rows.length - 1 > 500 };
 }
+/* ---------- Schnell aufschreiben oder diktieren: ein Teil pro Zeile oder mit Komma getrennt ---------- */
+const NUM_WORDS = { ein: 1, eine: 1, einen: 1, zwei: 2, drei: 3, vier: 4, fuenf: 5, sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10 };
+const TEXT_TYPES = Object.entries(TYPES).flatMap(([c, l]) => l.map(t => [nrm(t), c, t])).sort((a, b) => b[0].length - a[0].length);
+const TEXT_CATS = Object.entries(CAT_WORDS).flatMap(([c, l]) => l.filter(w => w.length > 3).map(w => [w, c])).sort((a, b) => b[0].length - a[0].length);
+const TEXT_COLORS = [...COLORS.map(([c]) => [nrm(c), c]), ...Object.entries(COLOR_WORDS).filter(([k]) => !k.startsWith("jeans"))].sort((a, b) => b[0].length - a[0].length);
+// „Gr. M“, „Größe 38“, „Size L“; nicht „Graue“
+const SIZE_RE = /(?:^|\s)(?:gr\.|gr(?=\s)|größe(?=[\s:])|groesse(?=[\s:])|size(?=[\s:]))\s*:?\s*([^\s,;]{1,10})/i;
+const UNDER_WORDS = /^(socke|socken|sneakersocken|struempfe|unterwaesche|unterhose|unterhosen|unterhemd|unterhemden|boxershorts?|slips?|bhs?|panty|pantys)$/;
+const textForms = t => [...new Set([t, t.replace(/s$/, ""), t.replace(/n$/, ""), t.replace(/en$/, ""), t.replace(/er$/, ""), t.replace(/e$/, "")])].filter(x => x.length > 1);
+// Art erkennen: das Wort am Ende zählt (Jeansjacke ist eine Jacke), sonst Spitznamen, sonst nur die Kategorie
+function textKind(tokens) {
+  let best = null;
+  tokens.forEach((tok, i) => textForms(tok).forEach(f => {
+    const hit = TEXT_TYPES.find(([n]) => f === n || (f.endsWith(n) && f.length - n.length >= 3));
+    if (hit && (!best || hit[0].length > best.len)) best = { cat: hit[1], type: hit[2], len: hit[0].length, i };
+  }));
+  if (best) return best;
+  for (const [i, tok] of tokens.entries()) {
+    const al = TYPE_ALIAS.find(([w]) => tok.includes(w)); if (!al) continue;
+    const cat = Object.keys(TYPES).find(c => TYPES[c].includes(al[1])); if (cat) return { cat, type: al[1], len: al[0].length, i };
+  }
+  for (const [i, tok] of tokens.entries()) for (const f of textForms(tok)) {
+    const hit = TEXT_CATS.find(([w]) => f === w || f.endsWith(w)); if (hit) return { cat: hit[1], type: null, len: hit[0].length, i };
+  }
+  return null;
+}
+function textBrand(line) {
+  const names = [...new Set([...state.items.map(i => i.brand).filter(Boolean), ...BRAND_CANON.values()])].sort((a, b) => b.length - a.length);
+  for (const b of names) {
+    const pat = [...b].map(ch => /['’´`]/.test(ch) ? "['’´`]?" : /[\s.\-]/.test(ch) ? "[\\s.\\-]*" : ch.replace(/[\\^$*+?()[\]{}|/]/g, "\\$&")).join("");
+    let re; try { re = new RegExp(`(^|[^\\p{L}\\d])${pat}(?=$|[^\\p{L}\\d])`, "iu"); } catch { continue; }
+    const m = re.exec(line);
+    if (m) return { brand: b, rest: line.slice(0, m.index) + m[1] + " " + line.slice(m.index + m[0].length) };
+  }
+  return null;
+}
+function textItems(text) {
+  const parts = [];
+  for (const x of String(text || "").split(/\r?\n|;|,(?!\d)/).map(x => x.trim()).filter(Boolean)) {
+    // „Bluse, 49,90 €“ oder „Jeans, Gr. 38“: Preis und Größe gehören zum Teil davor
+    if (parts.length && (/^(?:€\s*)?\d{1,5}(?:[.,]\d{1,2})?\s*(?:€|euro?|eur)?\.?$/i.test(x) || SIZE_RE.test(x) && SIZE_RE.exec(x)[0].trim() === x)) parts[parts.length - 1] += " " + x;
+    else parts.push(x);
+  }
+  parts.splice(200);
+  const out = [], view = []; let guessed = 0, colorless = 0, under = 0;
+  for (let line of parts) {
+    line = line.replace(/^(?:[-–•*·]+|\d{1,2}[.)])\s*/, "");
+    let qty = 1, m;
+    if ((m = /^(\d{1,2})\s*(?:x|×|stück|stk\.?)?\s+(?=\S)/i.exec(line))) { qty = Number(m[1]); line = line.slice(m[0].length); }
+    else if ((m = /^(\S+)\s+(?=\S)/.exec(line)) && NUM_WORDS[nrm(m[1])]) { qty = NUM_WORDS[nrm(m[1])]; line = line.slice(m[0].length); }
+    qty = Math.max(1, Math.min(20, qty || 1));
+    let price = 0, size = "", brand = "";
+    line = line.replace(/€\s*(\d{1,5}(?:[.,]\d{1,2})?)|(\d{1,5}(?:[.,]\d{1,2})?)\s*(?:€|euro?\b|eur\b)/i, (_, a, b) => { price = parseFloat((a || b).replace(",", ".")); return " "; });
+    line = line.replace(SIZE_RE, (_, x) => { size = x; return " "; });
+    const br = textBrand(line); if (br) { brand = br.brand; line = br.rest; }
+    line = line.replace(/\s+/g, " ").replace(/^[\s,.;:–-]+|[\s,.;:–-]+$/g, "");
+    if (brand) line = line.replace(/^(?:von|vom|by|marke)\s+|\s+(?:von|vom|by|marke)$/gi, "");
+    const tokens = line.split(" ").map(nrm).filter(Boolean);
+    if (!tokens.length) continue;
+    // Socken und Unterwäsche zählt die App nie als einzelne Teile
+    if (tokens.some(t => UNDER_WORDS.test(t))) { under++; continue; }
+    const kind = textKind(tokens);
+    const cat = kind?.cat || "top", type = kind?.type || null;
+    if (!kind) guessed += qty;
+    let color = null;
+    for (const [k, c] of TEXT_COLORS) {
+      const hit = tokens.some((t, i) => i === kind?.i ? t.startsWith(k) && t.length - k.length >= kind.len : t.startsWith(k) || t.replace(/^(dunkel|hell|mittel|zart|knall|pastell|tief)/, "").startsWith(k));
+      if (hit) { color = c; break; }
+    }
+    if (!color && tokens.some(t => t.startsWith("jeans"))) color = "Denim";
+    if (!color) { color = "Grau"; colorless += qty; }
+    let name = qty > 1 && type ? `${type} ${color}` : line || `${type || CATS[cat]} ${color}`;
+    name = (name.charAt(0).toUpperCase() + name.slice(1)).slice(0, 40);
+    const d = { name, cat, color, status: "schrank", occasions: cat === "suit" ? ["buero"] : ["freizeit"] };
+    if (type) { d.type = type; if (TYPE_NECK[type] && NECK_CATS.has(cat)) d.neck = TYPE_NECK[type]; }
+    if (brand) d.brand = brand;
+    if (size && SIZE_CATS.has(cat)) d.size = size.slice(0, 20);
+    if (price > 0 && price < 100000) d.price = Math.round(price * 100) / 100;
+    for (let k = 0; k < qty; k++) out.push({ ...d, occasions: [...d.occasions] });
+    view.push({ d, n: qty });
+  }
+  return { out, view, skipped: [], guessed, colorless, under, src: "text" };
+}
+let typeDraft = null;
+function typeCountText() {
+  const n = typeDraft?.text.trim() ? textItems(typeDraft.text).out.length : 0;
+  return n ? `${n} ${n === 1 ? "Teil" : "Teile"} erkannt` : "Noch nichts eingetragen";
+}
+function typeSheet() {
+  if (!typeDraft) typeDraft = { text: "", occasions: Array.isArray(meta.lastOcc) && meta.lastOcc.length ? [...meta.lastOcc] : ["freizeit"] };
+  const d = typeDraft;
+  const occChips = OCC_KEYS.map(o => `<button type="button" class="chip" data-act="t-occ" data-v="${o}" aria-pressed="${d.occasions.includes(o)}">${OCC[o]}</button>`).join("");
+  openSheet(`<h2>Schnell <em>aufschreiben</em></h2>
+    <p class="sub">Schreib einfach auf, was in deinem Schrank ist. Ein Teil pro Zeile oder mit Komma dazwischen. Die App erkennt Art, Farbe, Marke, Größe und Preis.</p>
+    <div class="field"><label for="typeInput">Deine Teile</label><textarea class="ta" id="typeInput" rows="7" placeholder="Schwarze Jeans Levi's&#10;2 weiße T-Shirts&#10;Beiger Trenchcoat 129 €&#10;Navy Strickpullover Gr. M">${esc(d.text)}</textarea>
+      <p class="hint" id="typeCount" aria-live="polite">${typeCountText()}</p></div>
+    <p class="hint"><b>Lieber sprechen?</b> Tipp auf das Mikrofon deiner Tastatur und zähl auf, was du hast. Sag „Komma“ zwischen zwei Teilen.</p>
+    <div class="field"><span class="lbl">Passt zu (für alle)</span><div class="chips wrap">${occChips}</div></div>
+    <button class="btn btn-primary btn-wide" data-act="type-preview">Vorschau ansehen</button>`);
+  const ta = document.getElementById("typeInput");
+  ta.addEventListener("input", () => { if (!typeDraft) return; typeDraft.text = ta.value; document.getElementById("typeCount").textContent = typeCountText(); });
+}
+function typePreview() {
+  const res = textItems(typeDraft?.text);
+  if (!res.out.length) { toast(res.under ? "Socken und Unterwäsche zählt die App nicht einzeln." : "Schreib erst auf, welche Teile du hast."); document.getElementById("typeInput")?.focus(); return; }
+  if (typeDraft.occasions.length) res.out.forEach(d => { d.occasions = [...typeDraft.occasions]; });
+  csvSheet(res); sheet.scrollTop = 0;
+}
 let csvPending = null;
 function csvSheet(res) {
   const ex = state.usingExamples;
@@ -3569,18 +3678,20 @@ function csvSheet(res) {
       <div class="set-row"><button class="btn btn-ghost" data-act="csv-template">Vorlage laden</button><button class="btn btn-primary" data-act="csv-open">Andere Datei</button></div>`);
     return;
   }
+  const isText = res.src === "text", rows = res.view || res.out.map(d => ({ d, n: 1 })), shown = isText ? 40 : 8;
   const notes = [];
   if (res.guessed) notes.push(`${res.guessed} ohne erkennbare Kategorie, die stehen erst mal bei Oberteil`);
   if (res.colorless) notes.push(`${res.colorless} ohne erkennbare Farbe, die sind grau`);
   if (res.skipped.length) notes.push(`${res.skipped.length} ${res.skipped.length === 1 ? "Zeile" : "Zeilen"} ohne Namen übersprungen`);
   if (res.cut) notes.push("nur die ersten 500 Zeilen");
+  if (res.under) notes.push(`${res.under} ${res.under === 1 ? "Zeile" : "Zeilen"} mit Socken oder Unterwäsche weggelassen, die zählt die App nicht einzeln`);
   openSheet(`<h2>${n} ${n === 1 ? "Teil" : "Teile"} <em>gefunden</em></h2>
     ${ex ? '<p class="hint">Der Beispielschrank wird dabei durch deine Teile ersetzt.</p>' : ""}
-    <div class="list">${res.out.slice(0, 8).map(d => `<div class="row-item"><span class="thumb">${garmentSvg(d)}</span><span class="txt"><b>${esc(d.name)}</b><span>${esc([d.type || CATS[d.cat], d.color, d.brand, d.size, d.price ? euro(d.price) : ""].filter(Boolean).join(" · "))}</span></span></div>`).join("")}</div>
-    ${n > 8 ? `<p class="hint">und ${n - 8} weitere</p>` : ""}
+    <div class="list">${rows.slice(0, shown).map(({ d, n: k }) => `<div class="row-item"><span class="thumb">${garmentSvg(d)}</span><span class="txt"><b>${k > 1 ? k + "× " : ""}${esc(d.name)}</b><span>${esc([d.type || CATS[d.cat], d.color, d.brand, d.size, d.price ? euro(d.price) : ""].filter(Boolean).join(" · "))}</span></span></div>`).join("")}</div>
+    ${rows.length > shown ? `<p class="hint">und ${rows.length - shown} weitere</p>` : ""}
     ${notes.length ? `<p class="hint"><b>Hinweis:</b> ${notes.join(", ")}. Du kannst jedes Teil danach antippen und ändern.</p>` : ""}
     <button class="btn btn-primary btn-wide" data-act="csv-go">${n} ${n === 1 ? "Teil" : "Teile"} in den Schrank</button>
-    <button class="btn btn-ghost btn-wide" data-act="csv-open">Andere Datei</button>`);
+    ${isText ? '<button class="btn btn-ghost btn-wide" data-act="type-open">Text ändern</button>' : '<button class="btn btn-ghost btn-wide" data-act="csv-open">Andere Datei</button>'}`);
 }
 async function csvGo() {
   const res = csvPending; if (!res?.out.length) return;
@@ -3594,7 +3705,9 @@ async function csvGo() {
     noteChange(); askPersist();
     for (const it of made) { const { id, ...body } = it; try { await itemsCol.doc(id).set(body); } catch (e) { toast(dbErrorText(e)); return; } }
   }
-  meta.counts.added = (meta.counts.added || 0) + made.length; count("csv-import"); saveMeta();
+  meta.counts.added = (meta.counts.added || 0) + made.length;
+  if (res.src === "text") { count("type-import"); meta.lastOcc = [...made[0].occasions]; typeDraft = null; } else count("csv-import");
+  saveMeta();
   toast(`${made.length} ${made.length === 1 ? "Teil hängt" : "Teile hängen"} jetzt im Schrank.`);
 }
 const csvCell = v => { const s = String(v ?? ""); return /[;"\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
@@ -3742,6 +3855,9 @@ document.addEventListener("click", async e => {
     case "review-share": shareReview(); break;
     case "share-outfit": shareOutfit(el.dataset.v); break;
     case "csv-open": csvSheet(); sheet.scrollTop = 0; break;
+    case "type-open": typeSheet(); sheet.scrollTop = 0; break;
+    case "type-preview": typePreview(); break;
+    case "t-occ": { if (!typeDraft) break; const o = typeDraft.occasions, v = el.dataset.v; typeDraft.occasions = o.includes(v) ? o.filter(x => x !== v) : [...o, v]; el.setAttribute("aria-pressed", String(typeDraft.occasions.includes(v))); break; }
     case "csv-template": csvTemplate(); break;
     case "csv-export": csvExport(); break;
     case "csv-go": csvGo(); break;
@@ -4081,14 +4197,15 @@ async function quickSheet(files) {
 }
 function drawQuick() {
   const q = quick; if (!q) return;
-  const catOpts = cur => CAT_ORDER.map(c => `<option value="${c}"${c === cur ? " selected" : ""}>${CATS[c]}</option>`).join("");
+  const kindOpts = r => { const cur = r.type ? `${r.cat}|${r.type}` : r.catSet ? `${r.cat}|` : "";
+    return `<option value=""${cur ? "" : " selected"}>Was ist das? …</option>` + CAT_ORDER.map(c => `<optgroup label="${CATS[c]}">${(TYPES[c] || []).map(t => `<option value="${c}|${esc(t)}"${cur === c + "|" + t ? " selected" : ""}>${esc(t)}</option>`).join("")}<option value="${c}|"${cur === c + "|" ? " selected" : ""}>${CATS[c]}</option></optgroup>`).join(""); };
   const colOpts = cur => COLORS.map(([n]) => `<option value="${n}"${n === cur ? " selected" : ""}>${n}</option>`).join("");
   const rows = q.rows.map((r, i) => `<div class="q-row">
       <div class="q-img"><img src="${r.preview}" alt="Foto ${i + 1}"></div>
       <div class="q-f">
         <input type="text" maxlength="40" data-q="name" data-i="${i}" placeholder="Name (optional)" value="${esc(r.name)}" aria-label="Name für Foto ${i + 1}">
         <input type="text" maxlength="40" data-q="brand" data-i="${i}" list="brandList" autocomplete="off" placeholder="Marke (optional)" value="${esc(r.brand)}" aria-label="Marke für Foto ${i + 1}">
-        <div class="q-sel"><select data-q="cat" data-i="${i}" aria-label="Kategorie">${catOpts(r.cat)}</select><select data-q="type" data-i="${i}" aria-label="Art"><option value="">Art …</option>${(TYPES[r.cat] || []).map(t => `<option${t === r.type ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></div>
+        <select data-q="kind" data-i="${i}" aria-label="Was ist auf Foto ${i + 1}?">${kindOpts(r)}</select>
         <select data-q="color" data-i="${i}" aria-label="Farbe">${colOpts(r.color)}</select>
       </div>
       <button type="button" class="icon-btn" data-act="q-del" data-v="${i}" aria-label="Foto ${i + 1} entfernen"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
@@ -4096,14 +4213,16 @@ function drawQuick() {
   const occChips = OCC_KEYS.map(o => `<button type="button" class="chip" data-act="q-occ" data-v="${o}" aria-pressed="${q.occasions.includes(o)}">${OCC[o]}</button>`).join("");
   const n = q.rows.length;
   openSheet(`<h2>Schnell <em>erfassen</em></h2>
-    <p class="hint">${n} ${n === 1 ? "Foto" : "Fotos"}. Die Farbe ist geschätzt. Prüf kurz Kategorie und Art. Ohne Namen nennt die App das Teil nach Art und Farbe, z. B. „Hoodie Schwarz“.</p>
+    <p class="hint">${n} ${n === 1 ? "Foto" : "Fotos"}. Die Farbe ist geschätzt. Wähl bei jedem Foto kurz aus, was es ist. Ohne Namen nennt die App das Teil nach Art und Farbe, z. B. „Hoodie Schwarz“.</p>
     ${sampleImages ? `<button class="btn btn-accent btn-wide" data-act="q-ai" ${q.busy ? "disabled" : ""}>${q.busy ? `<span class="spin"></span> ${esc(q.busy)}` : ICON_SPARK + " Alle mit KI erkennen"}</button>` : ""}
     <div class="q-list">${rows}</div>${brandList()}
     <div class="field"><span class="lbl">Passt zu (für alle)</span><div class="chips wrap">${occChips}</div></div>
     <button class="btn btn-primary btn-wide" data-act="q-save" id="qSave" ${q.busy ? "disabled" : ""}>Alle ${n} in den Schrank legen</button>`,
     () => { if (quick && !quick.saving) quick.rows.forEach(r => URL.revokeObjectURL(r.preview)); quick = null; });
   sheet.querySelectorAll("[data-q]").forEach(el => {
-    const upd = () => { const r = quick?.rows[Number(el.dataset.i)]; if (!r) return; const was = r[el.dataset.q]; r[el.dataset.q] = el.value; if (el.dataset.q === "cat" && was !== el.value) { r.type = ""; drawQuick(); } };
+    const upd = () => { const r = quick?.rows[Number(el.dataset.i)]; if (!r) return;
+      if (el.dataset.q === "kind") { const [c, t] = el.value.split("|"); r.cat = CATS[c] ? c : "top"; r.type = CATS[c] && t ? t : ""; r.catSet = !!CATS[c]; }
+      else r[el.dataset.q] = el.value; };
     el.addEventListener("input", upd); el.addEventListener("change", upd);
   });
 }
@@ -4118,7 +4237,7 @@ async function quickAI() {
       if (typeof res?.name === "string" && res.name.trim() && !r.name.trim()) r.name = res.name.trim().slice(0, 40);
       if (typeof res?.brand === "string" && res.brand.trim() && !r.brand.trim()) r.brand = cleanBrand(res.brand);
       if ((TYPES[CATS[res?.cat] ? res.cat : r.cat] || []).includes(res?.type)) r.type = res.type;
-      if (CATS[res?.cat]) r.cat = res.cat;
+      if (CATS[res?.cat]) { r.cat = res.cat; r.catSet = true; }
       if (COLOR_HEX[res?.color]) r.color = res.color;
     } catch (e) {
       q.busy = false; drawQuick();
