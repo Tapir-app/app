@@ -184,6 +184,16 @@ a.btn { text-decoration: none; }
 .today .mini span { color: var(--inv-muted); }
 .today .note { color: var(--inv-muted); }
 .today .btn-inv { background: var(--inv-fg); color: var(--inv-bg); }
+.today-acts { display: flex; gap: 10px; }
+.today-acts .btn-inv { flex: 1 1 auto; }
+.today .btn-share { flex: none; width: 46px; padding: 0; background: rgba(127, 127, 120, .26); color: var(--inv-fg); }
+.icon-btn.share:active { transform: scale(.9); }
+.add-alt { display: flex; flex-direction: column; gap: 8px; }
+.add-alt .cardlink span, .sheet .cardlink span { display: block; line-height: 1.35; margin-top: 2px; }
+.sheet > .list { flex: none; }
+.gap-ask { align-items: center; }
+.rv-fav { border-radius: var(--r); box-shadow: var(--shadow); }
+.gap-ask .btn { flex: 0 0 auto !important; min-width: 76px; min-height: 38px; padding: 7px 16px; }
 
 /* ---------- stats ---------- */
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
@@ -281,6 +291,7 @@ a.btn { text-decoration: none; }
 .icon-btn { border: 0; background: var(--surface-2); border-radius: 50%; width: 34px; height: 34px; display: grid; place-items: center; padding: 0; transition: transform .3s ease; }
 .icon-btn:active { transform: rotate(-90deg); }
 .icon-btn svg { width: 16px; height: 16px; }
+@media (max-width: 359px) { .day-name { font-size: 20px; } .day-tools { gap: 4px; } .day-tools .occ { padding: 7px 9px; } .day-tools .icon-btn { width: 32px; height: 32px; } }
 .day.is-today { background: var(--inv-bg); color: var(--inv-fg); }
 .day.is-today .occ, .day.is-today .icon-btn { background: rgba(127, 127, 120, .2); color: var(--inv-fg); }
 .day.is-today .mini .thumb { background: rgba(127, 127, 120, .16); }
@@ -935,7 +946,9 @@ const TRACKED = {
   "copy-tag": "NFC-Link kopiert", "backup": "Sicherung gespeichert", "open-add": "Neues Teil geöffnet", "q-ai": "Schnellerfassung mit KI",
   "invite": "Freunde eingeladen", "stats": "Schrank in Zahlen angesehen", "stats-share": "Zahlen als Bild geteilt",
   "lend-remind": "An Rückgabe erinnert", "lend-ics": "Rückgabe in Kalender", "wx-pick": "Ort fürs Wetter gewählt", "wash-every": "Waschrhythmus angepasst", "wash-all": "Doch alle gewaschen",
-  "av-set": "Figur angepasst", "cat-fold": "Kategorie ein-/ausgeklappt", "cat-move": "Kategorien umsortiert", "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt"
+  "av-set": "Figur angepasst", "cat-fold": "Kategorie ein-/ausgeklappt", "cat-move": "Kategorien umsortiert", "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt",
+  "review": "Wochenrückblick angesehen", "review-share": "Wochenrückblick als Bild geteilt", "share-outfit": "Outfit als Bild geteilt",
+  "csv-open": "Listen-Import geöffnet", "csv-import": "Liste importiert", "csv-export": "Als Liste gespeichert", "mail-probe": "„Aus Bestellung übernehmen“ angesehen"
 };
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
@@ -967,6 +980,8 @@ async function loadWeather(force) {
   } catch {} finally { wxLoading = false; }
 }
 const ICON_UMB = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.5a8.5 8.5 0 0 1 17 0Z"/><path d="M12 12.5v6a2.2 2.2 0 0 1-4.4 0"/><path d="M12 3.2v.8"/></svg>';
+const ICON_SHARE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5v11"/><path d="m7.8 7.7 4.2-4.2 4.2 4.2"/><path d="M5.5 12v6.2a2.3 2.3 0 0 0 2.3 2.3h8.4a2.3 2.3 0 0 0 2.3-2.3V12"/></svg>';
+const REVIEW_CATS = ["top", "bottom", "dress", "suit", "jacket", "shoes"];
 const RAIN_UMB = 50; // ab so viel Regenwahrscheinlichkeit (%) rät die App zum Schirm
 function wxText(w) { return `<b>${w.max}°</b>/${w.min}°${w.rain >= 30 ? ` · Regen ${w.rain} %` : ""}`; }
 
@@ -983,7 +998,7 @@ function ecoSaved(items) {
   return { n, loads, liter: Math.round(loads * ECO.liter), kwh: loads * ECO.kwh, co2: Math.round(loads * ECO.kwh * ECO.co2) };
 }
 const de1 = n => n.toLocaleString("de-DE", { maximumFractionDigits: 1 });
-const euro = n => n.toLocaleString("de-DE", { style: "currency", currency: "EUR", minimumFractionDigits: n < 10 ? 2 : 0, maximumFractionDigits: 2 });
+const euro = n => n.toLocaleString("de-DE", { style: "currency", currency: "EUR", minimumFractionDigits: n < 10 || n % 1 ? 2 : 0, maximumFractionDigits: 2 });
 function wearPatch(it, mode) {
   const p = { wears: (it.wears || 0) + 1, lastWorn: todayIso() };
   const every = washEvery(it);
@@ -1696,6 +1711,7 @@ async function wornToday() {
     if (patch.status === "waesche") toLaundry++; else if (washEvery(it)) kept.push(id);
     await patchItem(id, patch);
   }
+  logWear(ids);
   const parts = [];
   if (toLaundry) parts.push(`${toLaundry} in die Wäsche`);
   if (kept.length) parts.push(`${kept.length} ${kept.length === 1 ? "kann" : "können"} nochmal getragen werden, lüften reicht`);
@@ -1744,7 +1760,7 @@ function renderBanner() {
       <div class="row"><button class="btn btn-primary" data-act="backup">Jetzt sichern</button><button class="btn btn-ghost" data-act="backup-later">Später</button></div></div>`;
     else if (r === "feedback") b.innerHTML = `<div class="banner"><p><b>Wie findest du Giyo bisher?</b> Eine Minute Feedback hilft enorm, die App besser zu machen.</p>
       <div class="row"><button class="btn btn-primary" data-act="feedback">Feedback geben</button><button class="btn btn-ghost" data-act="feedback-later">Später</button></div></div>`;
-    else b.innerHTML = "";
+    else b.innerHTML = gapBanner();
   } else b.innerHTML = "";
   if (state.tab === "schrank" && !meta.source && meta.opens >= 2) b.insertAdjacentHTML("beforeend", sourceCard());
 }
@@ -1815,7 +1831,7 @@ function viewSchrank() {
       ${wxStrip}
       ${todayItems.length ? `${canFigure(todayItems) ? `<div class="look"><div class="look-fig">${figureSvg(todayItems)}</div><div class="look-list">${todayItems.map(it => `<button class="look-item${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div></div>`
         : `<div class="outfit">${todayItems.map(it => `<button class="mini${it.status !== "schrank" ? " warn" : ""}" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`).join("")}</div>`}
-      <button class="btn btn-inv btn-wide" data-act="worn-today">Heute getragen</button>` : `<p class="note">Lass dir die Woche aus sauberen Teilen zusammenstellen.</p><button class="btn btn-inv btn-wide" data-act="tab" data-v="woche">Woche planen</button>`}
+      <div class="today-acts"><button class="btn btn-inv" data-act="worn-today">Heute getragen</button><button class="btn btn-share" data-act="share-outfit" data-v="${tk}" aria-label="Outfit als Bild teilen" title="Als Bild teilen">${ICON_SHARE}</button></div>` : `<p class="note">Lass dir die Woche aus sauberen Teilen zusammenstellen.</p><button class="btn btn-inv btn-wide" data-act="tab" data-v="woche">Woche planen</button>`}
     </section>`;
   const filtered = filtered0;
   const tree = meta.view === "tree" && !state.fromTree;
@@ -1829,6 +1845,7 @@ function viewSchrank() {
     : `<button class="cardlink" data-act="trip"><div><b>Reise planen</b><span>Koffer aus deinem Schrank packen, passend zu Wetter und Dauer</span></div>${ICON_CHEV}</button>`;
   return `<div class="stack" style="gap:22px">
     ${filtered ? "" : todayCard}
+    ${filtered ? "" : reviewCard()}
     <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Vergessen")}</div>
     ${quickbar}
     ${tripbar}
@@ -1898,6 +1915,7 @@ function viewWoche() {
         <div class="day-tools">
           <button class="occ" data-act="occ" data-v="${k}" aria-label="Anlass ändern, jetzt ${OCC[d.occ]}">${OCC[d.occ]}${ICON_CHEV}</button>
           <button class="icon-btn" data-act="reroll" data-v="${k}" aria-label="Anderes Outfit für ${name}">${ICON_REROLL}</button>
+          ${minis ? `<button class="icon-btn share" data-act="share-outfit" data-v="${k}" aria-label="Outfit für ${name} als Bild teilen">${ICON_SHARE}</button>` : ""}
         </div>
       </div>
       ${minis ? `<div class="outfit-row">${canFigure(items) ? `<div class="mini-fig">${figureSvg(items)}</div>` : ""}<div class="outfit">${minis}</div></div>` : '<p class="note">Noch kein Outfit. Tippe ↻ oder plane die ganze Woche.</p>'}
@@ -2307,7 +2325,9 @@ function drawAdd(focusName) {
           <p class="hint">Foto ist optional und bleibt auf deinem Handy. Ohne Foto zeigt die App eine Skizze in der Farbe.</p>
         </div>
       </div>
-      ${d.file ? "" : `<div class="banner"><p><b>Viele Teile auf einmal?</b> Mach erst alle Fotos und wähl sie dann hier zusammen aus. Die App schätzt die Farbe, du tippst nur noch Namen und Kategorie.</p><span class="btn btn-ghost file-btn">Mehrere Fotos auswählen<input type="file" id="multiInput" accept="image/*" multiple aria-label="Mehrere Fotos wählen"></span></div>`}
+      ${d.file ? "" : `<div class="banner"><p><b>Viele Teile auf einmal?</b> Mach erst alle Fotos und wähl sie dann hier zusammen aus. Die App schätzt die Farbe, du tippst nur noch Namen und Kategorie.</p><span class="btn btn-ghost file-btn">Mehrere Fotos auswählen<input type="file" id="multiInput" accept="image/*" multiple aria-label="Mehrere Fotos wählen"></span></div>
+      <div class="add-alt"><button type="button" class="cardlink" data-act="csv-open"><div><b>Liste importieren</b><span>Aus Excel, Numbers oder Google Tabellen</span></div>${ICON_CHEV}</button>
+        <button type="button" class="cardlink" data-act="mail-probe"><div><b>Aus Bestellung übernehmen</b><span>Online gekauft? Bestellbestätigung weiterleiten</span></div>${ICON_CHEV}</button></div>`}
       <div class="field"><label for="nameInput">Name</label><input type="text" id="nameInput" maxlength="40" placeholder="${autoName ? `z. B. ${esc(autoName)}` : "z. B. Navy Strickpullover"}" value="${esc(d.name)}"></div>
       <div class="field"><span class="lbl">Kategorie</span><div class="chips wrap">${catChips}</div></div>
       ${typeField(d, "d")}
@@ -2938,9 +2958,10 @@ async function bulkBack(from) {
   const ids = state.items.filter(i => i.status === from).map(i => i.id);
   if (!ids.length) return;
   for (const id of ids) await patchItem(id, { status: "schrank" });
+  if (from === "waesche") logWash(ids.length);
   toast(`${ids.length} ${ids.length === 1 ? "Teil ist" : "Teile sind"} wieder im Schrank.`, {
     label: "Rückgängig",
-    fn: async () => { for (const id of ids) await patchItem(id, { status: from }); toast("Rückgängig gemacht."); }
+    fn: async () => { for (const id of ids) await patchItem(id, { status: from }); if (from === "waesche") logWash(-ids.length); toast("Rückgängig gemacht."); }
   });
 }
 
@@ -2972,6 +2993,7 @@ document.addEventListener("click", async e => {
       const cur = byId(v);
       const patch = s === "verliehen" ? { status: s, lentUntil: cur?.lentUntil || localIso(new Date(Date.now() + 14 * 86400000)) } : { status: s, lentTo: null, lentUntil: null };
       if (s === "waesche" || (s === "schrank" && cur?.status === "waesche")) patch.sinceWash = 0;
+      if (s === "schrank" && cur?.status === "waesche") logWash(1);
       await patchItem(v, patch);
       if (!scrim.hidden && sheet.querySelector(".status-grid")) { itemSheet(v); if (s === "verliehen") document.getElementById("lendTo")?.focus(); }
       break;
@@ -2979,7 +3001,7 @@ document.addEventListener("click", async e => {
     case "worn": case "worn-wash": {
       const it = byId(v); if (!it) break;
       const patch = wearPatch(it, act === "worn-wash" ? "wash" : "auto");
-      await patchItem(v, patch); closeSheet(); itemSheet(v);
+      await patchItem(v, patch); logWear([v]); closeSheet(); itemSheet(v);
       if (patch.status === "waesche") toast(act === "worn-wash" ? "Getragen und ab in die Wäsche." : "Getragen. Jetzt ist es reif für die Wäsche.");
       else if (washEvery(it)) toast(`Getragen. Kann nochmal getragen werden (${patch.sinceWash} von ca. ${washEvery(it)}).`, { label: "Doch waschen", fn: () => washAgain([v]) });
       else toast("Als heute getragen markiert.");
@@ -3164,6 +3186,11 @@ function settingsSheet(msg) {
         <button class="btn btn-ghost" data-act="backup">Sicherung speichern</button>
         <label class="btn btn-ghost file-btn">Sicherung laden<input type="file" id="restoreInput" accept="application/json,.json" aria-label="Sicherung wählen"></label>
       </div>
+      <p class="hint"><b>Als Liste:</b> Deine Teile als Tabelle für Excel, Numbers oder Google Tabellen, oder eine Liste von dort übernehmen. Ohne Fotos.</p>
+      <div class="set-row">
+        <button class="btn btn-ghost" data-act="csv-open">Liste importieren</button>
+        <button class="btn btn-ghost" data-act="csv-export">Als Liste speichern</button>
+      </div>
       <div class="set-row">
         <button class="btn btn-soft" data-act="load-examples">Beispielschrank zeigen</button>
         <button class="btn btn-soft" data-act="onb-show">Einführung ansehen</button>
@@ -3265,7 +3292,335 @@ function remindSheet() {
   sheet.querySelectorAll(".rem-time").forEach(i => ["input", "change"].forEach(ev => i.addEventListener(ev, () => { if (/^\d\d:\d\d$/.test(i.value)) remSet(i.dataset.k, { time: i.value }); })));
   sheet.querySelectorAll(".rem-days").forEach(i => i.addEventListener("change", () => remSet(i.dataset.k, { days: i.value })));
 }
-const APP_VERSION = "0.22";
+/* ---------- Tragen und Waschen mitschreiben (nur auf dem Gerät), für den Wochenrückblick ---------- */
+function trimLog(L) { const cut = iso(new Date(Date.now() - 62 * 86400000)); for (const k of Object.keys(L)) if (k < cut) delete L[k]; }
+function logWear(ids) {
+  if (!ids.length) return;
+  const d = todayIso(), L = meta.wearLog || (meta.wearLog = {});
+  L[d] = [...new Set([...(L[d] || []), ...ids])]; trimLog(L); saveMeta();
+}
+function logWash(n) {
+  if (!n) return;
+  const d = todayIso(), L = meta.washLog || (meta.washLog = {});
+  L[d] = Math.max(0, (L[d] || 0) + n); trimLog(L); saveMeta();
+}
+
+/* ---------- Wochenrückblick: sonntags und montags auf der Startseite, sonst über „Schrank in Zahlen“ ---------- */
+function weekReview() {
+  const from = iso(new Date(Date.now() - 6 * 86400000)), to = todayIso();
+  const wl = meta.wearLog || {}, times = new Map();
+  let outfitDays = 0;
+  for (const [d, ids] of Object.entries(wl)) if (d >= from && d <= to) { outfitDays++; for (const id of ids) times.set(id, (times.get(id) || 0) + 1); }
+  for (const it of state.items) if (it.lastWorn && it.lastWorn >= from && !times.has(it.id)) times.set(it.id, 1);
+  const worn = [...times.keys()].map(byId).filter(Boolean);
+  const fav = [...worn].filter(i => i.cat !== "bag").sort((a, b) => (times.get(b.id) - times.get(a.id)) || ((b.wears || 0) - (a.wears || 0)))[0] || null;
+  const washed = Object.entries(meta.washLog || {}).reduce((a, [d, n]) => a + (d >= from && d <= to ? n : 0), 0);
+  const clothes = state.items.filter(i => REVIEW_CATS.includes(i.cat) && i.status !== "eingelagert");
+  const wornClothes = worn.filter(i => REVIEW_CATS.includes(i.cat)).length;
+  const forgotten = state.items.filter(i => isForgotten(i) && REVIEW_CATS.includes(i.cat)).sort((a, b) => (a.lastWorn || "").localeCompare(b.lastWorn || "")).slice(0, 3);
+  return { from, to, worn, fav, favN: fav ? times.get(fav.id) : 0, outfitDays, washed, forgotten, laundry: state.items.filter(i => i.status === "waesche").length, pct: clothes.length ? Math.round(wornClothes / clothes.length * 100) : 0 };
+}
+function reviewKey() { const d = new Date(), wd = d.getDay(); if (wd !== 0 && wd !== 1) return null; d.setDate(d.getDate() - wd); return localIso(d); }
+function reviewSheet() {
+  const r = weekReview(), k = reviewKey();
+  if (k) { meta.reviewSeen = k; saveMeta(); }
+  openSheet(`<h2>Deine <em>Woche</em></h2>
+    <p class="sub">${dShort(r.from)} bis ${dShort(r.to)}${state.usingExamples ? " · aus dem Beispielschrank" : ""}</p>
+    ${r.worn.length ? `<div class="kpis">
+      <div class="kpi"><b>${r.worn.length}</b><span>${r.worn.length === 1 ? "Teil" : "Teile"} getragen</span></div>
+      <div class="kpi"><b>${r.pct} %</b><span>deiner Kleidung war dran</span></div>
+      <div class="kpi green"><b>${r.washed}</b><span>${r.washed === 1 ? "Teil" : "Teile"} gewaschen und zurück im Schrank</span></div>
+      <div class="kpi"><b>${r.laundry}</b><span>${r.laundry === 1 ? "Teil liegt" : "Teile liegen"} im Wäschekorb</span></div>
+    </div>
+    ${r.fav ? `<div class="set-group"><span class="eyebrow">Liebling der Woche</span><div class="row-item rv-fav"><span class="thumb">${thumb(r.fav)}</span><span class="txt"><b>${esc(r.fav.name)}</b><span>${r.favN > 1 ? `${r.favN}× diese Woche` : "diese Woche getragen"} · ${r.fav.wears || 0}× insgesamt</span></span></div></div>` : ""}`
+    : `<div class="empty">Diese Woche ist noch nichts als getragen markiert. Tipp morgens auf „Heute getragen“, dann füllt sich dein Rückblick von selbst.</div>`}
+    ${r.forgotten.length ? `<div class="set-group"><span class="eyebrow">Lange nicht getragen</span><p class="hint">${r.forgotten.map(i => esc(i.name)).join(", ")}. Nächste Woche einplanen, verleihen oder verkaufen?</p></div>` : ""}
+    <button class="btn btn-primary btn-wide" data-act="review-plan">Nächste Woche planen</button>
+    ${r.worn.length ? '<button class="btn btn-ghost btn-wide" data-act="review-share">Als Bild teilen</button>' : ""}`);
+}
+function reviewCard() {
+  const k = reviewKey();
+  if (!k || meta.reviewSeen === k || state.items.length < 3) return "";
+  const r = weekReview();
+  return `<button class="cardlink" data-act="review"><div><b>Dein Wochenrückblick</b><span>${r.worn.length ? `${r.worn.length} ${r.worn.length === 1 ? "Teil" : "Teile"} getragen${r.fav ? " · Liebling: " + esc(r.fav.name) : ""}` : "Was du diese Woche getragen hast"}</span></div>${ICON_CHEV}</button>`;
+}
+
+/* ---------- Bilder zum Teilen: SVG (Figur, Skizzen) mit festen hellen Farben auf ein Canvas bringen ---------- */
+async function svgImage(html, w, h) {
+  const stage = document.createElement("div");
+  stage.style.cssText = `position:fixed;left:-10000px;top:0;width:${w}px;height:${h}px;pointer-events:none;--garment-stroke:rgba(0,0,0,.22);--fig-skin:#e2dfdc;--fig-frame:#2a2522;`;
+  stage.innerHTML = html; document.body.appendChild(stage);
+  try {
+    const svg = stage.querySelector("svg"); if (!svg) return null;
+    svg.setAttribute("width", w); svg.setAttribute("height", h); svg.style.width = w + "px"; svg.style.height = h + "px";
+    const P = ["fill", "stroke", "stroke-width", "stroke-linejoin", "stroke-linecap", "stroke-dasharray", "opacity", "fill-opacity", "stroke-opacity", "fill-rule"];
+    for (const el of svg.querySelectorAll("*")) { const cs = getComputedStyle(el); el.setAttribute("style", P.map(p => `${p}:${cs.getPropertyValue(p)}`).join(";")); }
+    svg.removeAttribute("class"); svg.setAttribute("style", "");
+    const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" }));
+    try { return await loadImg(url); } finally { setTimeout(() => URL.revokeObjectURL(url), 3000); }
+  } catch { return null; } finally { stage.remove(); }
+}
+async function drawThumb(x, it, X, Y, s) {
+  rr(x, X, Y, s, s, s * .22); x.fillStyle = "#ffffff"; x.fill();
+  const u = it.photo ? SB.blobs.url(it.photo) : "";
+  if (u) {
+    try {
+      const im = await loadImg(u), r = Math.max(s / im.width, s / im.height), w = im.width * r, h = im.height * r;
+      x.save(); rr(x, X, Y, s, s, s * .22); x.clip(); x.drawImage(im, X + (s - w) / 2, Y + (s - h) / 2, w, h); x.restore(); return;
+    } catch {}
+  }
+  const g = await svgImage(garmentSvg(it), s, s);
+  if (g) x.drawImage(g, X + s * .1, Y + s * .1, s * .8, s * .8);
+}
+async function shareFonts() { try { await Promise.all([document.fonts.load('420 58px "Fraunces"'), document.fonts.load('italic 420 58px "Fraunces"'), document.fonts.load('600 26px "Geist"'), document.fonts.load('500 26px "Geist"')]); } catch {} }
+async function savePng(c, filename) {
+  const blob = await new Promise(r => c.toBlob(b => r(b), "image/png"));
+  try { await SB.downloads.save({ filename, data: blob }); } catch (err) { if (err?.code !== "declined") toast("Bild teilen hat nicht geklappt."); }
+}
+async function shareOutfit(k) {
+  const items = (state.plan.days[k]?.items || []).map(byId).filter(Boolean);
+  if (!items.length) { toast("Für diesen Tag ist noch kein Outfit geplant."); return; }
+  await shareFonts();
+  const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d"), PAL = PALETTES[curPalette()], dn = DAYS.find(d => d[0] === k)[1];
+  x.fillStyle = PAL.bg; x.fillRect(0, 0, W, H);
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("GIYO", 72, 110);
+  x.fillStyle = "#141413"; x.font = '420 96px "Fraunces", serif'; x.fillText("Mein Outfit", 72, 220);
+  x.fillStyle = PAL.accent; x.font = 'italic 420 96px "Fraunces", serif'; x.fillText(k === todayKey() ? "für heute" : "für " + dn, 72, 310);
+  const fig = canFigure(items);
+  let LX = 72, LW = 936;
+  if (fig) {
+    rr(x, 72, 370, 400, 820, 40); x.fillStyle = "#ffffff"; x.fill();
+    const im = await svgImage(figureSvg(items), 330, 640);
+    if (im) x.drawImage(im, 107, 460, 330, 640);
+    LX = 512; LW = 496;
+  }
+  const list = items.slice(0, 6), more = items.length - list.length, s = 112;
+  const gap = Math.min(136, Math.floor((820 - (more ? 50 : 0)) / list.length));
+  let y = 370;
+  for (const it of list) {
+    await drawThumb(x, it, LX, y, s);
+    x.fillStyle = "#141413"; x.font = '600 34px "Geist", sans-serif'; x.fillText(fitText(x, it.name, LW - s - 28), LX + s + 28, y + 50);
+    x.fillStyle = "#6c6c66"; x.font = '500 26px "Geist", sans-serif'; x.fillText(fitText(x, [it.type || CATS[it.cat], it.brand].filter(Boolean).join(" · "), LW - s - 28), LX + s + 28, y + 90);
+    y += gap;
+  }
+  if (more) { x.fillStyle = "#6c6c66"; x.font = '500 28px "Geist", sans-serif'; x.fillText(`+ ${more} ${more === 1 ? "weiteres Teil" : "weitere Teile"}`, LX, y + 30); }
+  const w = dayWx(k);
+  x.fillStyle = "#4a4a45"; x.font = '500 30px "Geist", sans-serif';
+  if (w) x.fillText(fitText(x, `${w.max}° / ${w.min}°${w.rain >= 30 ? ` · Regen ${w.rain} %` : ""}${w.rain >= RAIN_UMB ? " · Schirm nicht vergessen" : ""}`, 936), 72, 1240);
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("Geplant mit Giyo · tapir-app.github.io/app", 72, 1290);
+  await savePng(c, `outfit-${k === todayKey() ? "heute" : dn.toLowerCase()}.png`);
+}
+async function shareReview() {
+  const r = weekReview();
+  await shareFonts();
+  const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d"), PAL = PALETTES[curPalette()];
+  x.fillStyle = PAL.bg; x.fillRect(0, 0, W, H);
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("GIYO · " + `${dShort(r.from)} bis ${dShort(r.to)}`.toUpperCase(), 72, 110);
+  x.fillStyle = "#141413"; x.font = '420 96px "Fraunces", serif'; x.fillText("Meine Woche", 72, 220);
+  x.fillStyle = PAL.accent; x.font = 'italic 420 96px "Fraunces", serif'; x.fillText("im Schrank", 72, 310);
+  const box = (X, Y, big, small, green) => {
+    rr(x, X, Y, 456, 250, 32); x.fillStyle = green ? PAL.soft : "#ffffff"; x.fill();
+    x.fillStyle = "#141413"; x.font = '420 104px "Fraunces", serif'; x.fillText(fitText(x, big, 400), X + 36, Y + 130);
+    x.fillStyle = "#4a4a45"; x.font = '500 30px "Geist", sans-serif'; x.fillText(fitText(x, small, 400), X + 36, Y + 200);
+  };
+  box(72, 380, String(r.worn.length), "Teile getragen");
+  box(552, 380, r.pct + " %", "meiner Kleidung war dran");
+  box(72, 660, String(r.washed), "gewaschen", true);
+  box(552, 660, String(r.outfitDays), r.outfitDays === 1 ? "Outfit-Tag" : "Outfit-Tage", true);
+  if (r.fav) {
+    await drawThumb(x, r.fav, 72, 960, 150);
+    x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("LIEBLING DER WOCHE", 250, 1010);
+    x.fillStyle = "#141413"; x.font = '600 40px "Geist", sans-serif'; x.fillText(fitText(x, r.fav.name, 750), 250, 1065);
+  }
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("#NichtsAnzuziehen · tapir-app.github.io/app", 72, 1280);
+  await savePng(c, "meine-woche.png");
+}
+
+/* ---------- Liste importieren und exportieren (CSV aus Excel, Numbers oder Google Tabellen) ---------- */
+const nrm = s => String(s ?? "").toLowerCase().trim().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss").replace(/[^a-z0-9]/g, "");
+const CSV_HEAD = ["Name", "Kategorie", "Art", "Farbe", "Marke", "Größe", "Preis", "Anlass"];
+const CSV_COLS = { name: ["name", "bezeichnung", "teil", "artikel", "titel", "kleidungsstueck", "item"], cat: ["kategorie", "category", "gruppe"], type: ["art", "typ", "type", "sorte"], color: ["farbe", "color", "colour"], brand: ["marke", "brand", "hersteller", "label"], size: ["groesse", "size", "gr"], price: ["preis", "price", "kaufpreis", "neupreis", "eur", "euro"], occ: ["anlass", "anlaesse", "occasion", "occasions"] };
+const CAT_WORDS = { top: ["oberteil", "oberteile", "top", "tops", "shirt", "shirts", "tshirt", "hemd", "bluse", "pullover", "pulli"], bottom: ["hose", "hosen", "rock", "roecke", "unterteil", "jeans", "shorts", "hoserock", "hosenundroecke", "bottom"], dress: ["kleid", "kleider", "dress", "jumpsuit"], suit: ["anzug", "anzuege", "kostuem", "anzugkostuem", "suit"], jacket: ["jacke", "jacken", "mantel", "maentel", "jacket", "blazer"], shoes: ["schuhe", "schuh", "shoes", "sneaker"], swim: ["bademode", "badesachen", "swim", "bikini"], acc: ["accessoire", "accessoires", "zubehoer", "acc", "accessory"], bag: ["tasche", "taschen", "gepaeck", "taschegepaeck", "bag", "koffer", "rucksack"], jewelry: ["schmuck", "jewelry", "jewellery"] };
+const COLOR_WORDS = { dunkelblau: "Navy", marine: "Navy", marineblau: "Navy", khaki: "Oliv", creme: "Beige", cremeweiss: "Beige", ecru: "Beige", sand: "Beige", pink: "Rosa", weinrot: "Bordeaux", dunkelrot: "Bordeaux", jeans: "Denim", jeansblau: "Denim", anthrazit: "Grau", hellgrau: "Grau", dunkelgrau: "Grau", black: "Schwarz", white: "Weiß", grey: "Grau", gray: "Grau", blue: "Blau", green: "Grün", red: "Rot", brown: "Braun", yellow: "Gelb" };
+const TYPE_ALIAS = [["kapuzenpulli", "Hoodie"], ["kapuzenpullover", "Hoodie"], ["strickpulli", "Pullover"], ["pulli", "Pullover"], ["sweater", "Pullover"], ["tshirt", "T-Shirt"], ["trenchcoat", "Mantel"], ["trench", "Mantel"], ["coat", "Mantel"], ["sneakers", "Sneaker"], ["turnschuh", "Sneaker"], ["laufschuh", "Sportschuhe"], ["jeanshose", "Jeans"]];
+const OCC_WORDS = { buero: ["buero", "arbeit", "job", "office", "business", "beruf"], freizeit: ["freizeit", "alltag", "casual"], schule: ["schule", "uni", "studium"], sport: ["sport", "training", "gym", "fitness"], abend: ["abend", "party", "ausgehen", "festlich", "feier"] };
+function parseCsv(text) {
+  text = String(text).replace(/^﻿/, "");
+  const first = text.split(/\r?\n/, 1)[0] || "";
+  const delim = [";", "\t", ","].map(d => [d, first.split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+    else if (ch === '"' && !cell) q = true;
+    else if (ch === delim) { row.push(cell); cell = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += ch;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim()));
+}
+function csvItems(rows) {
+  const head = (rows[0] || []).map(nrm), col = {};
+  for (const [k, words] of Object.entries(CSV_COLS)) { const i = head.findIndex(h => words.includes(h)); if (i >= 0) col[k] = i; }
+  const out = [], skipped = []; let guessed = 0, colorless = 0;
+  if (col.name == null && col.type == null) return { out, skipped: rows.slice(1), guessed, colorless, noHead: true };
+  const allTypes = Object.entries(TYPES).flatMap(([c, l]) => l.map(t => [c, t, nrm(t)])).sort((a, b) => b[2].length - a[2].length);
+  for (const r of rows.slice(1, 501)) {
+    const get = k => col[k] != null ? String(r[col[k]] ?? "").trim() : "";
+    const rawName = get("name"), rawType = get("type"), rawCat = nrm(get("cat"));
+    if (!rawName && !rawType) { skipped.push(r); continue; }
+    let cat = Object.keys(CATS).find(c => nrm(CATS[c]) === rawCat || (CAT_WORDS[c] || []).includes(rawCat)) || null;
+    let type = null;
+    const tN = nrm(rawType);
+    if (tN) { const hit = allTypes.find(([c, , n]) => n === tN && (!cat || c === cat)) || allTypes.find(([, , n]) => n === tN); if (hit) { type = hit[1]; cat = cat || hit[0]; } }
+    if (!type) { const nN = nrm(rawName); const hit = allTypes.find(([c, , n]) => nN.includes(n) && (!cat || c === cat)); if (hit) { type = hit[1]; cat = cat || hit[0]; } }
+    if (!type) {
+      const nN = nrm(rawName) + " " + tN, al = TYPE_ALIAS.find(([w, t]) => nN.includes(w) && Object.entries(TYPES).some(([c, l]) => l.includes(t) && (!cat || c === cat)));
+      if (al) { type = al[1]; cat = cat || Object.keys(TYPES).find(c => TYPES[c].includes(al[1])); }
+    }
+    if (!cat) { cat = "top"; guessed++; }
+    if (type && !(TYPES[cat] || []).includes(type)) type = null;
+    const cN = nrm(get("color"));
+    let color = COLORS.find(([c]) => nrm(c) === cN)?.[0] || COLOR_WORDS[cN] || null;
+    if (!color) { const nN = nrm(rawName); color = COLORS.map(([c]) => c).sort((a, b) => b.length - a.length).find(c => nN.includes(nrm(c))) || null; }
+    if (!color) { color = "Grau"; colorless++; }
+    const name = (rawName || `${type || CATS[cat]} ${color}`).slice(0, 40);
+    const d = { name, cat, color, status: "schrank" };
+    if (type) { d.type = type; if (TYPE_NECK[type] && NECK_CATS.has(cat)) d.neck = TYPE_NECK[type]; }
+    const br = cleanBrand(get("brand")); if (br) d.brand = br;
+    const sz = get("size"); if (sz && SIZE_CATS.has(cat)) d.size = sz.slice(0, 20);
+    const pr = parseFloat(get("price").replace(/[^\d,.-]/g, "").replace(/\.(?=\d{3}(\D|$))/g, "").replace(",", "."));
+    if (pr > 0 && pr < 100000) d.price = Math.round(pr * 100) / 100;
+    const occ = [...new Set(get("occ").split(/[,/|+;]/).map(nrm).map(w => Object.keys(OCC_WORDS).find(o => OCC_WORDS[o].includes(w))).filter(Boolean))];
+    d.occasions = occ.length ? occ : cat === "suit" ? ["buero"] : ["freizeit"];
+    out.push(d);
+  }
+  return { out, skipped, guessed, colorless, cut: rows.length - 1 > 500 };
+}
+let csvPending = null;
+function csvSheet(res) {
+  const ex = state.usingExamples;
+  if (!res) {
+    openSheet(`<h2>Liste <em>importieren</em></h2>
+      <p class="sub">Hast du deine Kleidung schon in Excel, Numbers oder Google Tabellen? Dann musst du nichts abtippen.</p>
+      <ol class="steps-howto"><li>Lade die Vorlage oder nimm deine eigene Tabelle. Wichtig ist eine Spalte <b>Name</b>, gut sind auch Kategorie, Art, Farbe, Marke, Größe, Preis und Anlass.</li>
+        <li>Speichere sie als <b>CSV</b>. Excel: Datei, Speichern unter, „CSV UTF-8“. Google Tabellen: Datei, Herunterladen, CSV.</li>
+        <li>Wähle die Datei hier aus. Du siehst vorher, was übernommen wird.</li></ol>
+      <div class="set-row"><button class="btn btn-ghost" data-act="csv-template">Vorlage laden</button><label class="btn btn-primary file-btn">Liste wählen<input type="file" id="csvInput" accept=".csv,.tsv,.txt,text/csv,text/plain" aria-label="Liste wählen"></label></div>
+      <p class="hint">Fotos kommen später dazu: Tipp im Schrank ein Teil an und füg ein Foto hinzu. Die Datei bleibt auf deinem Handy.</p>`);
+    document.getElementById("csvInput").addEventListener("change", async ev => {
+      const f = ev.target.files?.[0]; if (!f) return;
+      if (/\.xlsx?$/i.test(f.name) || /spreadsheetml|ms-excel/.test(f.type)) { toast("Das ist eine Excel-Datei. Speichere sie bitte als CSV und wähl sie dann aus."); return; }
+      try { csvSheet(csvItems(parseCsv(await f.text()))); } catch { toast("Diese Datei konnte ich nicht lesen."); }
+    });
+    return;
+  }
+  csvPending = res;
+  const n = res.out.length;
+  if (!n) {
+    openSheet(`<h2>Liste <em>importieren</em></h2>
+      <div class="empty">${res.noHead ? "In der ersten Zeile fehlt eine Spalte „Name“. Nimm am besten die Vorlage." : "In der Datei habe ich keine Teile gefunden."}</div>
+      <div class="set-row"><button class="btn btn-ghost" data-act="csv-template">Vorlage laden</button><button class="btn btn-primary" data-act="csv-open">Andere Datei</button></div>`);
+    return;
+  }
+  const notes = [];
+  if (res.guessed) notes.push(`${res.guessed} ohne erkennbare Kategorie, die stehen erst mal bei Oberteil`);
+  if (res.colorless) notes.push(`${res.colorless} ohne erkennbare Farbe, die sind grau`);
+  if (res.skipped.length) notes.push(`${res.skipped.length} ${res.skipped.length === 1 ? "Zeile" : "Zeilen"} ohne Namen übersprungen`);
+  if (res.cut) notes.push("nur die ersten 500 Zeilen");
+  openSheet(`<h2>${n} ${n === 1 ? "Teil" : "Teile"} <em>gefunden</em></h2>
+    ${ex ? '<p class="hint">Der Beispielschrank wird dabei durch deine Teile ersetzt.</p>' : ""}
+    <div class="list">${res.out.slice(0, 8).map(d => `<div class="row-item"><span class="thumb">${garmentSvg(d)}</span><span class="txt"><b>${esc(d.name)}</b><span>${esc([d.type || CATS[d.cat], d.color, d.brand, d.size, d.price ? euro(d.price) : ""].filter(Boolean).join(" · "))}</span></span></div>`).join("")}</div>
+    ${n > 8 ? `<p class="hint">und ${n - 8} weitere</p>` : ""}
+    ${notes.length ? `<p class="hint"><b>Hinweis:</b> ${notes.join(", ")}. Du kannst jedes Teil danach antippen und ändern.</p>` : ""}
+    <button class="btn btn-primary btn-wide" data-act="csv-go">${n} ${n === 1 ? "Teil" : "Teile"} in den Schrank</button>
+    <button class="btn btn-ghost btn-wide" data-act="csv-open">Andere Datei</button>`);
+}
+async function csvGo() {
+  const res = csvPending; if (!res?.out.length) return;
+  csvPending = null;
+  const made = res.out.map(d => ({ ...d, id: newId(), createdAt: todayIso(), wears: 0, lastWorn: null }));
+  if (state.usingExamples) { state.items = []; state.usingExamples = false; state.plan = emptyPlan(); }
+  state.items.push(...made);
+  closeSheet(); state.fCat = "all"; state.fType = "all"; state.fColor = null; state.fBasic = false; state.fStatus = "all"; state.tab = "schrank";
+  render(); window.scrollTo({ top: 0 });
+  if (state.mode === "db") {
+    noteChange(); askPersist();
+    for (const it of made) { const { id, ...body } = it; try { await itemsCol.doc(id).set(body); } catch (e) { toast(dbErrorText(e)); return; } }
+  }
+  meta.counts.added = (meta.counts.added || 0) + made.length; count("csv-import"); saveMeta();
+  toast(`${made.length} ${made.length === 1 ? "Teil hängt" : "Teile hängen"} jetzt im Schrank.`);
+}
+const csvCell = v => { const s = String(v ?? ""); return /[;"\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+async function csvDownload(rows, filename) {
+  const text = "﻿" + rows.map(r => r.map(csvCell).join(";")).join("\r\n") + "\r\n";
+  try { await SB.downloads.save({ filename, data: new Blob([text], { type: "text/csv" }) }); }
+  catch (err) { if (err?.code !== "declined") toast("Speichern hat nicht geklappt."); }
+}
+function csvTemplate() {
+  return csvDownload([CSV_HEAD, ["Weißes Hemd", "Oberteil", "Hemd", "Weiß", "COS", "M", "49,90", "Büro"], ["Blaue Jeans", "Hose", "Jeans", "Denim", "Levi's", "W32/L32", "99", "Alltag, Freizeit"], ["Schwarze Lederjacke", "Jacke", "Lederjacke", "Schwarz", "", "M", "", "Abend"]], "giyo-vorlage.csv");
+}
+function csvExport() {
+  const own = state.usingExamples ? [] : state.items;
+  if (!own.length) { toast("Noch keine eigenen Teile zum Speichern."); return; }
+  const rows = [[...CSV_HEAD, "Zustand", "Getragen", "Zuletzt getragen"]];
+  for (const i of sortItems(own)) rows.push([i.name, CATS[i.cat] || i.cat, i.type || "", i.color || "", i.brand || "", i.size || "", i.price ? String(i.price).replace(".", ",") : "", (i.occasions || []).map(o => OCC[o]).filter(Boolean).join(", "), STATUS[i.status]?.label || i.status || "", i.wears || 0, i.lastWorn || ""]);
+  return csvDownload(rows, `giyo-schrank-${todayIso()}.csv`);
+}
+
+/* ---------- Geld-Tests (nur Fragen, nichts kostet etwas): Plus-Probe, Mail-Import-Probe, Lücken-Tipp ---------- */
+const PROBE_A = [["ja", "Ja"], ["vielleicht", "Vielleicht"], ["nein", "Nein"]];
+function probeSet(k, v) { meta.probe = { ...(meta.probe || {}), [k]: v, [k + "At"]: todayIso() }; saveMeta(); }
+function plusProbe() {
+  const a = meta.probe?.plus;
+  return `<div class="set-group probe"><span class="eyebrow">Kurze Frage: Giyo Plus</span>
+    <p class="hint">Angenommen, es gäbe <b>Giyo Plus</b> für 2,99 € im Monat: Fotos werden automatisch freigestellt und erkannt, deine Daten liegen sicher in einer Cloud in Deutschland, und die KI plant Outfits und schreibt Inserate. Das gibt es noch nicht, wir fragen nur. Würdest du dafür zahlen?</p>
+    <div class="chips wrap">${PROBE_A.map(([v, l]) => `<button type="button" class="chip" data-act="probe" data-k="plus" data-v="${v}" aria-pressed="${a === v}">${l}</button>`).join("")}</div>
+    ${a ? '<p class="hint">Danke! Deine Antwort geht mit, wenn du Feedback schickst.</p>' : ""}</div>`;
+}
+function mailProbeSheet() {
+  const a = meta.probe?.mail;
+  openSheet(`<h2>Aus <em>Bestellung</em> übernehmen</h2>
+    <p class="sub">Die Idee: Du leitest die Bestellbestätigung von Zalando, H&amp;M, About You und Co. an deine eigene Giyo-Adresse weiter. Das Teil landet mit Foto, Marke, Größe und Preis in deinem Schrank, ohne Abtippen.</p>
+    <div class="banner"><p><b>Das gibt es noch nicht.</b> Wir wollen erst wissen, ob du es nutzen würdest.</p></div>
+    <div class="field"><span class="lbl">Würdest du das nutzen?</span><div class="chips wrap">${[["ja", "Ja, sofort"], ["vielleicht", "Vielleicht"], ["nein", "Nein"]].map(([v, l]) => `<button type="button" class="chip" data-act="probe" data-k="mail" data-v="${v}" aria-pressed="${a === v}">${l}</button>`).join("")}</div></div>
+    ${a ? '<p class="hint">Danke! Deine Antwort geht mit, wenn du Feedback schickst.</p>' : ""}
+    <button class="btn btn-ghost btn-wide" data-act="mail-probe-back">Zurück</button>`);
+}
+function gapTip() {
+  const own = state.items.filter(i => i.status !== "eingelagert"), n = c => own.filter(i => i.cat === c).length;
+  const mo = new Date().getMonth(), cold = mo >= 9 || mo <= 2;
+  const occs = Object.values(state.plan?.days || {}).map(d => d.occ);
+  const busy = OCC_KEYS.map(o => [o, occs.filter(x => x === o).length]).sort((a, b) => b[1] - a[1])[0];
+  const tips = [];
+  if (cold && !own.some(i => i.cat === "jacket" && warmthOf(i) >= 2)) tips.push(["warm-jacket", "Dir fehlt eine warme Jacke für kalte Tage. Ein Mantel, Parka oder eine Daunenjacke würde deine Woche retten."]);
+  if (busy && busy[1] >= 3) { const t = own.filter(i => i.cat === "top" && (!i.occasions?.length || i.occasions.includes(busy[0]))).length; if (t < 3) tips.push(["tops-" + busy[0], `Für ${OCC[busy[0]]} hast du ${t} ${t === 1 ? "Oberteil" : "Oberteile"}, aber ${busy[1]} Tage in der Woche. Ein, zwei schlichte Oberteile mehr würden reichen.`]); }
+  if (n("bottom") < 2) tips.push(["bottom", "Dir fehlt eine zweite Hose. Eine dunkle Jeans oder Chino passt zu fast allem."]);
+  if (n("shoes") < 2) tips.push(["shoes", "Du hast nur ein Paar Schuhe im Schrank. Ein zweites, schlichtes Paar entlastet beide."]);
+  if (!own.some(i => (i.occasions || []).includes("abend"))) tips.push(["abend", "Für den Abend ist noch nichts dabei. Ein dunkles Hemd oder ein schlichtes Kleid würde schon reichen."]);
+  const done = new Set((meta.probe?.gap || []).map(g => g.id));
+  const t = tips.find(([id]) => !done.has(id));
+  return t ? { id: t[0], text: t[1] } : null;
+}
+function gapBanner() {
+  if (state.items.length < 5) return "";
+  const last = meta.probe?.gapAt; if (last && daysSince(last) < 7) return "";
+  const g = gapTip(); if (!g) return "";
+  return `<div class="banner"><p><b>Kleiner Tipp:</b> ${esc(g.text)}</p><p class="hint" style="margin:0">Ohne Werbung, nur eine Idee aus deinem Schrank.</p>
+    <div class="row gap-ask"><span class="hint" style="margin:0">Hilfreich?</span><button class="btn btn-ghost" data-act="probe-gap" data-k="${g.id}" data-v="ja">Ja</button><button class="btn btn-ghost" data-act="probe-gap" data-k="${g.id}" data-v="nein">Nein</button></div></div>`;
+}
+function probeSummary() {
+  const p = meta.probe || {}, L = { ja: "ja", vielleicht: "vielleicht", nein: "nein" }, out = [];
+  if (p.plus) out.push(`Plus für 2,99 €: ${L[p.plus]}`);
+  if (p.mail) out.push(`Aus Bestellung übernehmen: ${L[p.mail]}`);
+  const g = p.gap || []; if (g.length) out.push(`Lücken-Tipps: ${g.filter(x => x.a === "ja").length}× hilfreich, ${g.filter(x => x.a === "nein").length}× nicht (${g.map(x => x.id).join(", ")})`);
+  return out.length ? "Geld-Tests: " + out.join(" · ") : "";
+}
+
+const APP_VERSION = "0.23";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -3338,6 +3693,27 @@ document.addEventListener("click", async e => {
     case "source": meta.source = el.dataset.v; saveMeta(); render(); toast("Danke!"); break;
     case "invite": invite(); break;
     case "stats": statsSheet(); break;
+    case "review": reviewSheet(); sheet.scrollTop = 0; break;
+    case "review-plan": closeSheet(); state.tab = "woche"; render(); window.scrollTo({ top: 0 }); break;
+    case "review-share": shareReview(); break;
+    case "share-outfit": shareOutfit(el.dataset.v); break;
+    case "csv-open": csvSheet(); sheet.scrollTop = 0; break;
+    case "csv-template": csvTemplate(); break;
+    case "csv-export": csvExport(); break;
+    case "csv-go": csvGo(); break;
+    case "mail-probe": mailProbeSheet(); sheet.scrollTop = 0; break;
+    case "mail-probe-back": if (addDraft) drawAdd(); else closeSheet(); break;
+    case "probe": {
+      probeSet(el.dataset.k, el.dataset.v);
+      if (el.dataset.k === "mail") mailProbeSheet(); else statsSheet();
+      break;
+    }
+    case "probe-gap": {
+      const p = meta.probe || {};
+      meta.probe = { ...p, gap: [...(p.gap || []), { id: el.dataset.k, a: el.dataset.v, at: todayIso() }].slice(-20), gapAt: todayIso() };
+      saveMeta(); render(); toast("Danke! Deine Antwort geht mit, wenn du Feedback schickst.");
+      break;
+    }
     case "stats-share": shareStats(); break;
     case "lend-remind": lendRemind(el.dataset.v); break;
     case "lend-ics": lendIcs(el.dataset.v); break;
@@ -3433,6 +3809,7 @@ function statsSheet() {
       <div class="kpi"><b>${s.wears}</b><span>Mal getragen, insgesamt</span></div>
       <div class="kpi"><b>${s.forgotten.length}</b><span>vergessen (über 30 Tage nicht getragen)</span></div>
     </div>
+    <button class="cardlink" data-act="review"><div><b>Deine Woche im Rückblick</b><span>Was du in den letzten 7 Tagen getragen hast</span></div>${ICON_CHEV}</button>
     <div class="set-group"><span class="eyebrow">Öfter tragen, seltener waschen</span>
       <div class="kpis">
         <div class="kpi green"><b>${e.n}×</b><span>nochmal getragen statt gewaschen</span></div>
@@ -3452,6 +3829,7 @@ Quellen: Utopia.de (Waschgang-Rechner Uni Bonn, EU-Datenbank EPREL), Umweltbunde
       <p class="hint">${s.priced.length} Teile mit Preis, zusammen ${euro(s.value)}.</p>` : `<p class="hint">Tipp ein Teil an und trag den Kaufpreis ein. Dann siehst du, was dich jedes Tragen kostet.</p>`}
     </div>
     ${s.forgotten.length ? `<div class="set-group"><span class="eyebrow">Vergessen</span><p class="hint">${s.forgotten.slice(0, 4).map(i => esc(i.name)).join(", ")}${s.forgotten.length > 4 ? " …" : ""}. Diese Woche einplanen, verleihen oder verkaufen?</p></div>` : ""}
+    ${plusProbe()}
     <button class="btn btn-primary btn-wide" data-act="stats-share">Als Bild teilen</button>
     <button class="btn btn-ghost btn-wide" data-act="invite">Freunde einladen</button>`);
 }
@@ -3529,6 +3907,7 @@ function usageSummary() {
   if (meta.view === "tree") lines.push("Ansicht: Übersicht");
   const ob = ["add", "examples", "skip"].find(k => meta.counts["onb:" + k]); if (ob) lines.push(`Einführung: ${{ add: "erstes Teil eingetragen", examples: "Beispielschrank gewählt", skip: "übersprungen" }[ob]}`);
   const tc = own.filter(i => i.type).length; if (tc) lines.push(`Teile mit Art: ${tc}, Basics: ${own.filter(i => i.basic).length}`);
+  const pr = probeSummary(); if (pr) lines.push(pr);
   lines.push(`Farbe der App: ${PALETTES[curPalette()].label}`);
   lines.push(`Gerät: ${deviceKind()}`);
   return lines.join("\n");
