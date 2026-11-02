@@ -1775,10 +1775,15 @@ function viewSchrank() {
   const crumb = state.fromTree ? `<div class="wx-line"><button class="back" data-act="tree-back">${ICON_BACK} Übersicht</button><span class="sub" style="margin:0">${[state.fType === "__none" ? "Ohne Art" : state.fType !== "all" ? state.fType : CATS[state.fCat], state.fColor].filter(Boolean).map(esc).join(" · ")} · ${list.length} ${list.length === 1 ? "Teil" : "Teile"}</span></div>` : "";
   const wN = all.filter(i => i.status === "waesche").length;
   const quickbar = !filtered && wN ? `<div class="quickbar">${STATUS_ICON.waesche}<span>${wN} ${wN === 1 ? "Teil" : "Teile"} im Wäschekorb</span><button class="btn btn-ghost" data-act="laundry-done">Alles zurück</button></div>` : "";
+  const kfN = all.filter(i => i.status === "koffer").length;
+  const tripbar = filtered ? "" : kfN
+    ? `<div class="quickbar">${STATUS_ICON.koffer}<span>${kfN} ${kfN === 1 ? "Teil" : "Teile"} im Koffer${meta.trip?.dest ? " · " + esc(meta.trip.dest) : ""}</span><button class="btn btn-ghost" data-act="unpack">Auspacken</button></div>`
+    : `<button class="cardlink" data-act="trip"><div><b>Reise planen</b><span>Koffer aus deinem Schrank packen, passend zu Wetter und Dauer</span></div>${ICON_CHEV}</button>`;
   return `<div class="stack" style="gap:22px">
     ${filtered ? "" : todayCard}
     <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Vergessen")}</div>
     ${quickbar}
+    ${tripbar}
     ${filtered ? "" : `<button class="cardlink" data-act="stats"><div><b>Dein Schrank in Zahlen</b><span>${statsTeaser()}</span></div>${ICON_CHEV}</button>`}
     ${state.fromTree ? crumb : `<div class="toolbar">
       ${viewSeg}
@@ -1882,7 +1887,7 @@ function viewWaesche() {
     ${sec("Wäschekorb", w, back, "Wäschekorb ist leer.")}
     ${sec("Reinigung", r, it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Abgeholt</button>`, "Nichts in der Reinigung.")}
     ${sec("Verliehen", l, it => `${isOverdue(it) ? `<button class="btn btn-ghost" data-act="lend-remind" data-v="${it.id}">Erinnern</button>` : ""}<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Zurück</button>`, "Nichts verliehen.")}
-    ${kf.length ? `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Im Koffer <span class="n">${kf.length}${kfBag ? " · " + esc(kfBag.name) : ""}</span></h3><button class="btn btn-primary btn-wide" data-act="unpack">Auspacken</button><div class="list">${kf.map(it => row(it, `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Zurück</button>`)).join("")}</div></div>` : ""}
+    ${kf.length ? `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Im Koffer <span class="n">${kf.length}${meta.trip?.dest ? " · " + esc(meta.trip.dest) : ""}${kfBag ? " · " + esc(kfBag.name) : ""}</span></h3><button class="btn btn-primary btn-wide" data-act="unpack">Auspacken</button><div class="list">${kf.map(it => row(it, `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Zurück</button>`)).join("")}</div></div>` : ""}
     <div class="banner"><p><b>Verreist du?</b> Sag, wie lange und wohin. Die App stellt eine Packliste aus deinem Schrank zusammen, und was im Koffer ist, plant die Woche nicht ein.</p><button class="btn btn-ghost" data-act="trip">Koffer packen</button></div>
     ${st.length ? sec("Eingelagert", st, it => `<button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Zurück</button>`, "") : ""}
     <div class="banner"><p><b>Saisonwechsel.</b> ${sk === "sommer" ? "Es wird kälter. Lagere Sommersachen ein, dann plant die Woche nur mit dem, was gerade passt." : "Es wird wärmer. Lagere Wintersachen ein, dann plant die Woche nur mit dem, was gerade passt."}</p>
@@ -1923,8 +1928,8 @@ const TRIP_OCC = { strand: ["freizeit", "abend", "sport"], stadt: ["freizeit", "
 const TRIP_WX = { strand: "warm", ski: "kalt" };
 const PACK_BAGS = new Set(["Koffer", "Reisetasche", "Sporttasche", "Rucksack"]);
 let trip = null;
-function packSuggest(kind, days, weather) {
-  const avail = state.items.filter(i => i.status === "schrank");
+function packSuggest(kind, days, weather, withDirty = false) {
+  const avail = state.items.filter(i => i.status === "schrank" || (withDirty && i.status === "waesche"));
   const fitsW = i => weather === "warm" ? warmthOf(i) < 2 : weather === "kalt" ? warmthOf(i) > 0 : true;
   const occOk = i => !i.occasions?.length || i.occasions.some(o => TRIP_OCC[kind].includes(o));
   const rank = l => [...l].sort((a, b) => (occOk(b) - occOk(a)) || (fitsW(b) - fitsW(a)) || (!!b.basic - !!a.basic) || (b.wears || 0) - (a.wears || 0));
@@ -1953,7 +1958,7 @@ function packSuggest(kind, days, weather) {
 }
 function tripSheet() {
   const kind = "stadt";
-  trip = { kind, days: 4, weather: TRIP_WX[kind] || (meta.city && state.plan?.weather) || "mild", bag: null, more: false };
+  trip = { kind, days: 4, weather: TRIP_WX[kind] || (meta.city && state.plan?.weather) || "mild", bag: null, more: false, dest: "" };
   trip.sel = packSuggest(trip.kind, trip.days, trip.weather);
   drawTrip();
 }
@@ -1965,19 +1970,22 @@ function drawTrip() {
   const rowP = it => `<button type="button" class="row-item pick-row" data-act="trip-tog" data-v="${it.id}" aria-pressed="${t.sel.has(it.id)}"><span class="thumb">${thumb(it)}</span><span class="txt"><b>${esc(it.name)}</b><span>${esc(it.type || CATS[it.cat])}</span></span><span class="check">${ICON_CHECK}</span></button>`;
   const groups = list => CAT_ORDER.map(c => { const l = list.filter(i => i.cat === c); return l.length ? `<div class="pack-group"><span class="eyebrow">${CATS[c]} · ${l.length}</span><div class="list">${l.map(rowP).join("")}</div></div>` : ""; }).join("");
   const dirty = state.items.filter(i => i.status === "waesche").length, n = t.sel.size;
+  const needWash = dirty ? [...packSuggest(t.kind, t.days, t.weather, true)].map(byId).filter(i => i && i.status === "waesche") : [];
   openSheet(`<h2>Koffer packen</h2>
     <p class="sub">Die App schlägt vor, was aus deinem Schrank mitkommt. Tippe ein Teil an, um es dazuzunehmen oder wegzulassen.</p>
     <div class="field"><span class="lbl">Was für eine Reise?</span><div class="chips wrap">${Object.entries(TRIP_KINDS).map(([k, l]) => `<button type="button" class="chip" data-act="trip-kind" data-v="${k}" aria-pressed="${t.kind === k}">${l}</button>`).join("")}</div></div>
+    <div class="field"><label class="lbl" for="tripDest">Wohin? (optional)</label><input type="text" id="tripDest" maxlength="40" autocomplete="off" placeholder="z. B. Lissabon" value="${esc(t.dest || "")}"></div>
     <div class="field"><span class="lbl">Wie viele Tage?</span><div style="display:flex;align-items:center;gap:12px"><div class="stepper"><button type="button" data-act="trip-days" data-d="-1" aria-label="Weniger">−</button><b>${t.days}</b><button type="button" data-act="trip-days" data-d="1" aria-label="Mehr">+</button></div><span class="hint">${t.days === 1 ? "Tag" : "Tage"}</span></div></div>
     <div class="field"><span class="lbl">Wetter am Ziel</span><div class="seg" role="group" aria-label="Wetter am Ziel">${Object.entries(WEATHER).map(([k, l]) => `<button type="button" data-act="trip-wx" data-v="${k}" aria-pressed="${t.weather === k}">${l}</button>`).join("")}</div></div>
     ${bags.length ? `<div class="field"><span class="lbl">Packen in (optional)</span><div class="chips wrap">${bags.map(b => `<button type="button" class="chip" data-act="trip-bag" data-v="${b.id}" aria-pressed="${t.bag === b.id}">${esc(b.name)}</button>`).join("")}</div></div>` : ""}
     <h3 class="h3">Packliste <span class="n">${n} ${n === 1 ? "Teil" : "Teile"}</span></h3>
     ${chosen.length ? groups(chosen) : `<div class="empty">Noch nichts ausgewählt.</div>`}
     ${rest.length ? `<details class="fb-more" id="tripMore"${t.more ? " open" : ""}><summary>Mehr aus dem Schrank (${rest.length})</summary><div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${groups(rest)}</div></details>` : ""}
-    ${dirty ? `<p class="hint">${dirty} ${dirty === 1 ? "Teil liegt" : "Teile liegen"} noch in der Wäsche und ${dirty === 1 ? "fehlt" : "fehlen"} hier.</p>` : ""}
+    ${needWash.length ? `<p class="hint"><b>Würde passen, liegt aber im Wäschekorb:</b> ${needWash.slice(0, 5).map(i => esc(i.name)).join(", ")}${needWash.length > 5 ? " …" : ""}. Erst waschen, dann sind sie hier dabei.</p>` : dirty ? `<p class="hint">${dirty} ${dirty === 1 ? "Teil liegt" : "Teile liegen"} noch in der Wäsche und ${dirty === 1 ? "fehlt" : "fehlen"} hier.</p>` : ""}
     <button class="btn btn-primary btn-wide" data-act="trip-go"${n ? "" : " disabled"}>${n ? `${n} ${n === 1 ? "Teil" : "Teile"} einpacken` : "Nichts ausgewählt"}</button>
     <p class="hint">Nach der Reise unter Wäsche &amp; Co. auf „Auspacken“ tippen. Dann kommt alles in die Wäsche oder zurück in den Schrank.</p>`, () => { trip = null; });
   document.getElementById("tripMore")?.addEventListener("toggle", e => { if (trip) trip.more = e.target.open; });
+  document.getElementById("tripDest")?.addEventListener("input", e => { if (trip) trip.dest = e.target.value; });
 }
 let unpack = null;
 function unpackSheet() {
@@ -2913,7 +2921,7 @@ document.addEventListener("click", async e => {
     case "trip-go": {
       if (!trip) break;
       const ids = [...trip.sel], n = ids.length;
-      meta.trip = { kind: trip.kind, days: trip.days, weather: trip.weather, bag: trip.bag, packedAt: new Date().toISOString() }; saveMeta(); count("trip:" + trip.kind);
+      meta.trip = { kind: trip.kind, days: trip.days, weather: trip.weather, bag: trip.bag, dest: (trip.dest || "").trim().slice(0, 40), packedAt: new Date().toISOString() }; saveMeta(); count("trip:" + trip.kind);
       closeSheet();
       for (const id of ids) await patchItem(id, { status: "koffer", lentTo: null, lentUntil: null });
       toast(`${n} ${n === 1 ? "Teil ist" : "Teile sind"} im Koffer. Gute Reise!`, { label: "Rückgängig", fn: async () => { for (const id of ids) await patchItem(id, { status: "schrank" }); meta.trip = null; saveMeta(); toast("Rückgängig gemacht."); } });
@@ -3085,7 +3093,7 @@ function catSheet(focus) {
     <div class="set-row"><button class="btn btn-primary" data-act="close-sheet">Fertig</button>${custom ? '<button class="btn btn-ghost" data-act="cat-reset">Reihenfolge zurücksetzen</button>' : ""}</div>`);
   if (focus) { const b = sheet.querySelector(`[data-act=cat-move][data-v="${focus[0]}"][data-d="${focus[1]}"]:not(:disabled)`) || sheet.querySelector(`[data-act=cat-move][data-v="${focus[0]}"]:not(:disabled)`); b?.focus({ preventScroll: true }); }
 }
-const APP_VERSION = "0.19";
+const APP_VERSION = "0.20";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
