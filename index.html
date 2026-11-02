@@ -537,6 +537,17 @@ img { max-width: 100%; }
 .set-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .set-row .btn { flex: 1 1 150px; }
 .key-input { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); border-radius: 14px; padding: 13px 14px; width: 100%; font-family: var(--font-label); font-size: 16px; }
+.rem-list { display: flex; flex-direction: column; gap: 10px; }
+.rem-row { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.rem-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rem-top b { font-weight: 600; font-size: 15px; min-width: 0; }
+.rem-top .chip { min-width: 52px; }
+.rem-set { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; }
+.rem-set input[type=time] { width: auto; min-width: 128px; padding-left: 10px; padding-right: 10px; }
+@media (max-width: 359px) { .rem-set { grid-template-columns: minmax(0, 1fr); } .rem-set input[type=time] { width: 100%; } }
+.rem-set input, .rem-set select { border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface-2); color: var(--ink); border-radius: 12px; padding: 10px 12px; width: 100%; min-width: 0; min-height: 44px; font-family: inherit; font-size: 16px; }
+.rem-set input[type=time] { -webkit-appearance: none; appearance: none; }
+.rem-set input:focus, .rem-set select:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
 /* sb-0.5: Fraunces + Geist, Labels ohne Mono, schmale Leiste oben beim Scrollen */
 .eyebrow, .field > label, .field > .lbl { font-weight: 600; letter-spacing: .06em; }
 .brand { letter-spacing: -0.03em; font-size: clamp(28px, 8.4vw, 44px); white-space: nowrap; }
@@ -3032,6 +3043,9 @@ function settingsSheet(msg) {
     <div class="set-group"><span class="eyebrow">Wetter</span>
       <p class="hint">${meta.city ? `Die Woche wird nach dem Wetter in <b>${esc(meta.city.name)}</b> geplant.` : "Trag deinen Ort ein, dann plant die App die Woche nach der echten Vorhersage."}</p>
       <button class="btn btn-ghost btn-wide" data-act="wx-city">${meta.city ? "Ort ändern" : "Ort eintragen"}</button></div>
+    <div class="set-group"><span class="eyebrow">Erinnerungen</span>
+      <p class="hint">${(() => { const n = meta.remind ? Object.values(remState()).filter(s => s.on).length : 0; return n ? `${n} Erinnerung${n > 1 ? "en" : ""} ausgewählt. Sie laufen über deinen Kalender.` : "Lass dich morgens fragen, was du anziehst, oder sonntags die Woche planen. Das läuft über deinen Kalender, ganz ohne Konto."; })()}</p>
+      <button class="btn btn-ghost btn-wide" data-act="remind">Erinnerungen einrichten</button></div>
     <div class="set-group"><span class="eyebrow">Deine Daten</span>
       <p class="hint">Alles bleibt nur auf diesem Gerät. Nichts wird hochgeladen. Die Sicherung ist eine Datei mit allen Teilen, Fotos, Inseraten, dem Wochenplan und deinen Einstellungen. Damit ziehst du auf ein neues Handy um, und auch die spätere richtige App kann sie übernehmen.</p>
       <p class="hint"><b>Letzte Sicherung:</b> ${meta.lastBackupAt ? (daysSince(meta.lastBackupAt) === 0 ? "heute" : daysSince(meta.lastBackupAt) === 1 ? "gestern" : `vor ${daysSince(meta.lastBackupAt)} Tagen`) : "noch nie"}</p>
@@ -3056,7 +3070,7 @@ function settingsSheet(msg) {
   bindWaitlist();
   document.getElementById("restoreInput").addEventListener("change", async ev => {
     const f = ev.target.files?.[0]; if (!f) return;
-    try { const st = await SB.importAll(f); if (st) { for (const k of ["palette", "city", "view", "lastOcc", "trip", "avatar", "catOrder", "catFold"]) if (st[k] != null) meta[k] = st[k]; meta.wxCache = null; applyPalette(); } state.usingExamples = !SB.hasData(); meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; saveMeta(); count("restore"); closeSheet(); toast("Sicherung geladen."); }
+    try { const st = await SB.importAll(f); if (st) { for (const k of ["palette", "city", "view", "lastOcc", "trip", "avatar", "catOrder", "catFold", "remind"]) if (st[k] != null) meta[k] = st[k]; meta.wxCache = null; applyPalette(); } state.usingExamples = !SB.hasData(); meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; saveMeta(); count("restore"); closeSheet(); toast("Sicherung geladen."); }
     catch { toast("Diese Datei ist keine Giyo-Sicherung."); }
   });
 }
@@ -3093,12 +3107,67 @@ function catSheet(focus) {
     <div class="set-row"><button class="btn btn-primary" data-act="close-sheet">Fertig</button>${custom ? '<button class="btn btn-ghost" data-act="cat-reset">Reihenfolge zurücksetzen</button>' : ""}</div>`);
   if (focus) { const b = sheet.querySelector(`[data-act=cat-move][data-v="${focus[0]}"][data-d="${focus[1]}"]:not(:disabled)`) || sheet.querySelector(`[data-act=cat-move][data-v="${focus[0]}"]:not(:disabled)`); b?.focus({ preventScroll: true }); }
 }
+/* ---------- Erinnerungen: wiederkehrende Kalendereinträge mit Alarm (ohne Server kann die App nicht selbst wecken) ---------- */
+const REMINDERS = {
+  morning: { label: "Morgens: Was ziehe ich an?", title: "Giyo: Was ziehe ich heute an?", text: "Schau in Giyo, was für heute geplant ist.", time: "07:30", days: "WD" },
+  week: { label: "Woche planen", title: "Giyo: Woche planen", text: "Plane in Giyo die Outfits für die kommende Woche.", time: "18:00", days: "SU" },
+  wash: { label: "Wäschekorb prüfen", title: "Giyo: Wäschekorb prüfen", text: "Was liegt im Korb? Gewaschenes in Giyo wieder in den Schrank legen.", time: "10:00", days: "SA" }
+};
+const REM_DAYS = [["WD", "Mo–Fr", "MO,TU,WE,TH,FR"], ["ALL", "Jeden Tag", "MO,TU,WE,TH,FR,SA,SU"], ["MO", "Montags", "MO"], ["TU", "Dienstags", "TU"], ["WE", "Mittwochs", "WE"], ["TH", "Donnerstags", "TH"], ["FR", "Freitags", "FR"], ["SA", "Samstags", "SA"], ["SU", "Sonntags", "SU"]];
+function remState() {
+  const r = meta.remind;
+  return Object.fromEntries(Object.entries(REMINDERS).map(([k, d]) => {
+    const s = r?.[k] || {};
+    return [k, { on: r ? !!s.on : k === "morning", time: /^([01]\d|2[0-3]):[0-5]\d$/.test(s.time) ? s.time : d.time, days: REM_DAYS.some(x => x[0] === s.days) ? s.days : d.days }];
+  }));
+}
+function remSet(k, patch) { const st = remState(); Object.assign(st[k], patch); meta.remind = st; saveMeta(); }
+function remindIcs(sel) {
+  const fold = l => { const out = []; while (l.length > 74) { out.push(l.slice(0, 74)); l = " " + l.slice(74); } out.push(l); return out.join("\r\n"); };
+  const q = t => String(t).replace(/[\\;,]/g, m => "\\" + m).replace(/\r?\n/g, "\\n");
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, ""), seq = Math.floor(Date.now() / 60000);
+  const url = location.origin + location.pathname, codes = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Giyo//DE", "CALSCALE:GREGORIAN"];
+  for (const [k, s] of Object.entries(sel)) {
+    if (!s.on || !REMINDERS[k]) continue;
+    const d = REMINDERS[k], by = REM_DAYS.find(x => x[0] === s.days)[2].split(",");
+    const start = new Date(); start.setHours(12, 0, 0, 0);
+    for (let i = 0; i < 7 && !by.includes(codes[start.getDay()]); i++) start.setDate(start.getDate() + 1);
+    lines.push("BEGIN:VEVENT", `UID:giyo-erinnerung-${k}@giyo`, `SEQUENCE:${seq}`, `DTSTAMP:${stamp}`, `DTSTART:${localIso(start).replace(/-/g, "")}T${s.time.replace(":", "")}00`, "DURATION:PT15M", `RRULE:FREQ=WEEKLY;BYDAY=${by.join(",")}`,
+      `SUMMARY:${q(d.title)}`, `DESCRIPTION:${q(d.text + " " + url)}`, `URL:${url}`, "TRANSP:TRANSPARENT", "BEGIN:VALARM", "TRIGGER:PT0S", "ACTION:DISPLAY", `DESCRIPTION:${q(d.title)}`, "END:VALARM", "END:VEVENT");
+  }
+  lines.push("END:VCALENDAR");
+  return lines.map(fold).join("\r\n") + "\r\n";
+}
+function remindSheet() {
+  const st = remState(), anyOn = Object.values(st).some(s => s.on);
+  const rows = Object.entries(REMINDERS).map(([k, d]) => { const s = st[k];
+    return `<div class="rem-row"><div class="rem-top"><b>${esc(d.label)}</b><button type="button" class="chip chip-sm" data-act="rem-tog" data-v="${k}" aria-pressed="${s.on}">${s.on ? "An" : "Aus"}</button></div>`
+      + (s.on ? `<div class="rem-set"><input type="time" class="rem-time" data-k="${k}" value="${s.time}" aria-label="Uhrzeit: ${esc(d.label)}"><select class="rem-days" data-k="${k}" aria-label="Tage: ${esc(d.label)}">${REM_DAYS.map(x => `<option value="${x[0]}"${x[0] === s.days ? " selected" : ""}>${x[1]}</option>`).join("")}</select></div>` : "")
+      + "</div>"; }).join("");
+  openSheet(`<h2>Er<em>innerungen</em></h2>
+    <p class="hint">Ohne Server kann die App dich nicht von selbst anstupsen. Deshalb legt sie wiederkehrende Einträge in deinem Kalender an, mit Alarm. Dein Handy erinnert dich dann pünktlich, auch wenn die App zu ist. Nichts wird hochgeladen.</p>
+    <div class="rem-list">${rows}</div>
+    <button class="btn btn-primary btn-wide" data-act="rem-save"${anyOn ? "" : " disabled"}>Kalendereinträge anlegen</button>
+    <p class="hint">Du bekommst eine Datei. Tippst du sie an, fragt dein Kalender, ob er die Einträge übernehmen soll. Ändern oder löschen kannst du sie später nur im Kalender selbst. Legst du die Datei ein zweites Mal an, können Einträge doppelt erscheinen. Dann lösch die alten im Kalender.</p>
+    <div class="set-row"><button class="btn btn-ghost" data-act="close-sheet">Fertig</button></div>`);
+  sheet.querySelectorAll(".rem-time").forEach(i => ["input", "change"].forEach(ev => i.addEventListener(ev, () => { if (/^\d\d:\d\d$/.test(i.value)) remSet(i.dataset.k, { time: i.value }); })));
+  sheet.querySelectorAll(".rem-days").forEach(i => i.addEventListener("change", () => remSet(i.dataset.k, { days: i.value })));
+}
 const APP_VERSION = "0.20";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
     case "settings": state.armedWipe = false; settingsSheet(); break;
     case "avatar": avatarSheet(); break;
+    case "remind": remindSheet(); sheet.scrollTop = 0; break;
+    case "rem-tog": { const k = el.dataset.v; if (!REMINDERS[k]) break; remSet(k, { on: !remState()[k].on }); remindSheet(); break; }
+    case "rem-save": {
+      const st = remState(); if (!Object.values(st).some(x => x.on)) break;
+      try { await SB.downloads.save({ filename: "giyo-erinnerungen.ics", data: new Blob([remindIcs(st)], { type: "text/calendar" }) }); meta.remind = st; saveMeta(); count("remind-ics"); toast("Datei erstellt. Öffne sie, dann übernimmt dein Kalender die Erinnerungen."); }
+      catch (err) { if (err?.code !== "declined") toast("Erinnerungen anlegen hat nicht geklappt."); }
+      break;
+    }
     case "cats": catSheet(); break;
     case "cat-move": {
       const c = el.dataset.v, d = +el.dataset.d, ord = catOrder(), vis = ord.filter(x => state.items.some(i => i.cat === x)), k = vis.indexOf(c), nb = vis[k + d];
@@ -3117,7 +3186,7 @@ document.addEventListener("click", async e => {
     case "install": if (installEvt) { installEvt.prompt(); installEvt = null; closeSheet(); } break;
     case "backup": {
       try {
-        const b = await SB.exportAll({ palette: meta.palette || null, city: meta.city || null, view: meta.view || null, lastOcc: meta.lastOcc || null, trip: meta.trip || null, avatar: meta.avatar || null, catOrder: meta.catOrder || null, catFold: meta.catFold || null, appVersion: APP_VERSION }); await SB.downloads.save({ filename: `giyo-sicherung-${todayIso()}.json`, data: b });
+        const b = await SB.exportAll({ palette: meta.palette || null, city: meta.city || null, view: meta.view || null, lastOcc: meta.lastOcc || null, trip: meta.trip || null, avatar: meta.avatar || null, catOrder: meta.catOrder || null, catFold: meta.catFold || null, remind: meta.remind || null, appVersion: APP_VERSION }); await SB.downloads.save({ filename: `giyo-sicherung-${todayIso()}.json`, data: b });
         meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; meta.backupSnooze = null; saveMeta();
         toast("Sicherung erstellt. Heb die Datei gut auf."); render();
         if (!scrim.hidden && sheet.querySelector("#restoreInput")) settingsSheet();
