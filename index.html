@@ -2916,7 +2916,7 @@ function viewDraft() {
     body = `<div><h2 class="section-h">Fotos</h2><p class="sub">Wähle 4 bis 20 Fotos aus deiner Galerie: vorne, hinten, Marken- und Größenetikett, Details und Mängel. Tageslicht und ein ruhiger Hintergrund wirken am besten.</p></div>
       <div class="ph-grid">${tiles}<label class="ph-add">${b === "photos" ? '<span class="spin"></span>' : "+ Fotos<br>hinzufügen"}<input type="file" id="sellPhotos" accept="image/*" multiple aria-label="Fotos wählen"></label></div>
       <button class="btn btn-accent btn-wide" data-act="s-check" ${b || !d.photos.length || !canCheck ? "disabled" : ""}>${b === "check" ? '<span class="spin"></span> Fotos werden geprüft…' : (c ? ICON_SPARK + " Nochmal prüfen" : ICON_SPARK + " Fotos prüfen lassen")}</button>
-      ${!(sample && sampleImages) ? '<p class="hint">Ohne KI prüft die App nach einer festen Checkliste. Mit eigenem KI-Schlüssel (Einstellungen) schaut sie sich die Fotos wirklich an.</p>' : ""}
+      ${!(sample && sampleImages) ? `<p class="hint">Ohne KI prüft die App nach einer festen Checkliste.${meta.dev ? " Mit eigenem KI-Schlüssel (Einstellungen) schaut sie sich die Fotos wirklich an." : ""}</p>` : ""}
       ${checkPanel}
       <div class="panel">
         <h3 class="h3">Styling-Collage</h3>
@@ -3226,7 +3226,7 @@ render();
 let installEvt = null;
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; });
 function settingsSheet(msg) {
-  const key = SB.aiKey();
+  const key = SB.aiKey(), showAi = !!key || !!meta.dev;
   const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
   openSheet(`<h2>Einstellungen</h2>
     ${msg ? `<div class="banner"><p>${esc(msg)}</p></div>` : ""}
@@ -3262,16 +3262,25 @@ function settingsSheet(msg) {
         <button class="btn btn-soft" data-act="onb-show">Einführung ansehen</button>
         <button class="btn btn-danger${state.armedWipe ? " armed" : ""}" data-act="wipe">${state.armedWipe ? "Wirklich alles löschen? Nochmal tippen" : "Alles löschen"}</button>
       </div></div>
-    <div class="set-group"><span class="eyebrow">KI (optional, nur für dich)</span>
+    ${showAi ? `<div class="set-group" id="aiGroup"><span class="eyebrow">KI (optional, nur für dich)</span>
       <p class="hint">Ohne Schlüssel arbeitet die App mit festen Regeln. Mit einem eigenen Claude-API-Schlüssel von console.anthropic.com erkennt sie Fotos, plant die Woche und schreibt Inserate. Jede Anfrage kostet dich ein paar Cent. Der Schlüssel bleibt auf diesem Gerät. Gib ihn nicht an Freunde weiter.</p>
       <input class="key-input" type="password" id="aiKeyInput" autocomplete="off" placeholder="sk-ant-…" value="${esc(key)}">
-      <div class="set-row"><button class="btn btn-ghost" data-act="save-key">Schlüssel speichern</button>${key ? '<button class="btn btn-danger" data-act="clear-key">Schlüssel entfernen</button>' : ""}</div></div>
+      <div class="set-row"><button class="btn btn-ghost" data-act="save-key">Schlüssel speichern</button>${key ? '<button class="btn btn-danger" data-act="clear-key">Schlüssel entfernen</button>' : ""}</div></div>` : ""}
     <div class="set-group"><span class="eyebrow">Feedback</span>
       <p class="hint">Was gefällt dir, was nervt, was fehlt? Jede Rückmeldung hilft.</p>
       <div class="set-row"><button class="btn btn-ghost" data-act="feedback">Feedback geben</button><button class="btn btn-ghost" data-act="invite">Freunde einladen</button></div></div>
     ${waitlistBlock()}
-    <p class="hint">Giyo · Test-Version ${APP_VERSION}</p>`, () => { state.armedWipe = false; });
+    <p class="hint" id="verLine">Giyo · Test-Version ${APP_VERSION}${meta.dev ? " · Entwickler" : ""}</p>`, () => { state.armedWipe = false; });
   bindWaitlist();
+  // Verstecktes Entwickler-Feld: 7× schnell auf die Versionszeile tippen blendet das KI-Feld ein oder aus
+  let taps = 0, tapT = 0;
+  document.getElementById("verLine")?.addEventListener("click", () => {
+    const now = Date.now(); taps = now - tapT < 1500 ? taps + 1 : 1; tapT = now;
+    if (taps < 7) return;
+    meta.dev = !meta.dev; saveMeta();
+    settingsSheet(meta.dev ? "Entwickler-Modus an: das KI-Feld ist jetzt sichtbar." : "Entwickler-Modus aus.");
+    if (meta.dev) document.getElementById("aiGroup")?.scrollIntoView({ block: "center" });
+  });
   document.getElementById("restoreInput").addEventListener("change", async ev => {
     const f = ev.target.files?.[0]; if (!f) return;
     try { const st = await SB.importAll(f); if (st) { for (const k of ["palette", "city", "view", "lastOcc", "trip", "avatar", "catOrder", "catFold", "remind"]) if (st[k] != null) meta[k] = st[k]; meta.wxCache = null; applyPalette(); } state.usingExamples = !SB.hasData(); meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; saveMeta(); count("restore"); closeSheet(); toast("Sicherung geladen."); }
@@ -3798,7 +3807,7 @@ function probeSummary() {
   return out.length ? "Geld-Tests: " + out.join(" · ") : "";
 }
 
-const APP_VERSION = "0.25";
+const APP_VERSION = "0.26";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
