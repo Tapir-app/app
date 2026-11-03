@@ -1,5 +1,5 @@
 // Giyo offline support: app files from cache, refreshed in the background.
-const VERSION = "sb-0.24";
+const VERSION = "sb-0.25";
 const SHELL = ["./", "index.html", "shim.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
   "fonts/fonts.css", "fonts/fraunces-normal-latin.woff2", "fonts/fraunces-normal-latin-ext.woff2", "fonts/fraunces-italic-latin.woff2", "fonts/fraunces-italic-latin-ext.woff2", "fonts/geist-normal-latin.woff2", "fonts/geist-normal-latin-ext.woff2"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });

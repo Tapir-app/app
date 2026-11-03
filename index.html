@@ -1042,12 +1042,18 @@ function typeField(d, prefix) {
   const typeChips = (TYPES[d.cat] || []).map(t => `<button type="button" class="chip" data-act="${prefix}-type" data-v="${esc(t)}" aria-pressed="${d.type === t}">${esc(t)}</button>`).join("");
   return `<div class="field"><span class="lbl">Art</span><div class="chips wrap">${typeChips}</div></div>`;
 }
+function rareField(d, prefix) {
+  if (d.type === "Regenschirm") return "";
+  return `<div class="field"><span class="lbl">Gebrauch</span><div class="chips wrap"><button type="button" class="chip" data-act="${prefix}-rare" aria-pressed="${isRare(d)}">Nur ab und zu</button></div>
+      <p class="hint">Für Teile wie Koffer, Skijacke oder Abendkleid. Sie zählen erst nach einem Jahr als „lange nicht getragen“, nicht schon nach 30 Tagen.</p></div>`;
+}
 function extraFields(d, prefix) {
   const neckChips = Object.entries(NECKS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-neck" data-v="${k}" aria-pressed="${d.neck === k}">${l}</button>`).join("");
   return `${FIT_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Schnitt</span><div class="chips wrap">${Object.entries(FITS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-fit" data-v="${k}" aria-pressed="${d.fit === k}">${l}</button>`).join("")}</div></div>` : ""}
     ${NECK_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Ausschnitt</span><div class="chips wrap">${neckChips}</div></div>` : ""}
     <div class="field"><span class="lbl">Stil</span><div class="chips wrap"><button type="button" class="chip" data-act="${prefix}-basic" aria-pressed="${!!d.basic}">Basic</button></div>
-      <p class="hint">Basics sind schlichte Teile, die zu fast allem passen, z. B. weißes T-Shirt oder dunkle Jeans.</p></div>`;
+      <p class="hint">Basics sind schlichte Teile, die zu fast allem passen, z. B. weißes T-Shirt oder dunkle Jeans.</p></div>
+    ${rareField(d, prefix)}`;
 }
 function detailFields(d, prefix) {
   const types = TYPES[d.cat] || [];
@@ -1058,7 +1064,8 @@ function detailFields(d, prefix) {
     ${FIT_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Schnitt</span><div class="chips wrap">${Object.entries(FITS).map(([k, l]) => `<button type="button" class="chip" data-act="${prefix}-fit" data-v="${k}" aria-pressed="${d.fit === k}">${l}</button>`).join("")}</div></div>` : ""}
     ${NECK_CATS.has(d.cat) ? `<div class="field"><span class="lbl">Ausschnitt (optional)</span><div class="chips wrap">${neckChips}</div></div>` : ""}
     <div class="field"><span class="lbl">Stil</span><div class="chips wrap"><button type="button" class="chip" data-act="${prefix}-basic" aria-pressed="${!!d.basic}">Basic</button></div>
-      <p class="hint">Basics sind schlichte Teile, die zu fast allem passen, z. B. weißes T-Shirt oder dunkle Jeans.</p></div>`;
+      <p class="hint">Basics sind schlichte Teile, die zu fast allem passen, z. B. weißes T-Shirt oder dunkle Jeans.</p></div>
+    ${rareField(d, prefix)}`;
 }
 function patIcon(d, p) {
   const base = COLOR_HEX[d.color] || "#9b9ea6", pt = patternDef({ ...d, cat: "top", type: null, pattern: p }, base);
@@ -1550,11 +1557,15 @@ const ICON_REROLL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" 
 
 /* ---------- derived ---------- */
 const byId = id => state.items.find(i => i.id === id);
+// Teile für ab und zu (Koffer, Skijacke, Bademode, Abendkleid …) gelten erst nach einem Jahr als vergessen,
+// der Regenschirm nie. Pro Teil umstellbar (it.rare).
+const RARE_TYPES = new Set(["Koffer", "Reisetasche", "Sporttasche", "Skijacke", "Skihose", "Abendkleid", "Smoking"]);
+const isRare = it => it.rare ?? (it.cat === "swim" || RARE_TYPES.has(it.type));
 const isForgotten = it => {
-  if (it.status === "eingelagert" || it.status === "koffer") return false;
+  if (it.status === "eingelagert" || it.status === "koffer" || it.type === "Regenschirm") return false;
   const ref = it.lastWorn || it.createdAt;
   if (!ref) return false;
-  return (Date.now() - new Date(ref).getTime()) / 86400000 > 30;
+  return (Date.now() - new Date(ref).getTime()) / 86400000 > (isRare(it) ? 365 : 30);
 };
 function sortItems(list) {
   const ord = catOrder();
@@ -1869,7 +1880,7 @@ function viewSchrank() {
       <div class="chips" role="group" aria-label="Kategorie">${catChips}${basicChip}</div>
       ${tree ? "" : typeChips}
     </div>`}
-    ${state.fStatus === "forgotten" ? '<p class="sub" style="margin:0">Seit über 30 Tagen nicht getragen. Gute Kandidaten für die nächste Woche oder zum Weitergeben.</p>' : ""}
+    ${state.fStatus === "forgotten" ? '<p class="sub" style="margin:0">Seit über 30 Tagen nicht getragen. Teile für ab und zu, wie Koffer oder Skijacke, erst nach einem Jahr. Gute Kandidaten für die nächste Woche oder zum Weitergeben.</p>' : ""}
     ${tree ? treeView(list) : tiles || `<div class="empty">Keine Teile in dieser Auswahl.</div>`}
     ${filtered ? "" : `<div class="banner"><p><b>Gefällt dir die App?</b> Lad Freunde zum Testen ein. Je mehr mitmachen, desto besser wird sie.</p><button class="btn btn-ghost" data-act="invite">Freunde einladen</button></div>`}
   </div>`;
@@ -2307,7 +2318,7 @@ function itemSheet(id, fromTag) {
     ${washEvery(it) ? `<div class="field"><span class="lbl">Waschen nach ca.</span>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div class="stepper"><button data-act="wash-every" data-v="${it.id}" data-d="-1" aria-label="Weniger">−</button><b>${washEvery(it)}</b><button data-act="wash-every" data-v="${it.id}" data-d="1" aria-label="Mehr">+</button></div><span class="hint">× Tragen · seit der letzten Wäsche ${it.sinceWash || 0}× getragen</span></div></div>` : ""}
     <details class="fb-more"${!(it.type || it.basic) || state.openDetails === it.id ? " open" : ""}><summary>Art, Muster, Stoff, Pflegeetikett und Stil ${it.type || it.basic || it.pattern || it.material?.length || it.care ? "ändern" : "ergänzen"}</summary>
-      <div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${detailFields(it, "i").replace(/data-act="i-(type|neck|fit|pattern|color2|mat|care|caremode)" data-v="/g, `data-act="i-$1" data-v="${it.id}|`).replace(/data-act="i-basic"/, `data-act="i-basic" data-v="${it.id}"`)}</div></details>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${detailFields(it, "i").replace(/data-act="i-(type|neck|fit|pattern|color2|mat|care|caremode)" data-v="/g, `data-act="i-$1" data-v="${it.id}|`).replace(/data-act="i-basic"/, `data-act="i-basic" data-v="${it.id}"`).replace(/data-act="i-rare"/, `data-act="i-rare" data-v="${it.id}"`)}</div></details>
     <div class="field"><label for="itemBrand">Marke (optional)</label><input type="text" id="itemBrand" list="brandList" maxlength="40" autocomplete="off" placeholder="z. B. COS, Levi's, H&amp;M" value="${esc(it.brand || "")}">${brandList()}</div>
     ${SIZE_CATS.has(it.cat) ? `<div class="field"><label for="itemSize">Größe (optional)</label><input type="text" id="itemSize" list="sizeList" maxlength="12" autocomplete="off" placeholder="${SIZE_HINT[it.cat] || "z. B. M oder 38"}" value="${esc(it.size || "")}" style="max-width:220px">${sizeList(it.cat)}</div>` : ""}
     ${originField("itemOrigin", it.origin)}
@@ -2423,6 +2434,7 @@ function drawAdd(focusName) {
     if (addDraft.type) data.type = addDraft.type;
     if (addDraft.neck && NECK_CATS.has(addDraft.cat)) data.neck = addDraft.neck;
     if (addDraft.basic) data.basic = true;
+    if (addDraft.rare !== undefined && addDraft.rare !== isRare({ cat: data.cat, type: data.type })) data.rare = addDraft.rare;
     if (addDraft.fit && FIT_CATS.has(addDraft.cat)) data.fit = addDraft.fit;
     if (pat) { data.pattern = pat; data.color2 = color2Of({ ...addDraft, pattern: pat }); }
     const mats = (addDraft.material || []).filter(r => MATERIALS.includes(r.m));
@@ -2873,7 +2885,7 @@ function viewVerkaufen() {
       <li><b>Inserat</b><span>Preisvorschlag, Titel und Beschreibung, als Entwurf gespeichert</span></li>
     </ol>
     <button class="btn btn-primary btn-wide" data-act="s-new">+ Neues Inserat</button>
-    ${forgotten.length ? `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Lange nicht getragen</h3><p class="sub">Seit über 30 Tagen im Schrank. Vielleicht freut sich jemand anderes darüber.</p>
+    ${forgotten.length ? `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Lange nicht getragen</h3><p class="sub">Seit über 30 Tagen im Schrank, Koffer, Skijacke und andere Teile für ab und zu erst nach einem Jahr. Vielleicht freut sich jemand anderes darüber.</p>
       <div class="list">${forgotten.map(it => `<div class="row-item"><div class="thumb">${thumb(it)}</div><div class="txt"><b>${esc(it.name)}</b><span>${lastWornText(it)}</span></div><button class="btn btn-ghost" data-act="sell-item" data-v="${it.id}">Verkaufen</button></div>`).join("")}</div></div>` : ""}
     <div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Deine Inserate <span class="n">${state.listings.length}</span></h3>
       ${rows ? `<div class="list">${rows}</div>` : `<div class="empty">Noch keine Inserate. Starte mit „Neues Inserat“ oder tippe bei einem Teil im Schrank auf „Verkaufen“.</div>`}</div>
@@ -3072,6 +3084,7 @@ document.addEventListener("click", async e => {
     case "d-type": toggleType(addDraft, v); drawAdd(); break;
     case "d-neck": addDraft.neck = addDraft.neck === v ? null : v; addDraft.neckTouched = true; drawAdd(); break;
     case "d-basic": addDraft.basic = !addDraft.basic; drawAdd(); break;
+    case "d-rare": addDraft.rare = !isRare(addDraft); drawAdd(); break;
     case "d-fit": addDraft.fit = addDraft.fit === v ? null : v; drawAdd(); break;
     case "d-pattern": addDraft.pattern = v === "uni" ? null : v; drawAdd(); break;
     case "d-color2": addDraft.color2 = v; drawAdd(); break;
@@ -3111,7 +3124,10 @@ document.addEventListener("click", async e => {
       meta.trip = { kind: trip.kind, days: trip.days, weather: trip.weather, rain: !!trip.rain, date: trip.date || null, bag: trip.bag, dest: (trip.dest || "").trim().slice(0, 40), packedAt: new Date().toISOString() }; saveMeta(); count("trip:" + trip.kind);
       closeSheet();
       for (const id of ids) await patchItem(id, { status: "koffer", lentTo: null, lentUntil: null });
-      toast(`${n} ${n === 1 ? "Teil ist" : "Teile sind"} im Koffer. Gute Reise!`, { label: "Rückgängig", fn: async () => { for (const id of ids) await patchItem(id, { status: "schrank" }); meta.trip = null; saveMeta(); toast("Rückgängig gemacht."); } });
+      // Der gewählte Koffer gilt damit als benutzt
+      const bag = meta.trip.bag ? byId(meta.trip.bag) : null, bagWas = bag ? bag.lastWorn || null : null;
+      if (bag) await patchItem(bag.id, { lastWorn: todayIso() });
+      toast(`${n} ${n === 1 ? "Teil ist" : "Teile sind"} im Koffer. Gute Reise!`, { label: "Rückgängig", fn: async () => { for (const id of ids) await patchItem(id, { status: "schrank" }); if (bag && byId(bag.id)) await patchItem(bag.id, { lastWorn: bagWas }); meta.trip = null; saveMeta(); toast("Rückgängig gemacht."); } });
       break;
     }
     case "unpack": unpackSheet(); break;
@@ -3130,6 +3146,7 @@ document.addEventListener("click", async e => {
     case "i-type": { state.openDetails = (v || "").split("|")[0]; const it = byId(v.split("|")[0]); if (!it) break; const d = { ...it }; toggleType(d, v.split("|")[1]); await patchItem(it.id, { type: d.type || null, ...(d.neck !== it.neck ? { neck: d.neck } : {}) }); itemSheet(it.id); break; }
     case "i-neck": { state.openDetails = (v || "").split("|")[0]; const it = byId(v.split("|")[0]); if (!it) break; const n = v.split("|")[1]; await patchItem(it.id, { neck: it.neck === n ? null : n }); itemSheet(it.id); break; }
     case "i-basic": { state.openDetails = (v || "").split("|")[0]; const it = byId(v); if (!it) break; await patchItem(it.id, { basic: !it.basic }); itemSheet(it.id); break; }
+    case "i-rare": { state.openDetails = v; const it = byId(v); if (!it) break; await patchItem(it.id, { rare: !isRare(it) }); itemSheet(it.id); break; }
     case "d-color": addDraft.color = v; addDraft.colorTouched = true; drawAdd(); break;
     case "d-occ": {
       const o = addDraft.occasions;
@@ -3776,7 +3793,7 @@ function probeSummary() {
   return out.length ? "Geld-Tests: " + out.join(" · ") : "";
 }
 
-const APP_VERSION = "0.24";
+const APP_VERSION = "0.25";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -3958,7 +3975,7 @@ function wardrobeValue(list) {
   const worth = i => i.price > 0 ? i.price : med.get(i.cat) ?? null;
   let known = 0, est = 0, nEst = 0, nNone = 0;
   for (const i of list) { if (i.price > 0) known += i.price; else if (med.has(i.cat)) { est += med.get(i.cat); nEst++; } else nNone++; }
-  const idleItems = list.filter(i => isForgotten(i) && worth(i) != null && i.type !== "Regenschirm" && !(i.cat === "bag" && PACK_BAGS.has(i.type) && i.type !== "Rucksack")).sort((a, b) => worth(b) - worth(a));
+  const idleItems = list.filter(i => isForgotten(i) && worth(i) != null).sort((a, b) => worth(b) - worth(a));
   const idle = idleItems.reduce((a, i) => a + worth(i), 0);
   return { total: known + est, known, est, nPriced: priced.length, nEst, nNone, idle, idleN: idleItems.length, idleTop: idleItems.slice(0, 3).map(i => ({ it: i, v: worth(i), guess: !(i.price > 0) })), idleGuess: idleItems.some(i => !(i.price > 0)) };
 }
