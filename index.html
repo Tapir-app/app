@@ -854,7 +854,8 @@ function handleTag() {
   itemSheet(it.id, true);
 }
 
-const iso = d => d.toISOString().slice(0, 10);
+// Datum in Ortszeit. toISOString wäre UTC: zwischen 0 und 1 Uhr (Sommer 2 Uhr) zählte „heute“ sonst als gestern.
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return iso(d); };
 const todayIso = () => iso(new Date());
 const todayKey = () => DAYS[(new Date().getDay() + 6) % 7][0];
@@ -957,7 +958,7 @@ const TRACKED = {
   "lend-remind": "An Rückgabe erinnert", "lend-ics": "Rückgabe in Kalender", "wx-pick": "Ort fürs Wetter gewählt", "wash-every": "Waschrhythmus angepasst", "wash-all": "Doch alle gewaschen",
   "av-set": "Figur angepasst", "cat-fold": "Kategorie ein-/ausgeklappt", "cat-move": "Kategorien umsortiert", "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt",
   "review": "Wochenrückblick angesehen", "review-share": "Wochenrückblick als Bild geteilt", "share-outfit": "Outfit als Bild geteilt",
-  "type-open": "Aufschreiben geöffnet", "type-import": "Aufgeschriebene Teile übernommen", "quick-capture": "Mehrere Fotos auf einmal erfasst",
+  "install-how": "Hinweis Home-Bildschirm geöffnet", "type-open": "Aufschreiben geöffnet", "type-import": "Aufgeschriebene Teile übernommen", "quick-capture": "Mehrere Fotos auf einmal erfasst",
   "csv-open": "Listen-Import geöffnet", "csv-import": "Liste importiert", "csv-export": "Als Liste gespeichert", "mail-probe": "„Aus Bestellung übernehmen“ angesehen", "value-sell": "Vom Schrankwert zum Verkaufen", "gear-tog": "Ausrüstung abgehakt", "gear-add": "Eigene Ausrüstung hinzugefügt"
 };
 document.addEventListener("click", e => {
@@ -1562,7 +1563,7 @@ const byId = id => state.items.find(i => i.id === id);
 const RARE_TYPES = new Set(["Koffer", "Reisetasche", "Sporttasche", "Skijacke", "Skihose", "Abendkleid", "Smoking"]);
 const isRare = it => it.rare ?? (it.cat === "swim" || RARE_TYPES.has(it.type));
 const isForgotten = it => {
-  if (it.status === "eingelagert" || it.status === "koffer" || it.type === "Regenschirm") return false;
+  if (it.status === "eingelagert" || it.status === "koffer" || it.status === "verliehen" || it.type === "Regenschirm") return false;
   const ref = it.lastWorn || it.createdAt;
   if (!ref) return false;
   return (Date.now() - new Date(ref).getTime()) / 86400000 > (isRare(it) ? 365 : 30);
@@ -1782,6 +1783,8 @@ function renderBanner() {
       <div class="row"><button class="btn btn-primary" data-act="lend-remind" data-v="${it.id}">Freundlich erinnern</button><button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Ist zurück</button></div></div>`;
     } else if (r === "backup") b.innerHTML = `<div class="banner"><p><b>Zeit für eine Sicherung.</b> ${meta.lastBackupAt ? `Deine letzte ist ${daysSince(meta.lastBackupAt)} Tage alt.` : `Deine ${n} Teile liegen bisher nur auf diesem Handy.`} Wenn du den Browserverlauf löschst oder das Handy wechselst, wären sie weg. Speichere die Datei z. B. in iCloud, Google Drive oder schick sie dir selbst.</p>
       <div class="row"><button class="btn btn-primary" data-act="backup">Jetzt sichern</button><button class="btn btn-ghost" data-act="backup-later">Später</button></div></div>`;
+    else if (r === "install") b.innerHTML = `<div class="banner"><p><b>Leg Giyo auf deinen Home-Bildschirm.</b> Dann startet sie wie eine App und funktioniert auch offline.${/iPhone|iPad|iPod/.test(navigator.userAgent || "") ? " Wichtig beim iPhone: Im Safari-Browser können deine Teile gelöscht werden, wenn du die Seite eine Woche nicht öffnest." : ""}</p>
+      <div class="row"><button class="btn btn-primary" data-act="install-how">So geht’s</button><button class="btn btn-ghost" data-act="install-later">Später</button></div></div>`;
     else if (r === "feedback") b.innerHTML = `<div class="banner"><p><b>Wie findest du Giyo bisher?</b> Eine Minute Feedback hilft enorm, die App besser zu machen.</p>
       <div class="row"><button class="btn btn-primary" data-act="feedback">Feedback geben</button><button class="btn btn-ghost" data-act="feedback-later">Später</button></div></div>`;
     else b.innerHTML = gapBanner();
@@ -1800,6 +1803,8 @@ function reminder() {
   const snoozed = meta.backupSnooze && now < Date.parse(meta.backupSnooze);
   const old = !meta.lastBackupAt || daysSince(meta.lastBackupAt) >= 7;
   if (state.items.length >= 3 && (meta.changes || 0) >= 5 && old && !snoozed) return "backup";
+  const app = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (!app && state.items.length >= 3 && (!meta.installHint || (meta.installHint !== "done" && now > Date.parse(meta.installHint)))) return "install";
   if (!meta.fbSent && (meta.days >= 3 || meta.opens >= 6) && (!meta.fbAsked || daysSince(meta.fbAsked) >= 10)) return "feedback";
   return null;
 }
@@ -1871,7 +1876,7 @@ function viewSchrank() {
   return `<div class="stack" style="gap:22px">
     ${filtered ? "" : todayCard}
     ${filtered ? "" : reviewCard()}
-    <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Vergessen")}</div>
+    <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, all.length === 1 ? "Teil" : "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Vergessen")}</div>
     ${quickbar}
     ${tripbar}
     ${filtered ? "" : `<button class="cardlink" data-act="stats"><div><b>Dein Schrank in Zahlen</b><span>${statsTeaser()}</span></div>${ICON_CHEV}</button>`}
@@ -1882,7 +1887,7 @@ function viewSchrank() {
     </div>`}
     ${state.fStatus === "forgotten" ? '<p class="sub" style="margin:0">Seit über 30 Tagen nicht getragen. Teile für ab und zu, wie Koffer oder Skijacke, erst nach einem Jahr. Gute Kandidaten für die nächste Woche oder zum Weitergeben.</p>' : ""}
     ${tree ? treeView(list) : tiles || `<div class="empty">Keine Teile in dieser Auswahl.</div>`}
-    ${filtered ? "" : `<div class="banner"><p><b>Gefällt dir die App?</b> Lad Freunde zum Testen ein. Je mehr mitmachen, desto besser wird sie.</p><button class="btn btn-ghost" data-act="invite">Freunde einladen</button></div>`}
+    ${filtered || state.usingExamples || (meta.days || 0) < 2 ? "" : `<div class="banner"><p><b>Gefällt dir die App?</b> Lad Freunde zum Testen ein. Je mehr mitmachen, desto besser wird sie.</p><button class="btn btn-ghost" data-act="invite">Freunde einladen</button></div>`}
   </div>`;
 }
 function countText(map, label) {
@@ -2885,7 +2890,7 @@ function viewVerkaufen() {
       <li><b>Inserat</b><span>Preisvorschlag, Titel und Beschreibung, als Entwurf gespeichert</span></li>
     </ol>
     <button class="btn btn-primary btn-wide" data-act="s-new">+ Neues Inserat</button>
-    ${forgotten.length ? `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Lange nicht getragen</h3><p class="sub">Seit über 30 Tagen im Schrank, Koffer, Skijacke und andere Teile für ab und zu erst nach einem Jahr. Vielleicht freut sich jemand anderes darüber.</p>
+    ${forgotten.length ? `<div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Lange nicht getragen</h3><p class="sub">Seit über 30 Tagen nicht getragen. Teile für ab und zu, wie Koffer oder Skijacke, erst nach einem Jahr. Vielleicht freut sich jemand anderes darüber.</p>
       <div class="list">${forgotten.map(it => `<div class="row-item"><div class="thumb">${thumb(it)}</div><div class="txt"><b>${esc(it.name)}</b><span>${lastWornText(it)}</span></div><button class="btn btn-ghost" data-act="sell-item" data-v="${it.id}">Verkaufen</button></div>`).join("")}</div></div>` : ""}
     <div style="display:flex;flex-direction:column;gap:8px"><h3 class="h3">Deine Inserate <span class="n">${state.listings.length}</span></h3>
       ${rows ? `<div class="list">${rows}</div>` : `<div class="empty">Noch keine Inserate. Starte mit „Neues Inserat“ oder tippe bei einem Teil im Schrank auf „Verkaufen“.</div>`}</div>
@@ -3846,6 +3851,8 @@ document.addEventListener("click", async e => {
       SB.setAiKey(v); sample = SB.makeSample(); sampleImages = !!sample; render(); settingsSheet(v ? "KI-Schlüssel gespeichert." : "Kein Schlüssel eingetragen."); break;
     }
     case "clear-key": SB.setAiKey(""); sample = null; sampleImages = false; render(); settingsSheet("KI-Schlüssel entfernt."); break;
+    case "install-how": meta.installHint = "done"; saveMeta(); render(); state.armedWipe = false; settingsSheet(); break;
+    case "install-later": meta.installHint = new Date(Date.now() + 14 * 86400000).toISOString(); saveMeta(); render(); break;
     case "backup-later": meta.backupSnooze = new Date(Date.now() + 3 * 86400000).toISOString(); saveMeta(); render(); break;
     case "feedback-later": meta.fbAsked = new Date().toISOString(); saveMeta(); render(); break;
     case "feedback": feedbackSheet(); break;
@@ -4036,7 +4043,7 @@ Quellen: Utopia.de (Waschgang-Rechner Uni Bonn, EU-Datenbank EPREL), Umweltbunde
     ${s.top.length ? `<div class="set-group"><span class="eyebrow">Meistgetragen</span><ul class="rank">${s.top.map(i => li(i.name, i.wears + "×")).join("")}</ul></div>` : ""}
     <div class="set-group"><span class="eyebrow">Kosten pro Tragen</span>
       ${s.priced.length ? `<ul class="rank">${s.priced.slice(0, 3).map(p => li(p.it.name, euro(p.cpw))).join("")}</ul>
-      ${s.priced.length > 3 ? `<p class="hint">Am teuersten pro Tragen: ${esc(s.priced[s.priced.length - 1].it.name)} mit ${euro(s.priced[s.priced.length - 1].cpw)}. Vielleicht diese Woche anziehen oder verkaufen?</p>` : ""}
+      ${(() => { const ex = s.priced.filter(x => !isRare(x.it) && x.it.status !== "verliehen").pop(); return s.priced.length > 3 && ex ? `<p class="hint">Am teuersten pro Tragen: ${esc(ex.it.name)} mit ${euro(ex.cpw)}. Vielleicht diese Woche anziehen oder verkaufen?</p>` : ""; })()}
 ` : `<p class="hint">Tipp ein Teil an und trag den Kaufpreis ein. Dann siehst du, was dich jedes Tragen kostet.</p>`}
     </div>
     ${s.forgotten.length ? `<div class="set-group"><span class="eyebrow">Vergessen</span><p class="hint">${s.forgotten.slice(0, 4).map(i => esc(i.name)).join(", ")}${s.forgotten.length > 4 ? " …" : ""}. Diese Woche einplanen, verleihen oder verkaufen?</p></div>` : ""}
@@ -4303,7 +4310,7 @@ function showOnboarding() {
     { art: `<div class="onb-grid">${t("ex05", "schrank")}${t("ex01", "schrank")}${t("ex03", "waesche")}${t("ex11", "schrank")}${t("ex09", "schrank")}${t("ex12", "schrank")}</div>`,
       eb: "Überblick", h: "Dein Schrank <em>auf einen Blick</em>",
       p: "Trag deine Kleidung ein, mit Foto oder ohne. Du siehst sofort, was sauber im Schrank hängt und was gerade in der Wäsche ist." },
-    { art: `<div class="today"><div class="today-top"><div><span class="eyebrow">Morgen · Dienstag · Büro</span><h2>Dein <em>Outfit</em></h2></div></div>
+    { art: `<div class="today"><div class="today-top"><div><span class="eyebrow">Morgen · ${DAYS[new Date().getDay()][1]} · ${[0, 6].includes((new Date().getDay() + 1) % 7) ? "Alltag" : "Büro"}</span><h2>Dein <em>Outfit</em></h2></div></div>
         <div class="wx"><span>☁︎</span><span><b>14 °C</b> · Regen 60 %, also lieber die Jacke</span></div>
         <div class="outfit">${["ex02", "ex06", "ex11", "ex13"].map(id => `<div class="mini"><div class="thumb">${garmentSvg(ex(id))}</div><span>${esc(ex(id).name)}</span></div>`).join("")}</div>
         <div class="btn btn-inv btn-wide" aria-hidden="true">Heute getragen</div></div>`,
