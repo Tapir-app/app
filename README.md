@@ -18,6 +18,7 @@ Dateien in ein öffentliches Repository legen → Settings → Pages → Branch 
 - `shim.js` – lokaler Speicher (localStorage + IndexedDB für Fotos), Sicherung, optionale KI mit eigenem Schlüssel
 - `sw.js` – Offline-Betrieb
 - `manifest.webmanifest`, `icons/` – App-Symbol und Installation
+- `ki/` – Foto-Erkennung auf dem Handy (ab 0.27): offenes Mode-Modell Marqo-FashionSigLIP (Apache 2.0) mit ONNX Runtime Web (MIT), siehe `ki/LIZENZEN.txt`. Wird erst geladen, wenn jemand „Automatisch erkennen“ tippt (ca. 73 MB), danach dauerhaft im Speicher des Handys. Fotos verlassen das Gerät nicht. Ändern sich Dateien in `ki/`, in `sw.js` und `index.html` den Namen `giyo-ki-1` hochzählen.
 
 ## Feedback und Warteliste einstellen
 Oben in `index.html` steht `const CONTACT = { email, feedbackForm, waitlistForm }`. Leer = Feedback und Wartelisten-Anmeldung gehen über das Teilen-Menü des Handys (WhatsApp, Mail …). Mit E-Mail-Adresse oder Formular-Link gehen sie direkt dorthin.
