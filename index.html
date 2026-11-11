@@ -630,6 +630,13 @@ a.wx-credit { color: inherit; text-decoration: underline; text-underline-offset:
 .quickbar > svg { width: 22px; height: 22px; color: var(--st-waesche); flex: none; }
 .quickbar > span { flex: 1; min-width: 0; font-size: 14px; font-weight: 500; }
 .quickbar .btn { min-height: 38px; padding: 7px 14px; font-size: 13px; }
+.quickbar.gym-bar { background: var(--surface-2); }
+.quickbar.gym-bar > svg { color: var(--accent); }
+.gym-link { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; text-align: left; background: var(--surface-2); border-radius: var(--r); padding: 10px 14px; min-height: 44px; color: inherit; font: inherit; }
+.gym-link b { flex: 1; font-size: 14px; font-weight: 600; }
+.gym-link svg { width: 20px; height: 20px; flex: none; }
+.gym-link svg:first-child { color: var(--accent); }
+.gym-link svg:last-child { width: 16px; height: 16px; transform: rotate(-90deg); color: var(--muted); }
 .q-list { display: flex; flex-direction: column; gap: 12px; }
 .q-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
 .q-img { width: 72px; height: 90px; border-radius: 12px; overflow: hidden; background: var(--surface-2); }
@@ -1887,13 +1894,18 @@ function viewSchrank() {
   const quickbar = !filtered && wN ? `<div class="quickbar">${STATUS_ICON.waesche}<span>${wN} ${wN === 1 ? "Teil" : "Teile"} im Wäschekorb</span><button class="btn btn-ghost" data-act="laundry-done">Alles zurück</button></div>` : "";
   const kfN = all.filter(i => i.status === "koffer").length;
   const tripbar = filtered || !kfN ? "" : `<div class="quickbar">${STATUS_ICON.koffer}<span>${kfN} ${kfN === 1 ? "Teil" : "Teile"} im Koffer${meta.trip?.dest ? " · " + esc(meta.trip.dest) : ""}${(() => { const d = meta.trip?.date, t0 = localIso(new Date()); if (!d || d < t0) return ""; const n = Math.round((Date.parse(d + "T12:00:00") - Date.parse(t0 + "T12:00:00")) / 86400000); return n === 0 ? " · Abreise heute" : n === 1 ? " · Abreise morgen" : ` · Abreise in ${n} Tagen`; })()}</span><button class="btn btn-ghost" data-act="unpack">Auspacken</button></div>`;
+  const gymIds = (meta.gym?.ids || []).filter(id => byId(id)), gymOld = meta.gym?.at && meta.gym.at < todayIso();
+  const gymbar = filtered || !gymIds.length ? "" : `<div class="quickbar gym-bar">${ICON_GYM}<span>${gymOld ? "Sporttasche noch gepackt" : `${gymIds.length} ${gymIds.length === 1 ? "Teil" : "Teile"} in der Sporttasche`}</span><button class="btn btn-ghost" data-act="gym-after">Nach dem Training</button></div>`;
+  const gymLink = filtered || gymIds.length || !hasSport() ? "" : `<button class="gym-link" data-act="gym">${ICON_GYM}<b>Sporttasche packen</b>${ICON_CHEV}</button>`;
   return `<div class="stack" style="gap:22px">
     ${filtered ? "" : todayCard}
     ${filtered ? "" : reviewCard()}
     <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, all.length === 1 ? "Teil" : "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Vergessen")}</div>
     ${quickbar}
     ${tripbar}
+    ${gymbar}
     ${filtered ? "" : `<div class="link-row${kfN ? " one" : ""}">${kfN ? "" : `<button class="cardlink" data-act="trip"><div><b>Reise planen</b><span>Koffer packen</span></div></button>`}<button class="cardlink" data-act="stats" title="${esc(statsTeaser())}"><div><b>Schrank in Zahlen</b><span>${statsTeaser(true)}</span></div></button></div>`}
+    ${gymLink}
     ${state.fromTree ? crumb : `<div class="toolbar">
       <div class="chips" role="group" aria-label="Kategorie">${viewBtn}${catChips}${basicChip}</div>
       ${tree ? "" : typeChips}
@@ -2209,6 +2221,84 @@ function drawUnpack() {
     <p class="sub">Angehakt kommt in die Wäsche, der Rest zurück in den Schrank. Kleidung ist schon angehakt, Schuhe und Taschen nicht.</p>
     <div class="list">${list.map(it => `<button type="button" class="row-item pick-row" data-act="unpack-tog" data-v="${it.id}" aria-pressed="${u.wash.has(it.id)}"><span class="thumb">${thumb(it)}</span><span class="txt"><b>${esc(it.name)}</b><span>${u.wash.has(it.id) ? "In die Wäsche" : "Zurück in den Schrank"}</span></span><span class="check">${ICON_CHECK}</span></button>`).join("")}</div>
     <button class="btn btn-primary btn-wide" data-act="unpack-go">Auspacken: ${nW} in die Wäsche, ${list.length - nW} in den Schrank</button>`, () => { unpack = null; });
+}
+
+/* ---------- Sporttasche packen ---------- */
+// Sauberes Sport-Outfit plus Ausrüstung. Ändert den Status nicht, erst „Nach dem Training“ legt die Sachen in die Wäsche.
+GEAR.gym = ["Handtuch", "Trinkflasche", "Duschzeug", "Schloss", "Kopfhörer", "Mitgliedskarte"];
+const ICON_GYM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 9.5V8a3 3 0 0 1 6 0v1.5"/><rect x="3" y="9.5" width="18" height="10" rx="5"/><path d="M8 9.5v10M16 9.5v10"/></svg>';
+const SPORT_TYPES = new Set(["Leggings", "Jogginghose", "Sportschuhe"]);
+const GYM_CATS = new Set(["top", "bottom", "jacket", "shoes", "swim", "acc"]);
+const sportScore = i => (i.occasions?.includes("sport") ? 2 : 0) + (SPORT_TYPES.has(i.type) ? 1 : 0);
+const isSporty = i => GYM_CATS.has(i.cat) && sportScore(i) > 0;
+const hasSport = () => state.items.some(i => isSporty(i) || i.type === "Sporttasche") || Object.values(state.plan?.days || {}).some(d => d.occ === "sport");
+const gymBags = () => state.items.filter(i => i.cat === "bag" && i.type === "Sporttasche" && i.status === "schrank");
+let gym = null;
+function gymSuggest() {
+  const clean = state.items.filter(i => i.status === "schrank" && isSporty(i));
+  const best = f => clean.filter(f).sort((a, b) => (sportScore(b) - sportScore(a)) || (!!b.basic - !!a.basic) || (b.wears || 0) - (a.wears || 0))[0];
+  const out = new Set(), add = i => { if (i) out.add(i.id); };
+  add(best(i => i.cat === "top"));
+  add(best(i => i.cat === "bottom"));
+  add(best(i => i.cat === "shoes"));
+  if (dayWeather(todayKey()) === "kalt") add(best(i => i.cat === "jacket"));
+  return out;
+}
+function gymSheet() {
+  const bags = gymBags();
+  gym = { sel: gymSuggest(), gear: new Set(), bag: bags.length === 1 ? bags[0].id : null, more: false };
+  count("gym-open"); drawGym();
+}
+function drawGym() {
+  const g = gym; if (!g) return;
+  const sporty = sortItems(state.items.filter(i => i.status === "schrank" && isSporty(i)));
+  const others = sortItems(state.items.filter(i => i.status === "schrank" && GYM_CATS.has(i.cat) && !isSporty(i) && !g.sel.has(i.id)));
+  const extra = [...g.sel].map(byId).filter(i => i && !isSporty(i));
+  const list = [...sporty, ...sortItems(extra)], n = g.sel.size;
+  const dirty = sortItems(state.items.filter(i => i.status === "waesche" && isSporty(i)));
+  const rowP = it => `<button type="button" class="row-item pick-row" data-act="gym-tog" data-v="${it.id}" aria-pressed="${g.sel.has(it.id)}"><span class="thumb">${thumb(it)}</span><span class="txt"><b>${esc(it.name)}</b><span>${esc(it.type || CATS[it.cat])}</span></span><span class="check">${ICON_CHECK}</span></button>`;
+  const bags = gymBags(), gl = gearOf("gym"), done = gl.filter(x => g.gear.has(x)).length, hidden = (meta.gear?.gym?.del || []).length;
+  openSheet(`<h2>Sporttasche packen</h2>
+    <p class="sub">Ein sauberes Sport-Outfit aus deinem Schrank. Tippe an, was mitkommt.</p>
+    ${bags.length > 1 ? `<div class="field"><span class="lbl">Welche Tasche?</span><div class="chips wrap">${bags.map(b => `<button type="button" class="chip" data-act="gym-bag" data-v="${b.id}" aria-pressed="${g.bag === b.id}">${esc(b.name)}</button>`).join("")}</div></div>` : ""}
+    <h3 class="h3">Kleidung <span class="n">${n} ${n === 1 ? "Teil" : "Teile"}</span></h3>
+    ${list.length ? `<div class="list">${list.map(rowP).join("")}</div>` : `<div class="empty">Noch keine Sportsachen im Schrank.</div>`}
+    ${dirty.length ? `<p class="hint"><b>Liegt im Wäschekorb:</b> ${dirty.slice(0, 4).map(i => esc(i.name)).join(", ")}${dirty.length > 4 ? " …" : ""}.</p>` : ""}
+    <p class="hint">Hier stehen Teile mit dem Anlass „Sport“, dazu Leggings, Jogginghosen und Sportschuhe. Den Anlass stellst du beim Teil ein.</p>
+    ${others.length ? `<details class="fb-more" id="gymMore"${g.more ? " open" : ""}><summary>Anderes aus dem Schrank (${others.length})</summary><div class="list" style="margin-top:10px">${others.map(rowP).join("")}</div></details>` : ""}
+    <div class="gear"><h3 class="h3">Ausrüstung <span class="n">${gl.length ? `${done} von ${gl.length} eingepackt` : "leer"}</span></h3>
+      ${gl.length ? `<div class="list">${gl.map(x => `<div class="row-item gear-row"><button type="button" class="pick-row gear-tick" data-act="gym-gear-tog" data-v="${esc(x)}" aria-pressed="${g.gear.has(x)}"><span class="check">${ICON_CHECK}</span><span class="txt"><b>${esc(x)}</b></span></button><button type="button" class="gear-x" data-act="gym-gear-del" data-v="${esc(x)}" aria-label="${esc(x)} von der Liste nehmen">${ICON_X}</button></div>`).join("")}</div>` : ""}
+      <div class="wl-row"><input type="text" id="gymGearInput" maxlength="30" autocomplete="off" placeholder="z. B. Springseil" aria-label="Eigene Ausrüstung hinzufügen"><button type="button" class="btn btn-ghost" data-act="gym-gear-add">Hinzufügen</button></div>
+      <p class="hint">Was du hinzufügst oder entfernst, merkt sich Giyo fürs nächste Training.${hidden ? ` <button type="button" class="linkbtn" data-act="gym-gear-reset">${hidden} entfernte zurückholen</button>` : ""}</p></div>
+    <div class="pack-extra"><span class="eyebrow">Nicht vergessen</span><p>Socken · Unterwäsche zum Wechseln</p></div>
+    <button class="btn btn-primary btn-wide" data-act="gym-go"${n ? "" : " disabled"}>${n ? `${n} ${n === 1 ? "Teil" : "Teile"} einpacken` : "Nichts ausgewählt"}</button>
+    <p class="hint">Nach dem Training auf der Startseite „Nach dem Training“ tippen. Dann kommt die Sportkleidung in die Wäsche.</p>`, () => { gym = null; });
+  document.getElementById("gymMore")?.addEventListener("toggle", e => { if (gym) gym.more = e.target.open; });
+  document.getElementById("gymGearInput")?.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); gymGearAdd(); } });
+}
+function gymGearAdd() {
+  const inp = document.getElementById("gymGearInput"), name = (inp?.value || "").trim().replace(/\s+/g, " ").slice(0, 30);
+  if (!gym || !name) return;
+  if (gearOf("gym").some(x => x.toLowerCase() === name.toLowerCase())) { toast("Steht schon auf der Liste."); return; }
+  gearSet("gym", g => { if (GEAR.gym.includes(name)) g.del = g.del.filter(x => x !== name); else g.add.push(name); });
+  drawGym(); document.getElementById("gymGearInput")?.focus({ preventScroll: true });
+}
+// Nach dem Training: angehakt kommt in die Wäsche, der Rest zählt nur als getragen
+let gymDone = null;
+function gymDoneSheet() {
+  const list = (meta.gym?.ids || []).map(byId).filter(Boolean);
+  if (!list.length) { meta.gym = null; saveMeta(); render(); return; }
+  gymDone = { ids: list.map(i => i.id), wash: new Set(list.filter(i => LAUNDRY_CATS.has(i.cat)).map(i => i.id)) };
+  drawGymDone();
+}
+function drawGymDone() {
+  const u = gymDone; if (!u) return;
+  const list = u.ids.map(byId).filter(Boolean), nW = list.filter(i => u.wash.has(i.id)).length;
+  openSheet(`<h2>Nach dem Training</h2>
+    <p class="sub">Angehakt kommt in die Wäsche. Alles zählt als heute getragen.</p>
+    <div class="list">${list.map(it => `<button type="button" class="row-item pick-row" data-act="gymdone-tog" data-v="${it.id}" aria-pressed="${u.wash.has(it.id)}"><span class="thumb">${thumb(it)}</span><span class="txt"><b>${esc(it.name)}</b><span>${u.wash.has(it.id) ? "In die Wäsche" : "Zurück in den Schrank"}</span></span><span class="check">${ICON_CHECK}</span></button>`).join("")}</div>
+    <button class="btn btn-primary btn-wide" data-act="gymdone-go">${nW ? `${nW} in die Wäsche` : "Fertig"}${list.length - nW ? `, ${list.length - nW} in den Schrank` : ""}</button>
+    <div class="set-row"><button class="btn btn-ghost" data-act="gym-empty">Doch nicht trainiert, Tasche leeren</button></div>`, () => { gymDone = null; });
 }
 
 /* ---------- sheets ---------- */
@@ -3158,6 +3248,47 @@ document.addEventListener("click", async e => {
       break;
     }
     case "unpack": unpackSheet(); break;
+    case "gym": gymSheet(); break;
+    case "gym-tog": if (gym) { gym.sel.has(v) ? gym.sel.delete(v) : gym.sel.add(v); drawGym(); } break;
+    case "gym-bag": if (gym) { gym.bag = gym.bag === v ? null : v; drawGym(); } break;
+    case "gym-gear-tog": if (gym) { gym.gear.has(v) ? gym.gear.delete(v) : gym.gear.add(v); drawGym(); } break;
+    case "gym-gear-add": gymGearAdd(); break;
+    case "gym-gear-del": if (gym) { gearSet("gym", g => { if (GEAR.gym.includes(v)) g.del.push(v); g.add = g.add.filter(x => x !== v); }); gym.gear.delete(v); drawGym(); } break;
+    case "gym-gear-reset": if (gym) { gearSet("gym", g => { g.del = []; }); drawGym(); } break;
+    case "gym-go": {
+      if (!gym || !gym.sel.size) break;
+      const ids = [...gym.sel], bag = gym.bag ? byId(gym.bag) : null;
+      meta.gym = { ids, at: todayIso(), bag: bag?.id || null }; saveMeta(); count("gym-pack");
+      closeSheet(); render();
+      toast(`${ids.length} ${ids.length === 1 ? "Teil ist" : "Teile sind"} in der Sporttasche. Viel Spaß beim Training!`, { label: "Rückgängig", fn: () => { meta.gym = null; saveMeta(); render(); } });
+      break;
+    }
+    case "gym-after": gymDoneSheet(); break;
+    case "gymdone-tog": if (gymDone) { gymDone.wash.has(v) ? gymDone.wash.delete(v) : gymDone.wash.add(v); drawGymDone(); } break;
+    case "gymdone-go": {
+      if (!gymDone) break;
+      const ids = gymDone.ids.filter(id => byId(id)), wash = new Set(gymDone.wash), bagId = meta.gym?.bag;
+      const keys = ["status", "sinceWash", "wears", "lastWorn", "rewears"], before = ids.map(id => { const it = byId(id); return [id, Object.fromEntries(keys.map(k => [k, it[k] ?? null]))]; });
+      const bag = bagId ? byId(bagId) : null, bagWas = bag ? bag.lastWorn || null : null;
+      closeSheet();
+      for (const id of ids) {
+        const it = byId(id), p = wearPatch(it, wash.has(id) ? "wash" : "keep");
+        if (wash.has(id)) { p.status = "waesche"; p.sinceWash = 0; delete p.rewears; } else p.status = "schrank";
+        await patchItem(id, p);
+      }
+      if (bag) await patchItem(bag.id, { lastWorn: todayIso() });
+      logWear(ids); count("gym-done");
+      const gymWas = meta.gym; meta.gym = null; saveMeta(); render();
+      const nW = ids.filter(id => wash.has(id)).length;
+      toast(nW ? `Gut gemacht! ${nW} ${nW === 1 ? "Teil liegt" : "Teile liegen"} jetzt im Wäschekorb.` : "Gut gemacht! Alles zurück im Schrank.", { label: "Rückgängig", fn: async () => {
+        for (const [id, o] of before) if (byId(id)) await patchItem(id, o);
+        if (bag && byId(bag.id)) await patchItem(bag.id, { lastWorn: bagWas });
+        const L = meta.wearLog?.[todayIso()]; if (L) meta.wearLog[todayIso()] = L.filter(x => !ids.includes(x));
+        meta.gym = gymWas; saveMeta(); render(); toast("Rückgängig gemacht.");
+      } });
+      break;
+    }
+    case "gym-empty": closeSheet(); meta.gym = null; saveMeta(); render(); toast("Sporttasche geleert. Alles bleibt im Schrank."); break;
     case "unpack-tog": if (unpack) { unpack.wash.has(v) ? unpack.wash.delete(v) : unpack.wash.add(v); drawUnpack(); } break;
     case "unpack-go": {
       if (!unpack) break;
@@ -3834,7 +3965,7 @@ function probeSummary() {
   return out.length ? "Geld-Tests: " + out.join(" · ") : "";
 }
 
-const APP_VERSION = "0.28";
+const APP_VERSION = "0.29";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
