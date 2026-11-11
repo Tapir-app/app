@@ -229,6 +229,9 @@ a.btn { text-decoration: none; }
 .cat-sec.is-folded .cat-head svg { transform: rotate(-90deg); }
 .cat-sec > .grid { padding-bottom: 12px; }
 .seg-row { display: flex; gap: 8px; align-items: stretch; }
+.chip-icon { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; padding-left: 12px; padding-right: 12px; flex: none; }
+.chip-icon svg { width: 17px; height: 17px; }
+.add-other { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 .seg-row .seg { flex: 1; min-width: 0; }
 .seg-row .btn { flex: none; gap: 6px; }
 .seg-row .btn svg { width: 16px; height: 16px; }
@@ -1878,7 +1881,7 @@ function viewSchrank() {
     </section>`;
   const filtered = filtered0;
   const tree = meta.view === "tree" && !state.fromTree;
-  const viewSeg = `<div class="seg-row"><div class="seg" role="group" aria-label="Ansicht"><button data-act="view" data-v="grid" aria-pressed="${!tree}">Kacheln</button><button data-act="view" data-v="tree" aria-pressed="${tree}">Übersicht</button></div><button class="btn btn-ghost btn-sm" data-act="cats" aria-label="Kategorien ordnen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h5"/></svg>Ordnen</button></div>`;
+  const viewBtn = `<button class="chip chip-icon" data-act="cats" aria-label="Ansicht und Kategorien ordnen" title="Ansicht und Ordnen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>`;
   const crumb = state.fromTree ? `<div class="wx-line"><button class="back" data-act="tree-back">${ICON_BACK} Übersicht</button><span class="sub" style="margin:0">${[state.fType === "__none" ? "Ohne Art" : state.fType !== "all" ? state.fType : CATS[state.fCat], state.fColor].filter(Boolean).map(esc).join(" · ")} · ${list.length} ${list.length === 1 ? "Teil" : "Teile"}</span></div>` : "";
   const wN = all.filter(i => i.status === "waesche").length;
   const quickbar = !filtered && wN ? `<div class="quickbar">${STATUS_ICON.waesche}<span>${wN} ${wN === 1 ? "Teil" : "Teile"} im Wäschekorb</span><button class="btn btn-ghost" data-act="laundry-done">Alles zurück</button></div>` : "";
@@ -1892,8 +1895,7 @@ function viewSchrank() {
     ${tripbar}
     ${filtered ? "" : `<div class="link-row${kfN ? " one" : ""}">${kfN ? "" : `<button class="cardlink" data-act="trip"><div><b>Reise planen</b><span>Koffer packen</span></div></button>`}<button class="cardlink" data-act="stats" title="${esc(statsTeaser())}"><div><b>Schrank in Zahlen</b><span>${statsTeaser(true)}</span></div></button></div>`}
     ${state.fromTree ? crumb : `<div class="toolbar">
-      ${viewSeg}
-      <div class="chips" role="group" aria-label="Kategorie">${catChips}${basicChip}</div>
+      <div class="chips" role="group" aria-label="Kategorie">${viewBtn}${catChips}${basicChip}</div>
       ${tree ? "" : typeChips}
     </div>`}
     ${state.fStatus === "forgotten" ? '<p class="sub" style="margin:0">Seit über 30 Tagen nicht getragen. Teile für ab und zu, wie Koffer oder Skijacke, erst nach einem Jahr. Gute Kandidaten für die nächste Woche oder zum Weitergeben.</p>' : ""}
@@ -2389,16 +2391,16 @@ function drawAdd(focusName) {
       <div class="photo-pick">
         <div class="thumb">${garmentSvg(fake)}${prev}</div>
         <div class="col">
-          <span class="btn btn-ghost btn-sm file-btn">${d.file ? "Anderes Foto" : "Foto aufnehmen oder wählen"}<input type="file" id="photoInput" accept="image/*" aria-label="Foto wählen"></span>
+          <span class="btn ${d.file ? "btn-ghost" : "btn-primary"} btn-sm file-btn">${d.file ? "Anderes Foto" : "Foto aufnehmen oder wählen"}<input type="file" id="photoInput" accept="image/*" aria-label="Foto wählen"></span>
           ${kiAddBlock(d)}
           ${d.file && sampleImages ? `<button type="button" class="btn btn-accent btn-sm" data-act="d-ai" id="aiBtn">${ICON_SPARK} Mit KI erkennen</button>` : ""}
           <p class="hint">Foto ist optional und bleibt auf deinem Handy. Ohne Foto zeigt die App eine Skizze in der Farbe.</p>
         </div>
       </div>
-      ${d.file ? "" : `<div class="banner"><p><b>Viele Teile auf einmal?</b> Mach erst alle Fotos und wähl sie dann hier zusammen aus. Die App schätzt die Farbe, du tippst nur noch Namen und Kategorie.</p><span class="btn btn-ghost file-btn">Mehrere Fotos auswählen<input type="file" id="multiInput" accept="image/*" multiple aria-label="Mehrere Fotos wählen"></span></div>
+      ${d.file ? "" : `<details class="fb-more" id="addOther"${d.otherOpen ? " open" : ""}><summary>Andere Wege: mehrere Fotos, aufschreiben, Liste, Bestellung</summary><div class="add-other"><div class="banner"><p><b>Viele Teile auf einmal?</b> Mach erst alle Fotos und wähl sie dann hier zusammen aus. Die App schätzt die Farbe, du tippst nur noch Namen und Kategorie.</p><span class="btn btn-ghost file-btn">Mehrere Fotos auswählen<input type="file" id="multiInput" accept="image/*" multiple aria-label="Mehrere Fotos wählen"></span></div>
       <div class="add-alt"><button type="button" class="cardlink" data-act="type-open"><div><b>Aufschreiben oder diktieren</b><span>Schneller als Fotos: einfach aufzählen, was du hast</span></div>${ICON_CHEV}</button>
         <button type="button" class="cardlink" data-act="csv-open"><div><b>Liste importieren</b><span>Aus Excel, Numbers oder Google Tabellen</span></div>${ICON_CHEV}</button>
-        <button type="button" class="cardlink" data-act="mail-probe"><div><b>Aus Bestellung übernehmen</b><span>Online gekauft? Bestellbestätigung weiterleiten</span></div>${ICON_CHEV}</button></div>`}
+        <button type="button" class="cardlink" data-act="mail-probe"><div><b>Aus Bestellung übernehmen</b><span>Online gekauft? Bestellbestätigung weiterleiten</span></div>${ICON_CHEV}</button></div></div></details>`}
       <div class="field"><label for="nameInput">Name</label><input type="text" id="nameInput" maxlength="40" placeholder="${autoName ? `z. B. ${esc(autoName)}` : "z. B. Navy Strickpullover"}" value="${esc(d.name)}"></div>
       <div class="field"><span class="lbl">Kategorie</span><div class="chips wrap">${catChips}</div></div>
       ${typeField(d, "d")}
@@ -2426,6 +2428,7 @@ function drawAdd(focusName) {
   sizeInput?.addEventListener("input", () => { addDraft.size = sizeInput.value; });
   bindMat("d", () => addDraft?.material || [], r => { if (addDraft) addDraft.material = r; });
   document.getElementById("addMore").addEventListener("toggle", e => { if (addDraft) addDraft.moreOpen = e.target.open; });
+  document.getElementById("addOther")?.addEventListener("toggle", e => { if (addDraft) addDraft.otherOpen = e.target.open; });
   if (focusName) nameInput.focus();
   document.getElementById("photoInput").addEventListener("change", ev => {
     const f = ev.target.files?.[0]; if (!f) return;
@@ -3045,7 +3048,7 @@ document.addEventListener("click", async e => {
   switch (act) {
     case "tab": state.tab = v; render(); window.scrollTo({ top: 0 }); break;
     case "fcat": state.fCat = v; state.fType = "all"; state.fColor = null; render(); break;
-    case "view": meta.view = v; saveMeta(); count("view:" + v); state.fromTree = false; state.fColor = null; state.fType = "all"; render(); break;
+    case "view": meta.view = v; saveMeta(); count("view:" + v); state.fromTree = false; state.fColor = null; state.fType = "all"; render(); if (sheet.querySelector("#viewSeg")) catSheet(); break;
     case "tree-open": {
       const [c, t, col] = v.split("|");
       state.fCat = c; state.fType = t ? t : (el.dataset.none ? "__none" : "all"); state.fColor = col || null; state.fromTree = true;
@@ -3335,7 +3338,9 @@ function catSheet(focus) {
     + `<button type="button" class="cat-mv up" data-act="cat-move" data-v="${c}" data-d="-1" aria-label="${esc(CATS[c])} nach oben"${i === 0 ? " disabled" : ""}>${ICON_CHEV}</button>`
     + `<button type="button" class="cat-mv" data-act="cat-move" data-v="${c}" data-d="1" aria-label="${esc(CATS[c])} nach unten"${i === vis.length - 1 ? " disabled" : ""}>${ICON_CHEV}</button></div>`).join("");
   const custom = !!meta.catOrder && ord.some((c, i) => c !== CAT_ORDER[i]);
-  openSheet(`<h2>Deine <em>Kategorien</em></h2>
+  const tree = meta.view === "tree";
+  openSheet(`<h2>Ansicht und <em>Ordnung</em></h2>
+    <div class="seg" id="viewSeg" role="group" aria-label="Ansicht"><button data-act="view" data-v="grid" aria-pressed="${!tree}">Kacheln</button><button data-act="view" data-v="tree" aria-pressed="${tree}">Übersicht</button></div>
     <p class="hint">Was oben stehen soll, schiebst du nach oben. Im Schrank klappst du eine Kategorie mit einem Tipp auf ihre Überschrift ein oder aus.</p>
     <div class="cat-list">${rows}</div>
     <div class="set-row"><button class="btn btn-ghost" data-act="cat-fold-all" data-v="1">Alle einklappen</button><button class="btn btn-ghost" data-act="cat-fold-all" data-v="0">Alle ausklappen</button></div>
@@ -3829,7 +3834,7 @@ function probeSummary() {
   return out.length ? "Geld-Tests: " + out.join(" · ") : "";
 }
 
-const APP_VERSION = "0.27";
+const APP_VERSION = "0.28";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
