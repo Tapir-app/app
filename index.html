@@ -632,11 +632,6 @@ a.wx-credit { color: inherit; text-decoration: underline; text-underline-offset:
 .quickbar .btn { min-height: 38px; padding: 7px 14px; font-size: 13px; }
 .quickbar.gym-bar { background: var(--surface-2); }
 .quickbar.gym-bar > svg { color: var(--accent); }
-.gym-link { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; text-align: left; background: var(--surface-2); border-radius: var(--r); padding: 10px 14px; min-height: 44px; color: inherit; font: inherit; }
-.gym-link b { flex: 1; font-size: 14px; font-weight: 600; }
-.gym-link svg { width: 20px; height: 20px; flex: none; }
-.gym-link svg:first-child { color: var(--accent); }
-.gym-link svg:last-child { width: 16px; height: 16px; transform: rotate(-90deg); color: var(--muted); }
 .q-list { display: flex; flex-direction: column; gap: 12px; }
 .q-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
 .q-img { width: 72px; height: 90px; border-radius: 12px; overflow: hidden; background: var(--surface-2); }
@@ -661,7 +656,12 @@ a.wx-credit { color: inherit; text-decoration: underline; text-underline-offset:
 .cardlink span { font-size: 12.5px; color: var(--muted); }
 .cardlink svg { width: 18px; height: 18px; transform: rotate(-90deg); flex: none; color: var(--muted); }
 .link-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.link-row.one { grid-template-columns: minmax(0, 1fr); }
+.link-row.n1 { grid-template-columns: minmax(0, 1fr); }
+.link-row.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.link-row.n3 .cardlink { padding: 11px 10px; }
+.link-row.n3 .cardlink b { font-size: 13.5px; }
+.link-row.n3 .cardlink span { font-size: 12px; }
+@media (max-width: 359px) { .link-row.n3 .cardlink { padding: 10px 8px; } .link-row.n3 .cardlink b { font-size: 12.5px; } .link-row.n3 .cardlink span { font-size: 11.5px; } }
 .link-row .cardlink { padding: 12px 14px; align-items: flex-start; }
 .link-row .cardlink b { line-height: 1.25; }
 .link-row .cardlink span { display: block; line-height: 1.35; margin-top: 2px; }
@@ -1896,7 +1896,7 @@ function viewSchrank() {
   const tripbar = filtered || !kfN ? "" : `<div class="quickbar">${STATUS_ICON.koffer}<span>${kfN} ${kfN === 1 ? "Teil" : "Teile"} im Koffer${meta.trip?.dest ? " · " + esc(meta.trip.dest) : ""}${(() => { const d = meta.trip?.date, t0 = localIso(new Date()); if (!d || d < t0) return ""; const n = Math.round((Date.parse(d + "T12:00:00") - Date.parse(t0 + "T12:00:00")) / 86400000); return n === 0 ? " · Abreise heute" : n === 1 ? " · Abreise morgen" : ` · Abreise in ${n} Tagen`; })()}</span><button class="btn btn-ghost" data-act="unpack">Auspacken</button></div>`;
   const gymIds = (meta.gym?.ids || []).filter(id => byId(id)), gymOld = meta.gym?.at && meta.gym.at < todayIso();
   const gymbar = filtered || !gymIds.length ? "" : `<div class="quickbar gym-bar">${ICON_GYM}<span>${gymOld ? "Sporttasche noch gepackt" : `${gymIds.length} ${gymIds.length === 1 ? "Teil" : "Teile"} in der Sporttasche`}</span><button class="btn btn-ghost" data-act="gym-after">Nach dem Training</button></div>`;
-  const gymLink = filtered || gymIds.length || !hasSport() ? "" : `<button class="gym-link" data-act="gym">${ICON_GYM}<b>Sporttasche packen</b>${ICON_CHEV}</button>`;
+  const gymLink = filtered || gymIds.length || !hasSport() ? "" : `<button class="cardlink" data-act="gym"><div><b>Sporttasche</b><span>fürs Training</span></div></button>`;
   return `<div class="stack" style="gap:22px">
     ${filtered ? "" : todayCard}
     ${filtered ? "" : reviewCard()}
@@ -1904,8 +1904,11 @@ function viewSchrank() {
     ${quickbar}
     ${tripbar}
     ${gymbar}
-    ${filtered ? "" : `<div class="link-row${kfN ? " one" : ""}">${kfN ? "" : `<button class="cardlink" data-act="trip"><div><b>Reise planen</b><span>Koffer packen</span></div></button>`}<button class="cardlink" data-act="stats" title="${esc(statsTeaser())}"><div><b>Schrank in Zahlen</b><span>${statsTeaser(true)}</span></div></button></div>`}
-    ${gymLink}
+    ${filtered ? "" : (() => { const cards = [
+      kfN ? "" : `<button class="cardlink" data-act="trip"><div><b>Koffer packen</b><span>für die Reise</span></div></button>`,
+      gymLink,
+      `<button class="cardlink" data-act="stats" title="${esc(statsTeaser())}"><div><b>Schrankwert</b><span>${schrankwertShort()}</span></div></button>`].filter(Boolean);
+      return `<div class="link-row n${cards.length}">${cards.join("")}</div>`; })()}
     ${state.fromTree ? crumb : `<div class="toolbar">
       <div class="chips" role="group" aria-label="Kategorie">${viewBtn}${catChips}${basicChip}</div>
       ${tree ? "" : typeChips}
@@ -1946,6 +1949,10 @@ function treeView(list) {
   }
   const untyped = list.filter(i => !i.type).length;
   return `<div class="tree">${out.join("")}${untyped ? `<p class="hint">${untyped} ${untyped === 1 ? "Teil hat" : "Teile haben"} noch keine Art. Teil antippen und unter „Art, Schnitt …“ ergänzen, dann wird die Übersicht genauer.</p>` : ""}</div>`;
+}
+function schrankwertShort() {
+  const priced = state.items.filter(i => i.price > 0), v = priced.length >= 3 ? wardrobeValue(state.items) : null;
+  return v ? (v.nEst ? "ca. " + roundEuro(v.total) : euro(v.total)) : "und mehr Zahlen";
 }
 function statsTeaser(short) {
   const full = statsTeaserFull();
