@@ -816,8 +816,8 @@ const STATUS = {
 };
 const OCC = { buero: "Büro", freizeit: "Alltag", schule: "Schule", sport: "Sport", abend: "Abend" };
 const TYPES = {
-  top: ["T-Shirt", "Longsleeve", "Top", "Hemd", "Bluse", "Polo", "Pullover", "Hoodie", "Zip-Hoodie", "Sweatshirt", "Strickjacke"],
-  bottom: ["Jeans", "Chino", "Stoffhose", "Jogginghose", "Leggings", "Shorts", "Rock", "Skihose"],
+  top: ["T-Shirt", "Longsleeve", "Top", "Funktionsshirt", "Sport-BH", "Hemd", "Bluse", "Polo", "Pullover", "Hoodie", "Zip-Hoodie", "Sweatshirt", "Strickjacke"],
+  bottom: ["Jeans", "Chino", "Stoffhose", "Jogginghose", "Leggings", "Radlerhose", "Shorts", "Rock", "Skihose"],
   dress: ["Sommerkleid", "Etuikleid", "Abendkleid", "Maxikleid", "Strickkleid", "Blusenkleid", "Jumpsuit"],
   jacket: ["Jacke", "Zip-Jacke", "Blazer", "Mantel", "Parka", "Lederjacke", "Daunenjacke", "Skijacke", "Regenjacke", "Weste"],
   shoes: ["Sneaker", "Halbschuhe", "Stiefel", "Stiefeletten", "Sandalen", "Pumps", "Sportschuhe"],
@@ -833,7 +833,7 @@ const FITS = { skinny: "Skinny", slim: "Slim Fit", regular: "Regular", straight:
 const FIT_CATS = new Set(["top", "bottom", "dress", "suit", "jacket"]);
 const TYPE_NECK = { "Hoodie": "kapuze", "Zip-Hoodie": "kapuze", "Hemd": "kragen", "Polo": "kragen", "Bluse": "kragen", "Blusenkleid": "kragen" };
 // Wärme für die Wochenplanung: 0 = luftig, 2 = warm. Nicht genannte Arten gelten als mittel.
-const TYPE_WARMTH = { "T-Shirt": 0, "Top": 0, "Polo": 0, "Shorts": 0, "Sandalen": 0, "Sommerkleid": 0, "Bikini": 0, "Badeanzug": 0, "Badehose": 0, "Badeshorts": 0,
+const TYPE_WARMTH = { "T-Shirt": 0, "Top": 0, "Funktionsshirt": 0, "Sport-BH": 0, "Radlerhose": 0, "Polo": 0, "Shorts": 0, "Sandalen": 0, "Sommerkleid": 0, "Bikini": 0, "Badeanzug": 0, "Badehose": 0, "Badeshorts": 0,
   "Pullover": 2, "Hoodie": 2, "Zip-Hoodie": 2, "Sweatshirt": 2, "Strickjacke": 2, "Strickkleid": 2, "Stiefel": 2, "Mantel": 2, "Parka": 2, "Daunenjacke": 2, "Skijacke": 2, "Skihose": 2 };
 const ACC_WEATHER = { "Sonnenbrille": "warm", "Cap": "warm", "Hut": "warm", "Schal": "kalt", "Mütze": "kalt", "Handschuhe": "kalt" };
 const NOT_USED_UP = new Set(["shoes", "acc", "bag", "jewelry"]);
@@ -1024,8 +1024,12 @@ function wxText(w) { return `<b>${w.max}°</b>/${w.min}°${w.rain >= 30 ? ` · R
 /* ---------- öfter tragen, seltener waschen ---------- */
 // Faustregeln (Pflegehinweise, Levi's: Jeans erst nach ca. 10× waschen). In jedem Teil änderbar.
 const WASH_EVERY = { top: 2, bottom: 5, dress: 2, jacket: 10, swim: 1 };
+// Sportsachen kommen nach jedem Tragen in die Wäsche
+const TYPE_WASH = { "Sport-BH": 1, "Funktionsshirt": 1, "Radlerhose": 1, "Leggings": 1 };
+// Nur für Sport: neue Teile bekommen den Anlass Sport und tauchen im Büro-Outfit nicht auf
+const SPORT_ONLY = new Set(["Sport-BH", "Funktionsshirt", "Radlerhose"]);
 // Wolle und Kaschmir brauchen seltener die Wäsche, Auslüften reicht oft
-const washEvery = it => WASH_EVERY[it.cat] ? (it.washEvery || WASH_EVERY[it.cat] * (MAT_WARM.has(mainMat(it)) ? 2 : 1)) : 0;
+const washEvery = it => WASH_EVERY[it.cat] ? (it.washEvery || TYPE_WASH[it.type] || WASH_EVERY[it.cat] * (MAT_WARM.has(mainMat(it)) ? 2 : 1)) : 0;
 // Schätzung pro gespartem Wäscheteil: 1 Waschgang 40 °C ≈ 0,5 kWh und ≈ 45 l Wasser, etwa 12 Teile pro Ladung,
 // Strommix DE 2024 ≈ 363 g CO2/kWh (Umweltbundesamt).
 const ECO = { perLoad: 12, kwh: 0.5, liter: 45, co2: 363 };
@@ -1254,6 +1258,7 @@ const cleanSize = v => String(v || "").replace(/\s+/g, " ").trim().slice(0, 12);
 function toggleType(d, t) {
   d.type = d.type === t ? null : t;
   if (d.type && TYPE_NECK[d.type] && NECK_CATS.has(d.cat) && !d.neckTouched) d.neck = TYPE_NECK[d.type];
+  if (SPORT_ONLY.has(d.type) && Array.isArray(d.occasions)) d.occasions = ["sport"];
 }
 
 /* ---------- Marken ---------- */
@@ -1481,7 +1486,13 @@ const FIG_WEAR = {
   "Handschuhe": '<ellipse cx="16.6" cy="83.4" rx="3.8" ry="5" transform="rotate(8 16.6 83.4)"/><ellipse cx="83.4" cy="83.4" rx="3.8" ry="5" transform="rotate(-8 83.4 83.4)"/>',
   "Cap": '<path d="M40.6 -11C40.4 -18.8 44.6 -23.4 50 -23.4S59.6 -18.8 59.4 -11Z"/><path fill="none" stroke="#000" stroke-opacity=".16" stroke-width="1" d="M50 -23.2V-11.6M45.4 -22.2C44.6 -18.8 44.3 -15 44.4 -11.4M54.6 -22.2C55.4 -18.8 55.7 -15 55.6 -11.4"/><path d="M41.6 -10C44.62 -13.18 55.38 -13.18 58.4 -10 58.67 -9.19 58.2 -8.51 57.46 -8.78 54.37 -10.8 45.63 -10.8 42.54 -8.78 41.8 -8.51 41.33 -9.19 41.6 -10Z"/><path fill="none" stroke="#000" stroke-opacity=".25" stroke-width=".6" d="M42.81 -9.32C45.97 -11.34 54.03 -11.34 57.19 -9.32"/><circle cx="50" cy="-23.6" r="1.2"/>',
 };
-// Leggings: Kachel zeigt denselben Schnitt wie an der Figur
+// Sportsachen: an der Figur gezeichnet, die Kachel zeigt denselben Schnitt
+FIG_WEAR["Sport-BH"] = '<path d="M50 22.6C48.6 22.6 46.6 22.2 45.4 21.2C44.2 20.2 43.2 17.2 42.2 16.2C41.2 15.2 39.8 13.9 39 14.7C38.3 15.5 38.4 19.2 37.2 21.4C36 23.6 32.3 27.6 31.1 29.6C30 31.6 29.6 34.6 29.6 34.6C29.6 34.6 29 38 29.4 41.8C36 42.6 44 43 50 43C56 43 64 42.6 70.6 41.8C71 38 70.4 34.6 70.4 34.6C70.4 34.6 70 31.6 68.9 29.6C67.8 27.6 64 23.6 62.8 21.4C61.6 19.2 61.8 15.5 61 14.7C60.3 13.9 58.8 15.2 57.8 16.2C56.8 17.2 55.8 20.2 54.6 21.2C53.4 22.2 51.4 22.6 50 22.6Z"/><path fill="#000" fill-opacity=".14" stroke="none" d="M29.5 38.2C36 39 44 39.4 50 39.4S64 39 70.5 38.2L70.6 41.8C64 42.6 56 43 50 43S36 42.6 29.4 41.8Z"/><path fill="none" d="M29.5 38.2C36 39 44 39.4 50 39.4S64 39 70.5 38.2"/><path fill="none" stroke="#000" stroke-opacity=".16" stroke-width="1" d="M50 29.6C47.4 33 42.4 35 36 35.2M50 29.6C52.6 33 57.6 35 64 35.2"/><path fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="1.2" d="M62.4 26.4C64 29 64.8 31.6 65 34"/>';
+FIG_WEAR["Radlerhose"] = '<path d="M50 59L33.2 59C33.2 59 32 65.5 31.6 68C31.1 70.5 30.5 73.3 30.3 76C30.1 78.7 29.9 81.2 30.3 86C30.6 90 31.6 97 32.6 104L48.7 104.4C49.1 97 50 85.4 50 85.4C50 85.4 50.9 97 51.3 104.4L67.4 104C68.4 97 69.4 90 69.7 86C70.1 81.2 69.9 78.7 69.7 76C69.5 73.3 68.9 70.5 68.4 68C68 65.5 66.8 59 66.8 59L50 59Z"/><path fill="#000" fill-opacity=".12" stroke="none" d="M31 88C31.6 94 32.2 99 32.9 103.4L35 103.4C34.4 99 33.6 94 33 88ZM69 88C68.4 94 67.8 99 67.1 103.4L65 103.4C65.6 99 66.4 94 67 88Z"/><path fill="none" d="M32.3 65.4H67.7"/><path fill="#fff" fill-opacity=".22" stroke="none" d="M40.8 70C39.4 78 39.2 88 40.2 98 40.6 88 41 78 42.4 70ZM59.2 70C60.6 78 60.8 88 59.8 98 59.4 88 59 78 57.6 70Z"/><path fill="none" stroke="#000" stroke-opacity=".26" stroke-width="1" stroke-dasharray="1.8 1.8" d="M32.4 101.8L48.8 102.2M67.6 101.8L51.2 102.2"/>';
+FIG_WEAR["Funktionsshirt"] = FIG_WEAR["T-Shirt"] + '<path fill="none" stroke="#000" stroke-opacity=".2" stroke-width="1" d="M43.4 13.6C38.4 21 32.4 29.6 28.6 38.6M56.6 13.6C61.6 21 67.6 29.6 71.4 38.6"/><path fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.3" d="M55.4 25.6H59.8"/>';
+TYPE_PATHS["Funktionsshirt"] = TYPE_PATHS["T-Shirt"] + '<path fill="none" stroke="#000" stroke-opacity=".2" stroke-width="1.1" d="M40.6 14.8C34.4 21.4 29.4 27.4 25.4 33.2M59.4 14.8C65.6 21.4 70.6 27.4 74.6 33.2"/><path fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.6" d="M57.4 30.4H65"/>';
+TYPE_PATHS["Sport-BH"] = `<g transform="translate(50 50) scale(1.55) translate(-50 -28.6)">${FIG_WEAR["Sport-BH"]}</g>`;
+TYPE_PATHS["Radlerhose"] = `<g transform="translate(50 50) scale(1.15) translate(-50 -81.7)">${FIG_WEAR["Radlerhose"]}</g>`;
 TYPE_PATHS["Leggings"] = `<g transform="translate(50 9.6) scale(1.05 .865) translate(-50 -59)">${FIG_WEAR["Leggings"]}</g>`;
 // Deine Figur (Einstellungen): Hautton, Haare, Bart, Brille, Statur. Bleibt in meta.avatar auf dem Gerät.
 const AV_SKIN = [["neutral", "Neutral", ""], ["s1", "Sehr hell", "#f1d5c2"], ["s2", "Hell", "#ddb293"], ["s3", "Mittel", "#bf8a64"], ["s4", "Dunkel", "#8f5b3c"], ["s5", "Sehr dunkel", "#5c3b29"]];
@@ -1665,7 +1676,7 @@ function dbErrorText(e) {
 
 /* ---------- outfit logic ---------- */
 function generateOutfit(occ, weather, used, rain = 0) {
-  const pool = state.items.filter(i => i.status === "schrank" && (!i.occasions?.length || i.occasions.includes(occ)) && (i.type !== "Skihose" || occ === "sport"));
+  const pool = state.items.filter(i => i.status === "schrank" && (!i.occasions?.length || i.occasions.includes(occ)) && ((i.type !== "Skihose" && !SPORT_ONLY.has(i.type)) || occ === "sport"));
   const pick = (cat, pref) => {
     let c = pool.filter(i => i.cat === cat);
     if (!c.length) return null;
@@ -2236,7 +2247,7 @@ function drawUnpack() {
 // Sauberes Sport-Outfit plus Ausrüstung. Ändert den Status nicht, erst „Nach dem Training“ legt die Sachen in die Wäsche.
 GEAR.gym = ["Handtuch", "Trinkflasche", "Duschzeug", "Schloss", "Kopfhörer", "Mitgliedskarte"];
 const ICON_GYM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 9.5V8a3 3 0 0 1 6 0v1.5"/><rect x="3" y="9.5" width="18" height="10" rx="5"/><path d="M8 9.5v10M16 9.5v10"/></svg>';
-const SPORT_TYPES = new Set(["Leggings", "Jogginghose", "Sportschuhe"]);
+const SPORT_TYPES = new Set(["Leggings", "Jogginghose", "Sportschuhe", ...SPORT_ONLY]);
 const GYM_CATS = new Set(["top", "bottom", "jacket", "shoes", "swim", "acc"]);
 const sportScore = i => (i.occasions?.includes("sport") ? 2 : 0) + (SPORT_TYPES.has(i.type) ? 1 : 0);
 const isSporty = i => GYM_CATS.has(i.cat) && sportScore(i) > 0;
@@ -2273,7 +2284,7 @@ function drawGym() {
     <h3 class="h3">Kleidung <span class="n">${n} ${n === 1 ? "Teil" : "Teile"}</span></h3>
     ${list.length ? `<div class="list">${list.map(rowP).join("")}</div>` : `<div class="empty">Noch keine Sportsachen im Schrank.</div>`}
     ${dirty.length ? `<p class="hint"><b>Liegt im Wäschekorb:</b> ${dirty.slice(0, 4).map(i => esc(i.name)).join(", ")}${dirty.length > 4 ? " …" : ""}.</p>` : ""}
-    <p class="hint">Hier stehen Teile mit dem Anlass „Sport“, dazu Leggings, Jogginghosen und Sportschuhe. Den Anlass stellst du beim Teil ein.</p>
+    <p class="hint">Hier stehen Teile mit dem Anlass „Sport“, dazu Leggings, Radlerhosen, Sport-BHs, Funktionsshirts und Sportschuhe. Den Anlass stellst du beim Teil ein.</p>
     ${others.length ? `<details class="fb-more" id="gymMore"${g.more ? " open" : ""}><summary>Anderes aus dem Schrank (${others.length})</summary><div class="list" style="margin-top:10px">${others.map(rowP).join("")}</div></details>` : ""}
     <div class="gear"><h3 class="h3">Ausrüstung <span class="n">${gl.length ? `${done} von ${gl.length} eingepackt` : "leer"}</span></h3>
       ${gl.length ? `<div class="list">${gl.map(x => `<div class="row-item gear-row"><button type="button" class="pick-row gear-tick" data-act="gym-gear-tog" data-v="${esc(x)}" aria-pressed="${g.gear.has(x)}"><span class="check">${ICON_CHECK}</span><span class="txt"><b>${esc(x)}</b></span></button><button type="button" class="gear-x" data-act="gym-gear-del" data-v="${esc(x)}" aria-label="${esc(x)} von der Liste nehmen">${ICON_X}</button></div>`).join("")}</div>` : ""}
@@ -2568,7 +2579,7 @@ function drawAdd(focusName) {
     const org = cleanOrigin(addDraft.origin); if (org) data.origin = org;
     if (photo) data.photo = photo;
     const qty = addDraft.qty || 1;
-    meta.lastOcc = [...addDraft.occasions]; saveMeta();
+    if (!SPORT_ONLY.has(addDraft.type)) { meta.lastOcc = [...addDraft.occasions]; saveMeta(); }
     closeSheet();
     state.fCat = "all"; state.fType = "all"; state.fColor = null; state.fromTree = false; state.fBasic = false; state.fStatus = "all"; state.tab = "schrank";
     for (let k = 0; k < qty; k++) await addItem({ ...data, occasions: [...data.occasions], ...(data.material ? { material: data.material.map(r => ({ ...r })) } : {}) });
