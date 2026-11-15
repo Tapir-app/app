@@ -1,4 +1,4 @@
-/* Tragsam standalone runtime: local storage, photo store, optional AI key, file sharing. Internal storage keys keep the old name "schrankblick" on purpose, so testers keep their data. */
+/* Tragfroh standalone runtime: local storage, photo store, optional AI key, file sharing. Internal storage keys keep the old name "schrankblick" on purpose, so testers keep their data. */
 (() => {
 "use strict";
 const LS_KEY = "schrankblick:v1";

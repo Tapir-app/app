@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Tragsam</title>
+<title>Tragfroh</title>
 <meta name="description" content="Dein Kleiderschrank, immer dabei: Teile erfassen, Wäsche-Status, Outfits für die Woche und Verkaufen auf Vinted.">
 <meta name="theme-color" content="#f4f4f1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f0f0e" media="(prefers-color-scheme: dark)">
@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Tragsam">
+<meta name="apple-mobile-web-app-title" content="Tragfroh">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>try { var m = JSON.parse(localStorage.getItem("schrankblick:meta") || "{}"); document.documentElement.dataset.palette = m.palette || "bordeaux"; } catch (e) { document.documentElement.dataset.palette = "bordeaux"; }</script>
 <link rel="preload" href="fonts/geist-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -749,7 +749,7 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="giyo-mark" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="currentColor"/><g fill="none" stroke="var(--bg)" stroke-linecap="round"><path d="M11 15H37M24 15V31" stroke-width="4"/><circle cx="24" cy="36" r="3.6" stroke-width="2.6"/></g></symbol></svg>
 <div class="minibar" id="minibar" aria-hidden="true" inert>
   <div class="minibar-in">
-    <button class="brand-sm" data-act="to-top" aria-label="Nach oben">Trag<em>sam</em></button>
+    <button class="brand-sm" data-act="to-top" aria-label="Nach oben">Trag<em>froh</em></button>
     <div class="top-r">
     <button class="fab fab-soft" data-act="feedback" aria-label="Feedback geben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M4.5 6.75A2.75 2.75 0 0 1 7.25 4h9.5a2.75 2.75 0 0 1 2.75 2.75v6.5A2.75 2.75 0 0 1 16.75 16H10.5l-4.25 3.5V16a2.75 2.75 0 0 1-1.75-2.75Z"/><path d="M8.75 8.75h6.5M8.75 11.75h4"/></svg></button>
     <button class="fab fab-soft" data-act="settings" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.5h8.5M17.5 7.5H20M4 16.5h2.5M11.5 16.5H20"/><circle class="d" cx="15" cy="7.5" r="2.5"/><circle class="d" cx="9" cy="16.5" r="2.5"/></svg></button>
@@ -761,7 +761,7 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
   <header class="top">
     <div class="top-l">
       <span class="eyebrow" id="kw">KW</span>
-      <h1 class="brand"><svg class="logo-mark" aria-hidden="true"><use href="#giyo-mark"/></svg>Trag<em>sam</em></h1>
+      <h1 class="brand"><svg class="logo-mark" aria-hidden="true"><use href="#giyo-mark"/></svg>Trag<em>froh</em></h1>
     </div>
     <div class="top-r">
     <button class="fab fab-soft" data-act="feedback" aria-label="Feedback geben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M4.5 6.75A2.75 2.75 0 0 1 7.25 4h9.5a2.75 2.75 0 0 1 2.75 2.75v6.5A2.75 2.75 0 0 1 16.75 16H10.5l-4.25 3.5V16a2.75 2.75 0 0 1-1.75-2.75Z"/><path d="M8.75 8.75h6.5M8.75 11.75h4"/></svg></button>
@@ -1824,9 +1824,9 @@ function renderBanner() {
       <div class="row"><button class="btn btn-primary" data-act="lend-remind" data-v="${it.id}">Freundlich erinnern</button><button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Ist zurück</button></div></div>`;
     } else if (r === "backup") b.innerHTML = `<div class="banner"><p><b>Zeit für eine Sicherung.</b> ${meta.lastBackupAt ? `Deine letzte ist ${daysSince(meta.lastBackupAt)} Tage alt.` : `Deine ${n} Teile liegen bisher nur auf diesem Handy.`} Wenn du den Browserverlauf löschst oder das Handy wechselst, wären sie weg. Speichere die Datei z. B. in iCloud, Google Drive oder schick sie dir selbst.</p>
       <div class="row"><button class="btn btn-primary" data-act="backup">Jetzt sichern</button><button class="btn btn-ghost" data-act="backup-later">Später</button></div></div>`;
-    else if (r === "install") b.innerHTML = `<div class="banner"><p><b>Leg Tragsam auf deinen Home-Bildschirm.</b> Dann startet sie wie eine App und funktioniert auch offline.${/iPhone|iPad|iPod/.test(navigator.userAgent || "") ? " Wichtig beim iPhone: Im Safari-Browser können deine Teile gelöscht werden, wenn du die Seite eine Woche nicht öffnest." : ""}</p>
+    else if (r === "install") b.innerHTML = `<div class="banner"><p><b>Leg Tragfroh auf deinen Home-Bildschirm.</b> Dann startet sie wie eine App und funktioniert auch offline.${/iPhone|iPad|iPod/.test(navigator.userAgent || "") ? " Wichtig beim iPhone: Im Safari-Browser können deine Teile gelöscht werden, wenn du die Seite eine Woche nicht öffnest." : ""}</p>
       <div class="row"><button class="btn btn-primary" data-act="install-how">So geht’s</button><button class="btn btn-ghost" data-act="install-later">Später</button></div></div>`;
-    else if (r === "feedback") b.innerHTML = `<div class="banner"><p><b>Wie findest du Tragsam bisher?</b> Eine Minute Feedback hilft enorm, die App besser zu machen.</p>
+    else if (r === "feedback") b.innerHTML = `<div class="banner"><p><b>Wie findest du Tragfroh bisher?</b> Eine Minute Feedback hilft enorm, die App besser zu machen.</p>
       <div class="row"><button class="btn btn-primary" data-act="feedback">Feedback geben</button><button class="btn btn-ghost" data-act="feedback-later">Später</button></div></div>`;
     else b.innerHTML = gapBanner();
   } else b.innerHTML = "";
@@ -1834,7 +1834,7 @@ function renderBanner() {
 }
 const SOURCES = [["freunde", "Freund:in hat sie gezeigt"], ["dede", "Von Dede"], ["social", "Social Media"], ["anders", "Anders"]];
 function sourceCard() {
-  return `<div class="banner" style="margin-top:12px"><p><b>Kurze Frage:</b> Wie bist du auf Tragsam gekommen?</p>
+  return `<div class="banner" style="margin-top:12px"><p><b>Kurze Frage:</b> Wie bist du auf Tragfroh gekommen?</p>
     <div class="chips-q">${SOURCES.map(([k, l]) => `<button class="chip" data-act="source" data-v="${k}">${l}</button>`).join("")}</div></div>`;
 }
 const daysSince = isoStr => Math.max(0, Math.floor((Date.now() - Date.parse(isoStr)) / 86400000));
@@ -2221,7 +2221,7 @@ function drawTrip() {
       return `<div class="gear"><h3 class="h3">Ausrüstung · ${TRIP_KINDS[t.kind]} <span class="n">${gl.length ? `${done} von ${gl.length} eingepackt` : "leer"}</span></h3>
       ${gl.length ? `<div class="list">${gl.map(g => `<div class="row-item gear-row"><button type="button" class="pick-row gear-tick" data-act="gear-tog" data-v="${esc(g)}" aria-pressed="${!!t.gear?.has(g)}"><span class="check">${ICON_CHECK}</span><span class="txt"><b>${esc(g)}</b></span></button><button type="button" class="gear-x" data-act="gear-del" data-v="${esc(g)}" aria-label="${esc(g)} von der Liste nehmen">${ICON_X}</button></div>`).join("")}</div>` : ""}
       <div class="wl-row"><input type="text" id="gearInput" maxlength="30" autocomplete="off" placeholder="z. B. Fahrradhelm" aria-label="Eigene Ausrüstung hinzufügen"><button type="button" class="btn btn-ghost" data-act="gear-add">Hinzufügen</button></div>
-      <p class="hint">Abhaken, was schon eingepackt ist. Was du hinzufügst oder entfernst, merkt sich Tragsam für die nächste Reise dieser Art.${hidden ? ` <button type="button" class="linkbtn" data-act="gear-reset">${hidden} entfernte zurückholen</button>` : ""}</p></div>`; })()}
+      <p class="hint">Abhaken, was schon eingepackt ist. Was du hinzufügst oder entfernst, merkt sich Tragfroh für die nächste Reise dieser Art.${hidden ? ` <button type="button" class="linkbtn" data-act="gear-reset">${hidden} entfernte zurückholen</button>` : ""}</p></div>`; })()}
     <div class="pack-extra"><span class="eyebrow">Nicht vergessen</span><p>${t.days + 1}× Unterwäsche · ${t.days + 1}× Socken · Schlafsachen${t.rain && ![...t.sel].some(id => byId(id)?.type === "Regenschirm") ? " · Regenschirm" : ""}</p><span class="hint">Steht nicht im Schrank, nur als Erinnerung.</span></div>
     ${rest.length ? `<details class="fb-more" id="tripMore"${t.more ? " open" : ""}><summary>Mehr aus dem Schrank (${rest.length})</summary><div style="display:flex;flex-direction:column;gap:14px;margin-top:10px">${groups(rest)}</div></details>` : ""}
     ${needWash.length ? `<p class="hint"><b>Würde passen, liegt aber im Wäschekorb:</b> ${needWash.slice(0, 5).map(i => esc(i.name)).join(", ")}${needWash.length > 5 ? " …" : ""}. Erst waschen, dann sind sie hier dabei.</p>` : dirty ? `<p class="hint">${dirty} ${dirty === 1 ? "Teil liegt" : "Teile liegen"} noch in der Wäsche und ${dirty === 1 ? "fehlt" : "fehlen"} hier.</p>` : ""}
@@ -2294,7 +2294,7 @@ function drawGym() {
     <div class="gear"><h3 class="h3">Ausrüstung <span class="n">${gl.length ? `${done} von ${gl.length} eingepackt` : "leer"}</span></h3>
       ${gl.length ? `<div class="list">${gl.map(x => `<div class="row-item gear-row"><button type="button" class="pick-row gear-tick" data-act="gym-gear-tog" data-v="${esc(x)}" aria-pressed="${g.gear.has(x)}"><span class="check">${ICON_CHECK}</span><span class="txt"><b>${esc(x)}</b></span></button><button type="button" class="gear-x" data-act="gym-gear-del" data-v="${esc(x)}" aria-label="${esc(x)} von der Liste nehmen">${ICON_X}</button></div>`).join("")}</div>` : ""}
       <div class="wl-row"><input type="text" id="gymGearInput" maxlength="30" autocomplete="off" placeholder="z. B. Springseil" aria-label="Eigene Ausrüstung hinzufügen"><button type="button" class="btn btn-ghost" data-act="gym-gear-add">Hinzufügen</button></div>
-      <p class="hint">Was du hinzufügst oder entfernst, merkt sich Tragsam fürs nächste Training.${hidden ? ` <button type="button" class="linkbtn" data-act="gym-gear-reset">${hidden} entfernte zurückholen</button>` : ""}</p></div>
+      <p class="hint">Was du hinzufügst oder entfernst, merkt sich Tragfroh fürs nächste Training.${hidden ? ` <button type="button" class="linkbtn" data-act="gym-gear-reset">${hidden} entfernte zurückholen</button>` : ""}</p></div>
     <div class="pack-extra"><span class="eyebrow">Nicht vergessen</span><p>Socken · Unterwäsche zum Wechseln</p></div>
     <button class="btn btn-primary btn-wide" data-act="gym-go"${n ? "" : " disabled"}>${n ? `${n} ${n === 1 ? "Teil" : "Teile"} einpacken` : "Nichts ausgewählt"}</button>
     <p class="hint">Nach dem Training auf der Startseite „Nach dem Training“ tippen. Dann kommt die Sportkleidung in die Wäsche.</p>`, () => { gym = null; });
@@ -3460,7 +3460,7 @@ function settingsSheet(msg) {
       <p class="hint">Was gefällt dir, was nervt, was fehlt? Jede Rückmeldung hilft.</p>
       <div class="set-row"><button class="btn btn-ghost" data-act="feedback">Feedback geben</button><button class="btn btn-ghost" data-act="invite">Freunde einladen</button></div></div>
     ${waitlistBlock()}
-    <p class="hint" id="verLine">Tragsam · Test-Version ${APP_VERSION}${meta.dev ? " · Entwickler" : ""}</p>`, () => { state.armedWipe = false; });
+    <p class="hint" id="verLine">Tragfroh · Test-Version ${APP_VERSION}${meta.dev ? " · Entwickler" : ""}</p>`, () => { state.armedWipe = false; });
   bindWaitlist();
   // Verstecktes Entwickler-Feld: 7× schnell auf die Versionszeile tippen blendet das KI-Feld ein oder aus
   let taps = 0, tapT = 0;
@@ -3474,7 +3474,7 @@ function settingsSheet(msg) {
   document.getElementById("restoreInput").addEventListener("change", async ev => {
     const f = ev.target.files?.[0]; if (!f) return;
     try { const st = await SB.importAll(f); if (st) { for (const k of ["palette", "city", "view", "lastOcc", "trip", "avatar", "catOrder", "catFold", "remind"]) if (st[k] != null) meta[k] = st[k]; meta.wxCache = null; applyPalette(); } state.usingExamples = !SB.hasData(); meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; saveMeta(); count("restore"); closeSheet(); toast("Sicherung geladen."); }
-    catch { toast("Diese Datei ist keine Tragsam-Sicherung."); }
+    catch { toast("Diese Datei ist keine Tragfroh-Sicherung."); }
   });
 }
 const AV_DEMO = [{ id: "av-demo-1", cat: "top", type: "T-Shirt", color: "Weiß", name: "T-Shirt" }, { id: "av-demo-2", cat: "bottom", type: "Jeans", color: "Denim", name: "Jeans" }, { id: "av-demo-3", cat: "shoes", type: "Sneaker", color: "Weiß", name: "Sneaker" }];
@@ -3514,9 +3514,9 @@ function catSheet(focus) {
 }
 /* ---------- Erinnerungen: wiederkehrende Kalendereinträge mit Alarm (ohne Server kann die App nicht selbst wecken) ---------- */
 const REMINDERS = {
-  morning: { label: "Morgens: Was ziehe ich an?", title: "Tragsam: Was ziehe ich heute an?", text: "Schau in Tragsam, was für heute geplant ist.", time: "07:30", days: "WD" },
-  week: { label: "Woche planen", title: "Tragsam: Woche planen", text: "Plane in Tragsam die Outfits für die kommende Woche.", time: "18:00", days: "SU" },
-  wash: { label: "Wäschekorb prüfen", title: "Tragsam: Wäschekorb prüfen", text: "Was liegt im Korb? Gewaschenes in Tragsam wieder in den Schrank legen.", time: "10:00", days: "SA" }
+  morning: { label: "Morgens: Was ziehe ich an?", title: "Tragfroh: Was ziehe ich heute an?", text: "Schau in Tragfroh, was für heute geplant ist.", time: "07:30", days: "WD" },
+  week: { label: "Woche planen", title: "Tragfroh: Woche planen", text: "Plane in Tragfroh die Outfits für die kommende Woche.", time: "18:00", days: "SU" },
+  wash: { label: "Wäschekorb prüfen", title: "Tragfroh: Wäschekorb prüfen", text: "Was liegt im Korb? Gewaschenes in Tragfroh wieder in den Schrank legen.", time: "10:00", days: "SA" }
 };
 const REM_DAYS = [["WD", "Mo–Fr", "MO,TU,WE,TH,FR"], ["ALL", "Jeden Tag", "MO,TU,WE,TH,FR,SA,SU"], ["MO", "Montags", "MO"], ["TU", "Dienstags", "TU"], ["WE", "Mittwochs", "WE"], ["TH", "Donnerstags", "TH"], ["FR", "Freitags", "FR"], ["SA", "Samstags", "SA"], ["SU", "Sonntags", "SU"]];
 function remState() {
@@ -3532,7 +3532,7 @@ function remindIcs(sel) {
   const q = t => String(t).replace(/[\\;,]/g, m => "\\" + m).replace(/\r?\n/g, "\\n");
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, ""), seq = Math.floor(Date.now() / 60000);
   const url = location.origin + location.pathname, codes = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tragsam//DE", "CALSCALE:GREGORIAN"];
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tragfroh//DE", "CALSCALE:GREGORIAN"];
   for (const [k, s] of Object.entries(sel)) {
     if (!s.on || !REMINDERS[k]) continue;
     const d = REMINDERS[k], by = REM_DAYS.find(x => x[0] === s.days)[2].split(",");
@@ -3651,7 +3651,7 @@ async function shareOutfit(k) {
   const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
   const x = c.getContext("2d"), PAL = PALETTES[curPalette()], dn = DAYS.find(d => d[0] === k)[1];
   x.fillStyle = PAL.bg; x.fillRect(0, 0, W, H);
-  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("TRAGSAM", 72, 110);
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("TRAGFROH", 72, 110);
   x.fillStyle = "#141413"; x.font = '420 96px "Fraunces", serif'; x.fillText("Mein Outfit", 72, 220);
   x.fillStyle = PAL.accent; x.font = 'italic 420 96px "Fraunces", serif'; x.fillText(k === todayKey() ? "für heute" : "für " + dn, 72, 310);
   const fig = canFigure(items);
@@ -3675,7 +3675,7 @@ async function shareOutfit(k) {
   const w = dayWx(k);
   x.fillStyle = "#4a4a45"; x.font = '500 30px "Geist", sans-serif';
   if (w) x.fillText(fitText(x, `${w.max}° / ${w.min}°${w.rain >= 30 ? ` · Regen ${w.rain} %` : ""}${w.rain >= RAIN_UMB ? " · Schirm nicht vergessen" : ""}`, 936), 72, 1240);
-  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("Geplant mit Tragsam · tapir-app.github.io/app", 72, 1290);
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("Geplant mit Tragfroh · tapir-app.github.io/app", 72, 1290);
   await savePng(c, `outfit-${k === todayKey() ? "heute" : dn.toLowerCase()}.png`);
 }
 async function shareReview() {
@@ -3684,7 +3684,7 @@ async function shareReview() {
   const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
   const x = c.getContext("2d"), PAL = PALETTES[curPalette()];
   x.fillStyle = PAL.bg; x.fillRect(0, 0, W, H);
-  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("TRAGSAM · " + `${dShort(r.from)} bis ${dShort(r.to)}`.toUpperCase(), 72, 110);
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("TRAGFROH · " + `${dShort(r.from)} bis ${dShort(r.to)}`.toUpperCase(), 72, 110);
   x.fillStyle = "#141413"; x.font = '420 96px "Fraunces", serif'; x.fillText("Meine Woche", 72, 220);
   x.fillStyle = PAL.accent; x.font = 'italic 420 96px "Fraunces", serif'; x.fillText("im Schrank", 72, 310);
   const box = (X, Y, big, small, green) => {
@@ -3940,14 +3940,14 @@ async function csvDownload(rows, filename) {
   catch (err) { if (err?.code !== "declined") toast("Speichern hat nicht geklappt."); }
 }
 function csvTemplate() {
-  return csvDownload([CSV_HEAD, ["Weißes Hemd", "Oberteil", "Hemd", "Weiß", "COS", "M", "49,90", "Büro"], ["Blaue Jeans", "Hose", "Jeans", "Denim", "Levi's", "W32/L32", "99", "Alltag, Freizeit"], ["Schwarze Lederjacke", "Jacke", "Lederjacke", "Schwarz", "", "M", "", "Abend"]], "tragsam-vorlage.csv");
+  return csvDownload([CSV_HEAD, ["Weißes Hemd", "Oberteil", "Hemd", "Weiß", "COS", "M", "49,90", "Büro"], ["Blaue Jeans", "Hose", "Jeans", "Denim", "Levi's", "W32/L32", "99", "Alltag, Freizeit"], ["Schwarze Lederjacke", "Jacke", "Lederjacke", "Schwarz", "", "M", "", "Abend"]], "tragfroh-vorlage.csv");
 }
 function csvExport() {
   const own = state.usingExamples ? [] : state.items;
   if (!own.length) { toast("Noch keine eigenen Teile zum Speichern."); return; }
   const rows = [[...CSV_HEAD, "Zustand", "Getragen", "Zuletzt getragen"]];
   for (const i of sortItems(own)) rows.push([i.name, CATS[i.cat] || i.cat, i.type || "", i.color || "", i.brand || "", i.size || "", i.price ? String(i.price).replace(".", ",") : "", (i.occasions || []).map(o => OCC[o]).filter(Boolean).join(", "), STATUS[i.status]?.label || i.status || "", i.wears || 0, i.lastWorn || ""]);
-  return csvDownload(rows, `tragsam-schrank-${todayIso()}.csv`);
+  return csvDownload(rows, `tragfroh-schrank-${todayIso()}.csv`);
 }
 
 /* ---------- Geld-Tests (nur Fragen, nichts kostet etwas): Plus-Probe, Mail-Import-Probe, Lücken-Tipp ---------- */
@@ -3955,15 +3955,15 @@ const PROBE_A = [["ja", "Ja"], ["vielleicht", "Vielleicht"], ["nein", "Nein"]];
 function probeSet(k, v) { meta.probe = { ...(meta.probe || {}), [k]: v, [k + "At"]: todayIso() }; saveMeta(); }
 function plusProbe() {
   const a = meta.probe?.plus;
-  return `<div class="set-group probe"><span class="eyebrow">Kurze Frage: Tragsam Plus</span>
-    <p class="hint">Angenommen, es gäbe <b>Tragsam Plus</b> für 2,99 € im Monat: Fotos werden automatisch freigestellt und erkannt, deine Daten liegen sicher in einer Cloud in Deutschland, und die KI plant Outfits und schreibt Inserate. Das gibt es noch nicht, wir fragen nur. Würdest du dafür zahlen?</p>
+  return `<div class="set-group probe"><span class="eyebrow">Kurze Frage: Tragfroh Plus</span>
+    <p class="hint">Angenommen, es gäbe <b>Tragfroh Plus</b> für 2,99 € im Monat: Fotos werden automatisch freigestellt und erkannt, deine Daten liegen sicher in einer Cloud in Deutschland, und die KI plant Outfits und schreibt Inserate. Das gibt es noch nicht, wir fragen nur. Würdest du dafür zahlen?</p>
     <div class="chips wrap">${PROBE_A.map(([v, l]) => `<button type="button" class="chip" data-act="probe" data-k="plus" data-v="${v}" aria-pressed="${a === v}">${l}</button>`).join("")}</div>
     ${a ? '<p class="hint">Danke! Deine Antwort geht mit, wenn du Feedback schickst.</p>' : ""}</div>`;
 }
 function mailProbeSheet() {
   const a = meta.probe?.mail;
   openSheet(`<h2>Aus <em>Bestellung</em> übernehmen</h2>
-    <p class="sub">Die Idee: Du leitest die Bestellbestätigung von Zalando, H&amp;M, About You und Co. an deine eigene Tragsam-Adresse weiter. Das Teil landet mit Foto, Marke, Größe und Preis in deinem Schrank, ohne Abtippen.</p>
+    <p class="sub">Die Idee: Du leitest die Bestellbestätigung von Zalando, H&amp;M, About You und Co. an deine eigene Tragfroh-Adresse weiter. Das Teil landet mit Foto, Marke, Größe und Preis in deinem Schrank, ohne Abtippen.</p>
     <div class="banner"><p><b>Das gibt es noch nicht.</b> Wir wollen erst wissen, ob du es nutzen würdest.</p></div>
     <div class="field"><span class="lbl">Würdest du das nutzen?</span><div class="chips wrap">${[["ja", "Ja, sofort"], ["vielleicht", "Vielleicht"], ["nein", "Nein"]].map(([v, l]) => `<button type="button" class="chip" data-act="probe" data-k="mail" data-v="${v}" aria-pressed="${a === v}">${l}</button>`).join("")}</div></div>
     ${a ? '<p class="hint">Danke! Deine Antwort geht mit, wenn du Feedback schickst.</p>' : ""}
@@ -3999,7 +3999,7 @@ function probeSummary() {
   return out.length ? "Geld-Tests: " + out.join(" · ") : "";
 }
 
-const APP_VERSION = "0.31";
+const APP_VERSION = "0.32";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -4009,7 +4009,7 @@ document.addEventListener("click", async e => {
     case "rem-tog": { const k = el.dataset.v; if (!REMINDERS[k]) break; remSet(k, { on: !remState()[k].on }); remindSheet(); break; }
     case "rem-save": {
       const st = remState(); if (!Object.values(st).some(x => x.on)) break;
-      try { await SB.downloads.save({ filename: "tragsam-erinnerungen.ics", data: new Blob([remindIcs(st)], { type: "text/calendar" }) }); meta.remind = st; saveMeta(); count("remind-ics"); toast("Datei erstellt. Öffne sie, dann übernimmt dein Kalender die Erinnerungen."); }
+      try { await SB.downloads.save({ filename: "tragfroh-erinnerungen.ics", data: new Blob([remindIcs(st)], { type: "text/calendar" }) }); meta.remind = st; saveMeta(); count("remind-ics"); toast("Datei erstellt. Öffne sie, dann übernimmt dein Kalender die Erinnerungen."); }
       catch (err) { if (err?.code !== "declined") toast("Erinnerungen anlegen hat nicht geklappt."); }
       break;
     }
@@ -4031,7 +4031,7 @@ document.addEventListener("click", async e => {
     case "install": if (installEvt) { installEvt.prompt(); installEvt = null; closeSheet(); } break;
     case "backup": {
       try {
-        const b = await SB.exportAll({ palette: meta.palette || null, city: meta.city || null, view: meta.view || null, lastOcc: meta.lastOcc || null, trip: meta.trip || null, avatar: meta.avatar || null, catOrder: meta.catOrder || null, catFold: meta.catFold || null, remind: meta.remind || null, appVersion: APP_VERSION }); await SB.downloads.save({ filename: `tragsam-sicherung-${todayIso()}.json`, data: b });
+        const b = await SB.exportAll({ palette: meta.palette || null, city: meta.city || null, view: meta.view || null, lastOcc: meta.lastOcc || null, trip: meta.trip || null, avatar: meta.avatar || null, catOrder: meta.catOrder || null, catFold: meta.catFold || null, remind: meta.remind || null, appVersion: APP_VERSION }); await SB.downloads.save({ filename: `tragfroh-sicherung-${todayIso()}.json`, data: b });
         meta.lastBackupAt = new Date().toISOString(); meta.changes = 0; meta.backupSnooze = null; saveMeta();
         toast("Sicherung erstellt. Heb die Datei gut auf."); render();
         if (!scrim.hidden && sheet.querySelector("#restoreInput")) settingsSheet();
@@ -4122,8 +4122,8 @@ document.addEventListener("click", async e => {
 /* ---------- Freunde einladen ---------- */
 async function invite() {
   const url = location.origin + location.pathname + "?von=einladung";
-  const text = "Ich teste gerade Tragsam, eine App für den digitalen Kleiderschrank: Wäsche im Blick, Outfits für die Woche, Vinted-Inserate in einer Minute. Läuft im Browser, deine Daten bleiben auf deinem Handy. Probier mal:";
-  if (navigator.share) { try { await navigator.share({ title: "Tragsam", text, url }); toast("Danke fürs Weitersagen!"); return; } catch (e) { if (e?.name === "AbortError") return; } }
+  const text = "Ich teste gerade Tragfroh, eine App für den digitalen Kleiderschrank: Wäsche im Blick, Outfits für die Woche, Vinted-Inserate in einer Minute. Läuft im Browser, deine Daten bleiben auf deinem Handy. Probier mal:";
+  if (navigator.share) { try { await navigator.share({ title: "Tragfroh", text, url }); toast("Danke fürs Weitersagen!"); return; } catch (e) { if (e?.name === "AbortError") return; } }
   try { await navigator.clipboard.writeText(text + " " + url); toast("Einladung kopiert. Füg sie in WhatsApp oder eine Mail ein."); } catch { toast(url); }
 }
 
@@ -4142,7 +4142,7 @@ async function lendIcs(id) {
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   const clean = t => String(t).replace(/[\\;,]/g, m => "\\" + m).replace(/\n/g, " ");
   const title = clean(`${it.name} ${it.lentTo ? "von " + it.lentTo + " " : ""}zurückholen`);
-  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tragsam//DE", "BEGIN:VEVENT", `UID:${it.id}-${d1}@giyo`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d1}`, `DTEND;VALUE=DATE:${d2}`, `SUMMARY:${title}`,
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tragfroh//DE", "BEGIN:VEVENT", `UID:${it.id}-${d1}@giyo`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${d1}`, `DTEND;VALUE=DATE:${d2}`, `SUMMARY:${title}`,
     "BEGIN:VALARM", "TRIGGER:PT9H", "ACTION:DISPLAY", `DESCRIPTION:${title}`, "END:VALARM", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
   try { await SB.downloads.save({ filename: "rueckgabe.ics", data: new Blob([ics], { type: "text/calendar" }) }); toast("Termin erstellt. Öffne ihn, um ihn in den Kalender zu übernehmen."); }
   catch (e) { if (e?.code !== "declined") toast("Kalender-Termin hat nicht geklappt."); }
@@ -4261,7 +4261,7 @@ async function shareStats() {
   const x = c.getContext("2d");
   const PAL = PALETTES[curPalette()];
   x.fillStyle = PAL.bg; x.fillRect(0, 0, W, H);
-  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("TRAGSAM", 72, 110);
+  x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("TRAGFROH", 72, 110);
   x.fillStyle = "#141413"; x.font = '420 96px "Fraunces", serif'; x.fillText("Mein Schrank", 72, 220);
   x.fillStyle = PAL.accent; x.font = 'italic 420 96px "Fraunces", serif'; x.fillText("in Zahlen", 72, 310);
   const box = (X, Y, big, small, green) => {
@@ -4353,12 +4353,12 @@ function drawFeedback() {
 }
 async function sendFeedback(viaShare) {
   if (!fb.mood && !fb.keep && !fb.text.trim()) { toast("Tipp kurz eine Bewertung an oder schreib ein paar Worte."); return; }
-  const lines = [`Tragsam-Feedback (Test-Version ${APP_VERSION})`];
+  const lines = [`Tragfroh-Feedback (Test-Version ${APP_VERSION})`];
   if (fb.mood) lines.push(`Gefällt mir: ${MOODS.find(m => m[0] === fb.mood)[1]}`);
   if (fb.keep) lines.push(`Würde sie nutzen: ${KEEP.find(m => m[0] === fb.keep)[1]}`);
   if (fb.text.trim()) lines.push("", fb.text.trim());
   if (fb.stats) lines.push("", "Nutzung (nur Zählwerte):", usageSummary());
-  const ok = await sendText(lines.join("\n"), "Feedback zu Tragsam", viaShare);
+  const ok = await sendText(lines.join("\n"), "Feedback zu Tragfroh", viaShare);
   if (!ok) return;
   meta.fbSent = new Date().toISOString(); saveMeta(); count("feedback-sent");
   fb = null; closeSheet(); render();
@@ -4383,7 +4383,7 @@ async function joinWaitlist() {
   if (CONTACT.waitlistForm) {
     const u = CONTACT.waitlistForm + (CONTACT.waitlistForm.includes("?") ? "&" : "?") + "email=" + encodeURIComponent(mail);
     window.open(u, "_blank", "noopener"); ok = true;
-  } else ok = await sendText(`Bitte setz mich auf die Warteliste für Tragsam: ${mail}`, "Warteliste Tragsam");
+  } else ok = await sendText(`Bitte setz mich auf die Warteliste für Tragfroh: ${mail}`, "Warteliste Tragfroh");
   if (!ok) return;
   meta.waitlist = new Date().toISOString(); saveMeta(); count("waitlist");
   toast("Danke! Du bekommst Bescheid, wenn es so weit ist.");
@@ -4649,8 +4649,8 @@ function showOnboarding() {
   ];
   const el = document.createElement("div");
   el.className = "onb"; el.id = "onb"; el.tabIndex = -1;
-  el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Einführung in Tragsam");
-  el.innerHTML = `<div class="onb-top"><span class="brand-sm" aria-hidden="true"><svg class="logo-mark" aria-hidden="true"><use href="#giyo-mark"/></svg>Trag<em>sam</em></span><button class="linkbtn" data-onb="skip">Überspringen</button></div>
+  el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Einführung in Tragfroh");
+  el.innerHTML = `<div class="onb-top"><span class="brand-sm" aria-hidden="true"><svg class="logo-mark" aria-hidden="true"><use href="#giyo-mark"/></svg>Trag<em>froh</em></span><button class="linkbtn" data-onb="skip">Überspringen</button></div>
     <div class="onb-track" id="onbTrack">${slides.map((x, i) => `<section class="onb-slide" aria-label="${i + 1} von ${slides.length}"><div class="onb-art">${x.art}</div>
       <div class="onb-txt"><span class="eyebrow">${i + 1} von ${slides.length} · ${x.eb}</span><h2>${x.h}</h2><p>${x.p}</p></div></section>`).join("")}</div>
     <div class="onb-foot" id="onbFoot"></div>`;
