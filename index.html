@@ -136,6 +136,7 @@ svg { flex: none; }
 .eyebrow { font-family: var(--font-label); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .brand { font-family: var(--font-display); font-weight: 420; font-size: 44px; letter-spacing: -0.02em; line-height: .95; margin: 0; }
 .brand em { font-style: italic; color: var(--accent); }
+.btn.ki-sorry { height: auto; min-height: 36px; white-space: normal; text-align: left; line-height: 1.3; }
 .logo-mark { width: .7em; height: .92em; color: var(--accent); vertical-align: -.1em; margin-right: .16em; flex: none; }
 .fab { width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--ink); color: var(--bg); display: grid; place-items: center; box-shadow: var(--shadow); transition: transform .15s ease; flex: none; }
 .fab:active { transform: scale(.94); }
@@ -2548,7 +2549,7 @@ function drawAdd(focusName) {
     const f = ev.target.files?.[0]; if (!f) return;
     if (addDraft.preview) URL.revokeObjectURL(addDraft.preview);
     addDraft.file = f; addDraft.preview = URL.createObjectURL(f); addDraft.ki = null;
-    if (meta.kiLocal && kiOk()) { drawAdd(); kiAdd(f); return; }
+    if (meta.kiLocal && kiOk() && !kiDown()) { drawAdd(); kiAdd(f); return; }
     if (!addDraft.colorTouched) guessColor(f).then(c => { if (c && addDraft && addDraft.file === f && !addDraft.colorTouched) { addDraft.color = c; drawAdd(); } });
     drawAdd();
   });
@@ -2623,8 +2624,7 @@ async function recognize() {
     toast("Erkannt. Prüf kurz die Angaben und speichere.");
   } catch (e) {
     if (["not_granted", "images_unavailable", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(e?.code)) { sampleImages = false; }
-    toast(e?.code === "not_granted" ? "KI-Erkennung nicht freigegeben. Trag die Angaben einfach selbst ein." : "Erkennung hat nicht geklappt. Trag die Angaben selbst ein.");
-    if (addDraft) drawAdd();
+    if (addDraft) { const f = addDraft.file; addDraft.ki = { err: true }; await kiFallbackColor(f); if (addDraft) drawAdd(); }
   }
 }
 
@@ -3407,6 +3407,8 @@ document.addEventListener("change", e => { if (e.target.id === "sellPhotos") { a
 /* ---------- boot ---------- */
 fillWeekLocal();
 render();
+// Foto-Erkennung einmal täglich still prüfen, ein paar Sekunden nach dem Start
+setTimeout(() => { kiDailyCheck().catch(() => {}); }, 5000);
 
 let installEvt = null;
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; });
@@ -3997,7 +3999,7 @@ function probeSummary() {
   return out.length ? "Geld-Tests: " + out.join(" · ") : "";
 }
 
-const APP_VERSION = "0.30";
+const APP_VERSION = "0.31";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -4425,7 +4427,49 @@ async function kiLoad() {
     return m;
   } finally { kiState.loading = false; }
 }
-async function kiRecognize(file) { const m = await kiLoad(); count("ki-local"); return m.erkennen(await shrink(file, 600)); }
+// Zustand der Erkennung: wird bei jedem Versuch und einmal täglich beim Start geprüft (meta.kiCheck = { day, ok, why })
+function kiMark(ok, why) {
+  const day = todayIso(), c = meta.kiCheck;
+  if (c && c.day === day && c.ok === ok) return;
+  meta.kiCheck = { day, ok, why: ok ? "" : (why || "fehler") };
+  if (!ok) count("ki-check-fail"); else saveMeta();
+}
+const kiDown = () => !!meta.kiCheck && meta.kiCheck.day === todayIso() && meta.kiCheck.ok === false;
+const kiTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("Zeitüberschreitung")), ms))]);
+async function kiRecognize(file) {
+  const m = await kiLoad(); count("ki-local");
+  const r = await kiTimeout(m.erkennen(await shrink(file, 600)), 30000);
+  kiMark(true); return r;
+}
+// Testbild für die Tagesprüfung: ein blaues T-Shirt auf hellem Grund
+function kiTestImage() {
+  const c = document.createElement("canvas"); c.width = c.height = 224;
+  const g = c.getContext("2d"); g.fillStyle = "#f2f0ea"; g.fillRect(0, 0, 224, 224);
+  g.fillStyle = "#2f5fb0"; g.beginPath();
+  [[62, 44], [92, 34], [112, 46], [132, 34], [162, 44], [198, 78], [176, 100], [160, 88], [160, 190], [64, 190], [64, 88], [48, 100], [26, 78]].forEach(([px, py], i) => i ? g.lineTo(px, py) : g.moveTo(px, py));
+  g.closePath(); g.fill();
+  return new Promise(r => c.toBlob(b => r(b), "image/png"));
+}
+// Einmal am Tag: Läuft die Erkennung? Bei geladenem Modell mit einem Testbild, sonst nur, ob die Dateien erreichbar sind.
+async function kiDailyCheck() {
+  const day = todayIso();
+  if (meta.kiCheck?.day === day) return;
+  if (!kiOk()) { kiMark(false, "geraet"); return; }
+  if (!meta.kiLocal) {
+    if (!navigator.onLine) return;
+    try { const r = await fetch("./ki/erkennen.js", { method: "HEAD", cache: "no-store" }); kiMark(r.ok, "datei"); } catch { kiMark(false, "netz"); }
+    return;
+  }
+  try { const r = await kiRecognize(await kiTestImage()); kiMark(!!(r && CATS[r.cat] && COLOR_HEX[r.color]), "ergebnis"); }
+  catch (e) { console.warn("Foto-Erkennung: Tagesprüfung fehlgeschlagen", e); kiMark(false, "fehler"); }
+}
+// Ersatzweg, wenn die Erkennung ausfällt: Farbe aus dem Foto schätzen, den Rest trägt man selbst ein
+async function kiFallbackColor(f) {
+  if (!addDraft || addDraft.file !== f || addDraft.colorTouched) return;
+  const c = await guessColor(f);
+  if (c && addDraft && addDraft.file === f && !addDraft.colorTouched) addDraft.color = c;
+}
+const KI_SORRY = "Sorry, die Erkennung klappt gerade nicht. Nochmal versuchen";
 const kiBusyText = () => kiState.loading ? `Lade Erkennung … <span data-kiprog>${kiPct()}</span>` : "Erkenne auf deinem Handy …";
 function kiApply(d, r) {
   if (!d.catTouched && CATS[r.cat] && d.cat !== r.cat) { d.cat = r.cat; d.type = null; if (!NECK_CATS.has(d.cat)) d.neck = null; if (!FIT_CATS.has(d.cat)) d.fit = null; }
@@ -4440,9 +4484,8 @@ async function kiAdd(f) {
     if (!addDraft || addDraft.file !== f) return;
     kiApply(addDraft, r); addDraft.ki = { res: r }; drawAdd();
   } catch (e) {
-    console.error(e);
-    if (addDraft && addDraft.file === f) { addDraft.ki = { err: true }; drawAdd(); }
-    toast("Erkennung hat nicht geklappt. Trag die Angaben einfach selbst ein.");
+    console.warn("Foto-Erkennung fehlgeschlagen", e); kiMark(false, "fehler");
+    if (addDraft && addDraft.file === f) { addDraft.ki = { err: true }; await kiFallbackColor(f); if (addDraft && addDraft.file === f) drawAdd(); }
   }
 }
 function kiAddBlock(d) {
@@ -4455,6 +4498,8 @@ function kiAddBlock(d) {
     return `<p class="hint ki-line">${ICON_SPARK} Erkannt: <b>${esc(d.type || CATS[d.cat])}</b>, ${esc(d.color)}. Bitte kurz prüfen.</p>
       ${alt.length ? `<div class="chips wrap ki-alt"><span class="hint">Oder:</span>${alt.map(a => `<button type="button" class="chip" data-act="d-kialt" data-v="${a.cat}|${esc(a.type)}">${esc(a.type)}</button>`).join("")}</div>` : ""}`;
   }
+  if (d.ki?.err || kiDown()) return `<button type="button" class="btn btn-soft btn-sm ki-sorry" data-act="d-kiload">${KI_SORRY}</button>
+    <p class="hint">Die Farbe ist aus dem Foto geschätzt. Art und Namen trägst du kurz selbst ein.</p>`;
   return `<button type="button" class="btn btn-soft btn-sm" data-act="d-kiload">${ICON_SPARK} Automatisch erkennen</button>
     ${meta.kiLocal ? "" : `<p class="hint">Einmalig ca. ${KI_MB} MB laden, am besten im WLAN. Danach geht es auch ohne Internet.</p>`}`;
 }
@@ -4478,9 +4523,8 @@ async function quickKI() {
     q.busy = false; q.kiDone = true; drawQuick();
     toast("Erkannt. Prüf kurz die Angaben und speichere.");
   } catch (e) {
-    console.error(e);
-    if (quick === q) { q.busy = false; drawQuick(); }
-    toast("Erkennung hat nicht geklappt. Trag die Angaben einfach selbst ein.");
+    console.warn("Foto-Erkennung fehlgeschlagen", e); kiMark(false, "fehler");
+    if (quick === q) { q.busy = false; q.kiErr = true; drawQuick(); }
   }
 }
 let quick = null;
@@ -4493,7 +4537,7 @@ async function quickSheet(files) {
   quick = { occasions: occ, rows, busy: false };
   if (files.length > 30) toast("Maximal 30 Fotos auf einmal. Die ersten 30 sind drin.");
   drawQuick();
-  if (meta.kiLocal && kiOk()) quickKI();
+  if (meta.kiLocal && kiOk() && !kiDown()) quickKI();
 }
 function drawQuick() {
   const q = quick; if (!q) return;
@@ -4514,8 +4558,9 @@ function drawQuick() {
   const n = q.rows.length;
   openSheet(`<h2>Schnell <em>erfassen</em></h2>
     <p class="hint">${n} ${n === 1 ? "Foto" : "Fotos"}. ${q.kiDone ? "Art und Farbe sind erkannt. Prüf kurz, ob alles stimmt." : "Die Farbe ist geschätzt. Wähl bei jedem Foto kurz aus, was es ist."} Ohne Namen nennt die App das Teil nach Art und Farbe, z. B. „Hoodie Schwarz“.</p>
-    ${kiOk() && !q.kiDone ? `<button class="btn btn-soft btn-wide" data-act="q-ki" id="qKi" ${q.busy ? "disabled" : ""}>${q.busy === "ki" ? `<span class="spin"></span> ${kiState.loading ? kiBusyText() : esc(q.kiStep || "Erkenne …")}` : ICON_SPARK + " Alle automatisch erkennen"}</button>
-    ${meta.kiLocal || q.busy ? "" : `<p class="hint">Erkennt Art und Farbe direkt auf dem Handy. Einmalig ca. ${KI_MB} MB laden, am besten im WLAN.</p>`}` : ""}
+    ${kiOk() && !q.kiDone ? `<button class="btn btn-soft btn-wide" data-act="q-ki" id="qKi" ${q.busy ? "disabled" : ""}>${q.busy === "ki" ? `<span class="spin"></span> ${kiState.loading ? kiBusyText() : esc(q.kiStep || "Erkenne …")}` : (q.kiErr || kiDown() ? KI_SORRY : ICON_SPARK + " Alle automatisch erkennen")}</button>
+    ${q.kiErr || kiDown() ? '<p class="hint">Die Farben sind aus den Fotos geschätzt. Wähl bei jedem Foto kurz aus, was es ist.</p>' : ""}
+    ${meta.kiLocal || q.busy || q.kiErr || kiDown() ? "" : `<p class="hint">Erkennt Art und Farbe direkt auf dem Handy. Einmalig ca. ${KI_MB} MB laden, am besten im WLAN.</p>`}` : ""}
     ${sampleImages ? `<button class="btn btn-accent btn-wide" data-act="q-ai" ${q.busy ? "disabled" : ""}>${q.busy && q.busy !== "ki" ? `<span class="spin"></span> ${esc(q.busy)}` : ICON_SPARK + " Alle mit KI erkennen"}</button>` : ""}
     <div class="q-list">${rows}</div>${brandList()}
     <div class="field"><span class="lbl">Passt zu (für alle)</span><div class="chips wrap">${occChips}</div></div>
@@ -4542,8 +4587,7 @@ async function quickAI() {
       if (CATS[res?.cat]) { r.cat = res.cat; r.catSet = true; }
       if (COLOR_HEX[res?.color]) r.color = res.color;
     } catch (e) {
-      q.busy = false; drawQuick();
-      toast("KI-Erkennung hat nicht geklappt. Trag die Angaben einfach selbst ein."); return;
+      q.busy = false; q.kiErr = true; drawQuick(); return;
     }
     done++;
   }
