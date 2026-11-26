@@ -1614,7 +1614,7 @@ function figBody(lx, gloves) {
 }
 // Leichte Posen (Wochenansicht): Arm gestreckt etwas abgespreizt [rechts im Bild, links im Bild], Kopf geneigt.
 // Kleidung am Arm dreht mit (Bereich außerhalb des Rumpfs), Rumpf und Beine bleiben.
-const FIG_POSES = [null, { r: -9, h: 3 }, { l: 8, h: -3 }, { r: -5, l: 5 }, { r: -9, h: -2 }, { h: 4 }, { l: 9, h: 2 }];
+const FIG_POSES = [null, { w: 1.6, h: 4 }, { w: -1.4, h: -3 }, { h: 5 }, { w: 1.2, h: -4 }, { w: -1.8, h: 3 }, { h: -5 }];
 const FIG_POSE_STILL = new Set(["Sommerkleid"]); // weiter Rock: Arme bleiben unten
 const FIG_ARM_R = "M69.8 6H112V110H75.6L72.8 55 71.8 29Z", FIG_ARM_L = "M30.2 6H-12V110H24.4L27.2 55 28.2 29Z";
 function figPose(html, pose, lx) {
@@ -1642,14 +1642,14 @@ function figureSvg(list, cls, poseNo) {
   const figHead = h => h ? `<g transform="${pose?.h ? `rotate(${pose.h} 50 8) ` : ""}${FIG_HEAD_TF}">${h}</g>` : "";
   const inner = figPose(part("back") + `<g class="fig-body"${skinAttr}>${figBody(lx, list.some(i => i.type === "Handschuhe"))}${FIG_JOINT_RINGS}${FIG_BODY_DETAIL}</g>` + part(undefined), pose, lx);
   const names = list.filter(i => i.cat !== "jewelry" && (i.cat !== "bag" || all.some(L => L.it === i))).map(i => i.name).join(", ");
-  return `<svg class="figure${cls ? " " + cls : ""}" viewBox="0 -30 100 194" role="img" aria-label="Figur im Outfit: ${esc(names)}">${FIG_GROUND}`
+  return `<svg class="figure${cls ? " " + cls : ""}" viewBox="0 -30 100 194" role="img" aria-label="Figur im Outfit: ${esc(names)}">${FIG_GROUND}${pose?.w ? `<g transform="rotate(${pose.w} 50 162)">` : ""}`
     + figHead(back ? `<g class="fig-hair" fill="${hairFill}" filter="url(#${lx}hair)">${back}</g>` : "")
     + figHead(`<g class="fig-body"${skinAttr}><g filter="url(#${lx}wood)">${FIG_HEAD}</g>${FIG_FACE_SCULPT}${skin ? FIG_FACE_EYES + FIG_FACE_LIPS : ""}</g>`
     + (skin && FIG_FACE_BROWS ? `<g fill="${hairFill}" fill-opacity=".55">${FIG_FACE_BROWS}</g>` : ""))
     + (k === 1 ? inner : `<g transform="translate(50 0) scale(${k} 1) translate(-50 0)">${inner}</g>`)
     + figHead((beard || hairFront ? `<g class="fig-hair" fill="${hairFill}" filter="url(#${lx}hair)">${beard}${hairFront}</g>` : "")
     + (glasses ? `<g class="fig-glasses${skin ? "" : " neutral"}">${glasses}</g>` : "")
-    + part("head")) + figDefs(lx, used) + "</svg>";
+    + part("head")) + (pose?.w ? "</g>" : "") + figDefs(lx, used) + "</svg>";
 }
 const STATUS_ICON = {
   schrank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M12 10.2 3.9 15.9a1.2 1.2 0 0 0 .7 2.2h14.8a1.2 1.2 0 0 0 .7-2.2Z"/><path d="M10.2 6.3a1.9 1.9 0 1 1 2.7 1.7c-.6.3-.9.8-.9 1.4v.8"/></svg>',
