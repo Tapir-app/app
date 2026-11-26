@@ -1593,23 +1593,40 @@ const FIG_THUMB = {"T-Shirt": [15.7, 11.2, 68.6], "Longsleeve": [10.3, 5.8, 79.4
 const GHOST_SKIP = new Set(["Handschuhe", "Weste", "Shorts", "Strumpfhose", "Cap"]);
 const FIG_GROUND = '<ellipse cx="50" cy="163.2" rx="17" ry="2.2" fill="#000" fill-opacity=".1"/>';
 const FIG_HEAD_TF = "translate(50 4.6) scale(.9) translate(-50 -3)";
-const figHead = h => h ? `<g transform="${FIG_HEAD_TF}">${h}</g>` : "";
 const FIG_JOINTS = '<ellipse cx="40.6" cy="85.4" rx="4.2" ry="3.2"/><ellipse cx="59.4" cy="85.4" rx="4.2" ry="3.2"/><ellipse cx="50" cy="12.8" rx="3.8" ry="2.2"/><ellipse cx="73.6" cy="21.8" rx="3.4" ry="3.4"/><ellipse cx="26.4" cy="21.8" rx="3.4" ry="3.4"/><ellipse cx="78.15" cy="47" rx="3.2" ry="2.9"/><ellipse cx="21.85" cy="47" rx="3.2" ry="2.9"/><ellipse cx="83.2" cy="78.4" rx="2.5" ry="2.2"/><ellipse cx="16.8" cy="78.4" rx="2.5" ry="2.2"/><ellipse cx="40.8" cy="111.6" rx="4.6" ry="3.6"/><ellipse cx="59.2" cy="111.6" rx="4.6" ry="3.6"/><ellipse cx="42.5" cy="148.2" rx="3" ry="2.4"/><ellipse cx="57.5" cy="148.2" rx="3" ry="2.4"/>';
 const FIG_JOINT_RINGS = '<path fill="none" stroke="#3a2412" stroke-opacity=".38" stroke-width=".55" stroke-linecap="round" d="M75.15 45.405Q78.15 42.795 81.15 45.405M75.15 48.595Q78.15 51.205 81.15 48.595M18.85 45.405Q21.85 42.795 24.85 45.405M18.85 48.595Q21.85 51.205 24.85 48.595M80.8 77.19Q83.2 75.21 85.6 77.19M80.8 79.61Q83.2 81.59 85.6 79.61M14.4 77.19Q16.8 75.21 19.2 77.19M14.4 79.61Q16.8 81.59 19.2 79.61M34.2 109.62Q40.8 106.38 47.4 109.62M34.2 113.58Q40.8 116.82 47.4 113.58M52.6 109.62Q59.2 106.38 65.8 109.62M52.6 113.58Q59.2 116.82 65.8 113.58M39 146.88Q42.5 144.72 46 146.88M39 149.52Q42.5 151.68 46 149.52M54 146.88Q57.5 144.72 61 146.88M54 149.52Q57.5 151.68 61 149.52"/><g fill="none" stroke="#3a2412" stroke-opacity=".2" stroke-width=".4"><ellipse cx="40.6" cy="85.4" rx="4.2" ry="3.2"/><ellipse cx="59.4" cy="85.4" rx="4.2" ry="3.2"/><ellipse cx="50" cy="12.8" rx="3.8" ry="2.2"/><ellipse cx="73.6" cy="21.8" rx="3.4" ry="3.4"/><ellipse cx="26.4" cy="21.8" rx="3.4" ry="3.4"/><ellipse cx="78.15" cy="47" rx="3.2" ry="2.9"/><ellipse cx="21.85" cy="47" rx="3.2" ry="2.9"/><ellipse cx="83.2" cy="78.4" rx="2.5" ry="2.2"/><ellipse cx="16.8" cy="78.4" rx="2.5" ry="2.2"/><ellipse cx="40.8" cy="111.6" rx="4.6" ry="3.6"/><ellipse cx="59.2" cy="111.6" rx="4.6" ry="3.6"/><ellipse cx="42.5" cy="148.2" rx="3" ry="2.4"/><ellipse cx="57.5" cy="148.2" rx="3" ry="2.4"/></g><g fill="#fff" fill-opacity=".22"><ellipse cx="72.58" cy="20.61" rx="1.36" ry="1.02"/><ellipse cx="25.38" cy="20.61" rx="1.36" ry="1.02"/><ellipse cx="77.19" cy="45.985" rx="1.28" ry="0.87"/><ellipse cx="20.89" cy="45.985" rx="1.28" ry="0.87"/><ellipse cx="82.45" cy="77.63" rx="1" ry="0.66"/><ellipse cx="16.05" cy="77.63" rx="1" ry="0.66"/><ellipse cx="39.42" cy="110.34" rx="1.84" ry="1.08"/><ellipse cx="57.82" cy="110.34" rx="1.84" ry="1.08"/><ellipse cx="41.6" cy="147.36" rx="1.2" ry="0.72"/><ellipse cx="56.6" cy="147.36" rx="1.2" ry="0.72"/></g>';
 // Gliederpuppe: Körper in Holzteile zerlegt [Inhalt, von y, bis y]. Jedes Teil wird einzeln beleuchtet.
 const FIG_FEET = FIG_FOOT_FRONT + `<g transform="${FIG_MIRROR}">${FIG_FOOT_FRONT}</g>`;
-const FIG_SEGS = [["T", -6, 12.6], ["T", 12.6, 53.2], ["T", 53.2, 90, "L", 70, 85.4], ["L", 85.4, 111.6], ["L", 111.6, 148.3], ["L", 148.3, 170, "F", 140, 170], ["A", 10, 47], ["A", 47, 78.4], ["A", 78.4, 100]];
-const FIG_SEG_SRC = { T: FIG_TORSO, L: FIG_LEGS, A: FIG_ARMS, F: FIG_FEET };
-function figBody(lx) {
+const FIG_SEGS = [["T", -6, 12.6], ["T", 12.6, 53.2], ["T", 53.2, 90, "L", 70, 85.4], ["L", 85.4, 111.6], ["L", 111.6, 148.3], ["L", 148.3, 170, "F", 140, 170], ["A", 10, 47], ["A", 47, 78.4], ["P", 70, 100], ["D", 70, 100]];
+const FIG_HAND_PALM = '<path d="M85.18 77.07C85.99 77.39 85.74 78.67 86 79.67C86.27 80.68 86.58 81.99 86.75 83.1C86.93 84.2 87.05 85.36 87.06 86.29C87.07 87.21 87.02 88.02 86.83 88.65C86.65 89.29 86.31 89.8 85.95 90.11C85.59 90.42 85.09 90.55 84.7 90.51C84.3 90.47 83.88 90.34 83.58 89.88C83.29 89.42 83.14 88.69 82.94 87.76C82.74 86.83 82.56 85.45 82.39 84.3C82.22 83.14 82.14 81.92 81.94 80.83C81.73 79.73 80.59 78.34 81.13 77.71C81.68 77.09 84.37 76.74 85.18 77.07Z"/><path d="M85.18 77.07C85.99 77.39 85.74 78.67 86 79.67C86.27 80.68 86.58 81.99 86.75 83.1C86.93 84.2 87.05 85.36 87.06 86.29C87.07 87.21 87.02 88.02 86.83 88.65C86.65 89.29 86.31 89.8 85.95 90.11C85.59 90.42 85.09 90.55 84.7 90.51C84.3 90.47 83.88 90.34 83.58 89.88C83.29 89.42 83.14 88.69 82.94 87.76C82.74 86.83 82.56 85.45 82.39 84.3C82.22 83.14 82.14 81.92 81.94 80.83C81.73 79.73 80.59 78.34 81.13 77.71C81.68 77.09 84.37 76.74 85.18 77.07Z" transform="translate(100 0) scale(-1 1)"/>';
+const FIG_HAND_THUMB = '<path d="M81.88 79.22C81.63 79.32 80.98 80.68 80.71 81.43C80.45 82.18 80.33 83.01 80.27 83.73C80.22 84.44 80.26 85.21 80.39 85.73C80.52 86.25 80.77 86.72 81.07 86.84C81.38 86.96 82 86.96 82.23 86.45C82.45 85.94 82.41 84.74 82.41 83.79C82.41 82.84 82.32 81.54 82.23 80.78C82.14 80.02 82.13 79.11 81.88 79.22Z"/><path d="M81.88 79.22C81.63 79.32 80.98 80.68 80.71 81.43C80.45 82.18 80.33 83.01 80.27 83.73C80.22 84.44 80.26 85.21 80.39 85.73C80.52 86.25 80.77 86.72 81.07 86.84C81.38 86.96 82 86.96 82.23 86.45C82.45 85.94 82.41 84.74 82.41 83.79C82.41 82.84 82.32 81.54 82.23 80.78C82.14 80.02 82.13 79.11 81.88 79.22Z" transform="translate(100 0) scale(-1 1)"/>';
+const FIG_HAND_GROOVES = '<path fill="none" stroke="#3a2412" stroke-opacity=".25" stroke-width=".35" stroke-linecap="round" d="M85.63 86.52L86.1 89.48M84.38 86.92L84.88 90.08"/><path fill="none" stroke="#3a2412" stroke-opacity=".25" stroke-width=".35" stroke-linecap="round" transform="translate(100 0) scale(-1 1)" d="M85.63 86.52L86.1 89.48M84.38 86.92L84.88 90.08"/>';
+const FIG_SEG_SRC = { T: FIG_TORSO, L: FIG_LEGS, A: FIG_ARMS, F: FIG_FEET, P: FIG_HAND_PALM, D: FIG_HAND_THUMB };
+function figBody(lx, gloves) {
   let defs = "", out = "";
   FIG_SEGS.forEach((sg, i) => {
+    if (gloves && (sg[0] === "P" || sg[0] === "D")) return;
     let g = "";
     for (let j = 0; j < sg.length; j += 3) { const id = `${lx}s${i}-${j}`; defs += `<clipPath id="${id}"><rect x="-10" y="${sg[j + 1]}" width="120" height="${sg[j + 2] - sg[j + 1]}"/></clipPath>`; g += `<g clip-path="url(#${id})">${FIG_SEG_SRC[sg[j]]}</g>`; }
     out += `<g filter="url(#${lx}wood)">${g}</g>`;
   });
-  return `<defs>${defs}</defs>${out}<g filter="url(#${lx}wood)">${FIG_JOINTS}</g>`;
+  return `<defs>${defs}</defs>${out}${gloves ? "" : FIG_HAND_GROOVES}<g filter="url(#${lx}wood)">${FIG_JOINTS}</g>`;
 }
-function figureSvg(list, cls) {
+// Leichte Posen (Wochenansicht): Arm gestreckt etwas abgespreizt [rechts im Bild, links im Bild], Kopf geneigt.
+// Kleidung am Arm dreht mit (Bereich außerhalb des Rumpfs), Rumpf und Beine bleiben.
+const FIG_POSES = [null, { r: -9, h: 3 }, { l: 8, h: -3 }, { r: -5, l: 5 }, { r: -9, h: -2 }, { h: 4 }, { l: 9, h: 2 }];
+const FIG_POSE_STILL = new Set(["Sommerkleid"]); // weiter Rock: Arme bleiben unten
+const FIG_ARM_R = "M69.8 6H112V110H75.6L72.8 55 71.8 29Z", FIG_ARM_L = "M30.2 6H-12V110H24.4L27.2 55 28.2 29Z";
+function figPose(html, pose, lx) {
+  if (!pose || !(pose.r || pose.l)) return html;
+  const holes = (pose.r ? FIG_ARM_R : "") + (pose.l ? FIG_ARM_L : "");
+  const clip = (id, d, rule) => `<clipPath id="${lx}${id}"><path${rule ? ' clip-rule="evenodd"' : ""} d="${d}"/></clipPath>`;
+  return `<defs>${clip("pm", "M-20 -40H120V200H-20Z" + holes, 1)}${pose.r ? clip("pr", FIG_ARM_R) : ""}${pose.l ? clip("pl", FIG_ARM_L) : ""}</defs>`
+    + `<g clip-path="url(#${lx}pm)">${html}</g>`
+    + (pose.r ? `<g transform="rotate(${pose.r} 73.6 21.8)"><g clip-path="url(#${lx}pr)">${html}</g></g>` : "")
+    + (pose.l ? `<g transform="rotate(${pose.l} 26.4 21.8)"><g clip-path="url(#${lx}pl)">${html}</g></g>` : "");
+}
+function figureSvg(list, cls, poseNo) {
   list = list.filter(Boolean);
   const av = avatar(), skin = avOpt("skin", av.skin)[2], hairFill = avOpt("hairColor", av.hairColor)[2], k = avOpt("build", av.build)[2];
   const all = figureLayers(list), lx = "fl" + (++figSeq) + "-", used = new Set(["wood", "hair"]);
@@ -1619,7 +1636,11 @@ function figureSvg(list, cls) {
   const hat = list.some(i => FIG_HATS.has(i.type)), shades = list.some(i => i.type === "Sonnenbrille");
   const [hairBack, hairFront] = FIG_HAIR[av.hair], beard = FIG_BEARD[av.beard], glasses = shades ? "" : FIG_GLASSES[av.glasses];
   const back = hat && av.hair === "dutt" ? "" : hairBack;
-  const inner = part("back") + `<g class="fig-body"${skinAttr}>${figBody(lx)}${FIG_JOINT_RINGS}${FIG_BODY_DETAIL}</g>` + part(undefined);
+  let pose = poseNo ? FIG_POSES[poseNo % FIG_POSES.length] : null;
+  if (pose && all.some(L => ["jacket", "suit"].includes(L.it.cat) || FIG_POSE_STILL.has(L.type))) pose = { h: pose.h }; // Jacken und weite Röcke: nur der Kopf neigt sich
+  if (pose && all.some(L => L.it.cat === "bag" && L.type !== "Rucksack")) pose = { ...pose, r: 0 }; // Tasche in der Hand: rechter Arm bleibt
+  const figHead = h => h ? `<g transform="${pose?.h ? `rotate(${pose.h} 50 8) ` : ""}${FIG_HEAD_TF}">${h}</g>` : "";
+  const inner = figPose(part("back") + `<g class="fig-body"${skinAttr}>${figBody(lx, list.some(i => i.type === "Handschuhe"))}${FIG_JOINT_RINGS}${FIG_BODY_DETAIL}</g>` + part(undefined), pose, lx);
   const names = list.filter(i => i.cat !== "jewelry" && (i.cat !== "bag" || all.some(L => L.it === i))).map(i => i.name).join(", ");
   return `<svg class="figure${cls ? " " + cls : ""}" viewBox="0 -30 100 194" role="img" aria-label="Figur im Outfit: ${esc(names)}">${FIG_GROUND}`
     + figHead(back ? `<g class="fig-hair" fill="${hairFill}" filter="url(#${lx}hair)">${back}</g>` : "")
@@ -2041,7 +2062,7 @@ function statsTeaserFull() {
 function viewWoche() {
   const tk = todayKey();
   const seg = Object.entries(WEATHER).map(([k, l]) => `<button data-act="weather" data-v="${k}" aria-pressed="${state.plan.weather === k}">${l}</button>`).join("");
-  const days = daysFromToday().map(([k, name]) => {
+  const days = daysFromToday().map(([k, name], di) => {
     const d = state.plan.days[k];
     const items = d.items.map(byId).filter(Boolean);
     const dirty = items.filter(i => i.status !== "schrank");
@@ -2056,7 +2077,7 @@ function viewWoche() {
           ${minis ? `<button class="icon-btn share" data-act="share-outfit" data-v="${k}" aria-label="Outfit für ${name} als Bild teilen">${ICON_SHARE}</button>` : ""}
         </div>
       </div>
-      ${minis ? `<div class="outfit-row">${canFigure(items) ? `<div class="mini-fig">${figureSvg(items)}</div>` : ""}<div class="outfit">${minis}</div></div>` : '<p class="note">Noch kein Outfit. Tippe ↻ oder plane die ganze Woche.</p>'}
+      ${minis ? `<div class="outfit-row">${canFigure(items) ? `<div class="mini-fig">${figureSvg(items, "", di + 1)}</div>` : ""}<div class="outfit">${minis}</div></div>` : '<p class="note">Noch kein Outfit. Tippe ↻ oder plane die ganze Woche.</p>'}
       ${w && w.rain >= RAIN_UMB ? `<p class="rain-line umb">${ICON_UMB}Regenschirm mitnehmen</p>` : ""}
       ${d.note ? `<p class="note">${esc(d.note)}</p>` : ""}
       ${dirty.length ? `<p class="warn-line">${dirty.map(i => esc(i.name)).join(", ")}: ${dirty.length === 1 ? "ist" : "sind"} gerade nicht im Schrank.</p>` : ""}
