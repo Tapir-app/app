@@ -743,6 +743,32 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
 @media (max-height: 700px) { .onb-txt h2 { font-size: 29px; } .onb-txt p { font-size: 14.5px; } .onb-slide { gap: 14px; } .onb-row { padding: 9px 12px; } }
 @media (min-width: 600px) { .onb-slide, .onb-foot { padding-left: calc(50% - 220px); padding-right: calc(50% - 220px); } .onb-art > * { max-width: 440px; } }
 @media (prefers-reduced-motion: reduce) { .onb { animation: none; } }
+/* Sprachassistent */
+.vc-log { display: flex; flex-direction: column; gap: 10px; }
+.vc-msg { max-width: 88%; padding: 10px 14px; border-radius: 18px; font-size: 14.5px; line-height: 1.4; }
+.vc-msg > p { margin: 0; text-wrap: pretty; }
+.vc-me { align-self: flex-end; background: var(--ink); color: var(--bg); border-bottom-right-radius: 6px; }
+.vc-app { align-self: flex-start; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); border-bottom-left-radius: 6px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.vc-app .outfit { max-width: 100%; }
+.vc-app .mini { width: 64px; }
+.vc-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.vc-b { min-height: 40px; padding: 8px 14px; font-size: 13.5px; }
+.vc-b:disabled, .vc-app .mini:disabled { opacity: .55; }
+.vc-empty { display: flex; flex-direction: column; gap: 10px; }
+.vc-live { margin: -6px 0 0; font-size: 14px; color: var(--muted); font-style: italic; }
+.vc-bar { position: sticky; bottom: calc(-24px - env(safe-area-inset-bottom, 0px)); z-index: 2; display: flex; gap: 8px; align-items: center; background: var(--bg); padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); margin-bottom: -8px; }
+.vc-mic { width: 56px; height: 56px; flex: none; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; box-shadow: var(--shadow); }
+.vc-mic svg { width: 26px; height: 26px; }
+.vc-mic.on { animation: vcpulse 1.2s ease-out infinite; }
+@keyframes vcpulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 50%, transparent); } 100% { box-shadow: 0 0 0 16px transparent; } }
+#vcInput { flex: 1; min-width: 0; height: 48px; border-radius: 999px; border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); background: var(--surface); padding: 0 16px; font: inherit; font-size: 16px; color: var(--ink); }
+.vc-send { width: 48px; height: 48px; }
+.vc-app .mini .pill { display: none; }
+/* Kopfzeile mit Mikrofon: vier runde Knöpfe neben dem Namen, auf schmalen Handys etwas kleiner */
+@media (max-width: 440px) { header.top .top-r { gap: 5px; } header.top .top-r .fab { width: 40px; height: 40px; } header.top .top-r .fab svg { width: 19px; height: 19px; } }
+@media (max-width: 400px) { header.top .brand { font-size: clamp(25px, 7.7vw, 44px); } }
+@media (max-width: 359px) { header.top .top-r [data-act="feedback"] { display: none; } }
+@media (prefers-reduced-motion: reduce) { .vc-mic.on { animation: none; outline: 3px solid var(--accent); outline-offset: 3px; } }
 </style>
 </head>
 <body>
@@ -751,6 +777,7 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
   <div class="minibar-in">
     <button class="brand-sm" data-act="to-top" aria-label="Nach oben">Trag<em>froh</em></button>
     <div class="top-r">
+    <button class="fab fab-soft" data-act="voice" aria-label="Sprechen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="d" x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg></button>
     <button class="fab fab-soft" data-act="feedback" aria-label="Feedback geben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M4.5 6.75A2.75 2.75 0 0 1 7.25 4h9.5a2.75 2.75 0 0 1 2.75 2.75v6.5A2.75 2.75 0 0 1 16.75 16H10.5l-4.25 3.5V16a2.75 2.75 0 0 1-1.75-2.75Z"/><path d="M8.75 8.75h6.5M8.75 11.75h4"/></svg></button>
     <button class="fab fab-soft" data-act="settings" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.5h8.5M17.5 7.5H20M4 16.5h2.5M11.5 16.5H20"/><circle class="d" cx="15" cy="7.5" r="2.5"/><circle class="d" cx="9" cy="16.5" r="2.5"/></svg></button>
     <button class="fab" data-act="open-add" aria-label="Teil hinzufügen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg></button>
@@ -764,6 +791,7 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
       <h1 class="brand"><svg class="logo-mark" aria-hidden="true"><use href="#giyo-mark"/></svg>Trag<em>froh</em></h1>
     </div>
     <div class="top-r">
+    <button class="fab fab-soft" data-act="voice" aria-label="Sprechen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="d" x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg></button>
     <button class="fab fab-soft" data-act="feedback" aria-label="Feedback geben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="d" d="M4.5 6.75A2.75 2.75 0 0 1 7.25 4h9.5a2.75 2.75 0 0 1 2.75 2.75v6.5A2.75 2.75 0 0 1 16.75 16H10.5l-4.25 3.5V16a2.75 2.75 0 0 1-1.75-2.75Z"/><path d="M8.75 8.75h6.5M8.75 11.75h4"/></svg></button>
     <button class="fab fab-soft" data-act="settings" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.5h8.5M17.5 7.5H20M4 16.5h2.5M11.5 16.5H20"/><circle class="d" cx="15" cy="7.5" r="2.5"/><circle class="d" cx="9" cy="16.5" r="2.5"/></svg></button>
     <button class="fab" data-act="open-add" aria-label="Teil hinzufügen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13"/></svg></button>
@@ -982,7 +1010,7 @@ const TRACKED = {
   "lend-remind": "An Rückgabe erinnert", "lend-ics": "Rückgabe in Kalender", "wx-pick": "Ort fürs Wetter gewählt", "wash-every": "Waschrhythmus angepasst", "wash-all": "Doch alle gewaschen",
   "av-set": "Figur angepasst", "cat-fold": "Kategorie ein-/ausgeklappt", "cat-move": "Kategorien umsortiert", "tab:woche": "Woche angesehen", "tab:waesche": "Wäsche angesehen", "tab:verkaufen": "Verkaufen angesehen", "fstatus": "Filter genutzt",
   "review": "Wochenrückblick angesehen", "review-share": "Wochenrückblick als Bild geteilt", "share-outfit": "Outfit als Bild geteilt",
-  "install-how": "Hinweis Home-Bildschirm geöffnet", "type-open": "Aufschreiben geöffnet", "type-import": "Aufgeschriebene Teile übernommen", "quick-capture": "Mehrere Fotos auf einmal erfasst",
+  "voice": "Sprachassistent geöffnet", "voice-cmd": "Sprachbefehl verstanden", "voice-miss": "Sprachbefehl nicht verstanden", "install-how": "Hinweis Home-Bildschirm geöffnet", "type-open": "Aufschreiben geöffnet", "type-import": "Aufgeschriebene Teile übernommen", "quick-capture": "Mehrere Fotos auf einmal erfasst",
   "csv-open": "Listen-Import geöffnet", "csv-import": "Liste importiert", "csv-export": "Als Liste gespeichert", "mail-probe": "„Aus Bestellung übernehmen“ angesehen", "value-sell": "Vom Schrankwert zum Verkaufen", "gear-tog": "Ausrüstung abgehakt", "gear-add": "Eigene Ausrüstung hinzugefügt"
 };
 document.addEventListener("click", e => {
@@ -4621,6 +4649,402 @@ async function saveQuick() {
   state.fCat = "all"; state.fType = "all"; state.fBasic = false; state.fStatus = "all"; state.tab = "schrank"; render(); window.scrollTo({ top: 0 });
   toast(`${total} ${total === 1 ? "Teil hängt" : "Teile hängen"} jetzt im Schrank.`);
 }
+
+/* ---------- Sprachassistent: Spracherkennung und Vorlesen vom Browser, Befehle versteht die App selbst (kein KI-Dienst, kein eigener Server) ---------- */
+const VSR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+const V = { rec: null, listening: false, log: [], btns: [], pending: null, voice: null };
+const ICON_MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="d" x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg>';
+const ICON_SEND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6.5 18.5 12 13 17.5"/></svg>';
+const V_EXAMPLES = ["Was ziehe ich morgen an?", "Blaue Jeans in die Wäsche", "Neues Teil: schwarzer Pullover", "Was ist in der Wäsche?", "Wo ist mein Gürtel?", "Was habe ich lange nicht getragen?"];
+// Wörter, die nie ein Kleidungsstück beschreiben
+const V_STOP = new Set("ich du mein meine meinen meinem meiner mir mich die der das den dem des ein eine einen einem einer und oder ist sind war in im ins an am auf aus zu zum zur bitte mal noch jetzt heute morgen gestern wieder schon auch nicht kein keine von vom mit fuer bei alle alles beide beiden habe hab hat haben wo was wer wem wie welche welcher welches soll sollte kann kannst trage trag tragen getragen gewaschen sauber dreckig schmutzig waesche waeschekorb reinigung schrank kleiderschrank zurueck verliehen geliehen leihen verleihen einlagern eingelagert keller dachboden gebracht bringen legen leg lege packen pack gepackt liegt liegen haengt haengen gerade gerade dass so sehr lange zeit teil teile neues neue neuer neu".split(" "));
+const V_FAMILY = [["Blau", "Navy", "Hellblau", "Denim"], ["Rot", "Bordeaux", "Rosa"], ["Beige", "Braun"], ["Grün", "Oliv"], ["Weiß", "Silber", "Grau"], ["Gelb", "Gold"]];
+const vFam = c => V_FAMILY.find(f => f.includes(c));
+const vLow = s => String(s || "").toLowerCase().replace(/[„“"!?.;:()]/g, " ").replace(/\s+/g, " ").trim();
+const vToks = s => vLow(s).split(/[\s,/-]+/).map(nrm).filter(Boolean);
+const vJoin = a => a.length < 2 ? (a[0] || "") : a.slice(0, -1).join(", ") + " und " + a[a.length - 1];
+const vN = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+const vDayName = k => { const t = todayKey(), i = DAYS.findIndex(d => d[0] === t); return k === t ? "heute" : k === DAYS[(i + 1) % 7][0] ? "morgen" : "am " + DAYS.find(d => d[0] === k)[1]; };
+const vPlural = n => /(schuhe|sandalen|pumps|stiefeletten|stiefel|sneaker|ohrringe|shorts|handschuhe)$/i.test(n);
+const V_WHERE = { schrank: "hängt im Schrank", waesche: "liegt in der Wäsche", reinigung: "ist in der Reinigung", verliehen: "ist verliehen", koffer: "ist im Koffer", eingelagert: "ist eingelagert" };
+
+// Welcher Tag ist gemeint? „heute“, „morgen“, „übermorgen“, Wochentage. Abends ohne Angabe: morgen.
+function vDay(t) {
+  const i = (new Date().getDay() + 6) % 7, plus = n => DAYS[(i + n) % 7][0];
+  if (/übermorgen|uebermorgen/.test(t)) return { k: plus(2), said: true };
+  const wd = DAYS.find(([, n]) => t.includes(n.toLowerCase())); if (wd) return { k: wd[0], said: true };
+  if (/\bheute\b/.test(t)) return { k: plus(0), said: true };
+  if (/\bmorgen\b/.test(t)) return { k: plus(1), said: true };
+  return { k: new Date().getHours() >= 19 && !/abend|party|essen|date/.test(t) ? plus(1) : plus(0), said: false };
+}
+function vOcc(t) {
+  if (/büro|buero|arbeit|job|meeting|termin|kunde|präsentation|praesentation|vorstellungsgespräch/.test(t)) return "buero";
+  if (/sport|gym|fitness|training|laufen|joggen|yoga|hyrox|studio/.test(t)) return "sport";
+  if (/abend|party|date|ausgehen|feier|hochzeit|geburtstag|restaurant|essen gehen|konzert|theater/.test(t)) return "abend";
+  if (/schule|uni\b|vorlesung/.test(t)) return "schule";
+  if (/freizeit|alltag|wochenende|entspannt|gemütlich|gemuetlich|einkaufen|spazieren/.test(t)) return "freizeit";
+  return null;
+}
+
+// Teile im Schrank finden: Art, Farbe, Marke und Wörter aus dem Namen zählen
+function vMatch(seg, prefer) {
+  const toks = vToks(seg).filter(t => !V_STOP.has(t));
+  if (!toks.length) return { items: [], why: "empty" };
+  const kind = textKind(toks);
+  let color = null;
+  for (const [k, c] of TEXT_COLORS) if (toks.some((t, i) => i === kind?.i ? t.startsWith(k) && t.length - k.length >= kind.len : t.startsWith(k))) { color = c; break; }
+  const br = textBrand(seg);
+  const scored = state.items.map(it => {
+    const nameT = vToks(it.name), name = nrm(it.name);
+    let s = 0;
+    if (kind?.type) {
+      if (it.type === kind.type || name.includes(nrm(kind.type))) s += 4;
+      else if (kind.type === "Jacke" && it.cat === "jacket") s += 3;
+      else return { it, s: -99 };
+    } else if (kind?.cat) { if (it.cat === kind.cat) s += 2; else return { it, s: -99 }; }
+    if (color) s += it.color === color ? 3 : vFam(color)?.includes(it.color) ? 2 : it.color2 === color ? 1 : -3;
+    if (br) s += it.brand === br.brand ? 3 : -2;
+    for (const t of toks) {
+      if (kind?.type && kind.i === toks.indexOf(t)) continue;
+      const isCol = TEXT_COLORS.some(([k]) => t.startsWith(k));
+      if (t.length >= 3 && nameT.some(n => n === t || (t.length >= 4 && (n.startsWith(t) || t.startsWith(n) && n.length >= 4)))) s += isCol ? 1 : 2;
+    }
+    // Gemustert, aber kein Muster genannt: das schlichte Teil ist wahrscheinlicher
+    if (it.pattern && !toks.some(t => /streif|karo|kariert|punkt|gepunktet|blum|gebluemt/.test(t))) s -= 1;
+    return { it, s };
+  }).filter(x => x.s >= 2).sort((a, b) => b.s - a.s);
+  if (!scored.length) return { items: [], why: kind?.type || kind?.cat ? "none" : "unknown", kind, color };
+  let top = scored.filter(x => x.s === scored[0].s).map(x => x.it);
+  if (top.length > 1 && prefer) { const p = top.filter(prefer); if (p.length) top = p; }
+  return { items: top, kind, color };
+}
+// „Jeans und das weiße Hemd“ → zwei Teile
+function vFind(text, prefer) {
+  const segs = text.split(/\s*,\s*|\s+(?:und|sowie|plus)\s+/i).map(s => s.trim()).filter(Boolean);
+  const found = [], unsure = [], missing = [];
+  const all = /\balle\b|\bbeide\b/i.test(text);
+  for (const seg of segs) {
+    const m = vMatch(seg, prefer);
+    if (!m.items.length) { if (m.why !== "empty" && m.why !== "unknown") missing.push(seg); continue; }
+    if (m.items.length === 1 || all) m.items.forEach(it => { if (!found.includes(it)) found.push(it); });
+    else unsure.push(m.items.slice(0, 6));
+  }
+  return { found, unsure, missing };
+}
+// Befehlswörter weglassen, damit nur das Kleidungsstück übrig bleibt
+const V_CMD = /\b(?:in die|in den|zur|zum|ins|aus der|aus dem|zurück in den|wieder in den)\s+(?:wäsche|waesche|wäschekorb|reinigung|schrank|kleiderschrank|keller|koffer)\b|\b(?:ist|sind|habe|hab|hat|wurde|wurden)?\s*(?:sauber|dreckig|schmutzig|gewaschen|getragen|angezogen|verliehen|geliehen|eingelagert|abgeholt|zurück|zurueck|wieder da)\b|\b(?:bitte|mal|jetzt|heute|gerade|leg|lege|legen|bring|bringe|bringen|pack|packe|tu|tue|mach|mache|markiere|markier|ich|trage|trag|hatte|an)\b/gi;
+const vStrip = t => t.replace(V_CMD, " ").replace(/\s+/g, " ").trim();
+
+function vSay(text) {
+  if (meta.voiceMute || !("speechSynthesis" in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/°/g, " Grad").replace(/%/g, " Prozent").replace(/€/g, " Euro"));
+    u.lang = "de-DE"; u.rate = 1.03;
+    if (!V.voice) { const vs = speechSynthesis.getVoices().filter(v => /^de(-|_|$)/i.test(v.lang)); V.voice = vs.find(v => v.localService && /anna|helena|petra|marlene|katja|vicki/i.test(v.name)) || vs.find(v => v.localService) || vs[0] || null; }
+    if (V.voice) u.voice = V.voice;
+    speechSynthesis.speak(u);
+  } catch {}
+}
+const vBtn = (label, fn, cls = "btn-ghost") => { V.btns.push(fn); return `<button class="btn ${cls} vc-b" data-act="v-btn" data-v="${V.btns.length - 1}">${esc(label)}</button>`; };
+const vThumbs = (ids, pick) => `<div class="outfit vc-outfit">${ids.map(id => byId(id)).filter(Boolean).map(it => pick
+  ? `<button class="mini" data-act="v-btn" data-v="${V.btns.push(() => pick(it)) - 1}"><div class="thumb">${thumb(it)}</div><span>${esc(it.name)}</span></button>`
+  : `<button class="mini" data-act="open-item" data-v="${it.id}"><div class="thumb">${thumb(it)}${it.status !== "schrank" ? pill(it.status) : ""}</div><span>${esc(it.name)}</span></button>`).join("")}</div>`;
+
+/* Rückgängig: alte Werte merken */
+function vSnap(items) { return items.map(it => ({ id: it.id, p: { status: it.status, lentTo: it.lentTo ?? null, lentUntil: it.lentUntil ?? null, sinceWash: it.sinceWash || 0, wears: it.wears || 0, lastWorn: it.lastWorn ?? null, rewears: it.rewears || 0 } })); }
+// Auch per Sprache: „Rückgängig“ nimmt die letzte Änderung zurück
+function vUndoBtn(fn) {
+  const once = async () => { if (V.undo !== once) return { text: "Das ist schon rückgängig gemacht." }; V.undo = null; return fn(); };
+  V.undo = once;
+  return '<div class="vc-acts">' + vBtn("Rückgängig", once) + "</div>";
+}
+function vUndoSnap(snap, wore) {
+  return vUndoBtn(async () => {
+    for (const s of snap) await patchItem(s.id, s.p);
+    if (wore) { const L = meta.wearLog?.[todayIso()]; if (L) { meta.wearLog[todayIso()] = L.filter(id => !snap.some(s => s.id === id)); saveMeta(); } }
+    return { text: "Okay, rückgängig gemacht." };
+  });
+}
+
+/* Status ändern für gefundene Teile */
+async function vApply(items, to, lentTo) {
+  const snap = vSnap(items), names = items.map(i => i.name);
+  if (to === "worn") {
+    const fresh = items.filter(it => !wornAlready(it)), wash = [];
+    for (const it of fresh) { const p = wearPatch(it, "auto"); if (p.status === "waesche") wash.push(it.name); await patchItem(it.id, p); }
+    logWear(fresh.map(i => i.id));
+    if (!fresh.length) return { text: `${vJoin(names)} ${items.length === 1 ? "ist" : "sind"} heute schon als getragen eingetragen.` };
+    return { text: `Eingetragen: ${vJoin(fresh.map(i => i.name))} heute getragen.${wash.length ? ` ${vJoin(wash)} ${wash.length === 1 ? "ist" : "sind"} jetzt reif für die Wäsche.` : ""}`, html: vUndoSnap(snap, true) };
+  }
+  let washed = 0;
+  for (const it of items) {
+    const p = to === "verliehen" ? { status: to, lentTo: lentTo || it.lentTo || null, lentUntil: localIso(new Date(Date.now() + 14 * 86400000)) } : { status: to, lentTo: null, lentUntil: null };
+    if (to === "waesche" || (to === "schrank" && it.status === "waesche")) p.sinceWash = 0;
+    if (to === "schrank" && it.status === "waesche") washed++;
+    await patchItem(it.id, p);
+  }
+  if (washed) logWash(washed);
+  const verb = { waesche: "liegt jetzt in der Wäsche", reinigung: "ist jetzt in der Reinigung", schrank: "hängt wieder im Schrank", verliehen: lentTo ? `ist an ${lentTo} verliehen, für zwei Wochen` : "ist als verliehen eingetragen, für zwei Wochen", eingelagert: "ist jetzt eingelagert", koffer: "ist im Koffer" }[to];
+  const pl = items.length > 1 || vPlural(names[0]) ? verb.replace(/^liegt/, "liegen").replace(/^ist/, "sind").replace(/^hängt/, "hängen") : verb;
+  return { text: `Erledigt: ${vJoin(names)} ${pl}.`, html: vUndoSnap(snap) };
+}
+// Mehrdeutig? Nachfragen, dann weitermachen
+function vAsk(groups, run, done = []) {
+  const g = groups[0];
+  return { text: `Welches Teil meinst du? Ich habe ${vN(g.length, "Treffer", "Treffer")}.`, html: vThumbs(g.map(i => i.id), async it => {
+    const rest = groups.slice(1), have = [...done, it];
+    return rest.length ? vAsk(rest, run, have) : run(have);
+  }) };
+}
+
+/* Outfit für einen Tag */
+function vOutfit(k, occ, again) {
+  const day = state.plan.days[k], useOcc = occ || day.occ;
+  const planned = !again && useOcc === day.occ ? day.items.filter(id => byId(id)) : [];
+  let ids = planned, fresh = !planned.length;
+  if (fresh) {
+    const used = new Set();
+    for (const [d] of DAYS) if (d !== k) state.plan.days[d].items.forEach(id => { if (!NOT_USED_UP.has(byId(id)?.cat)) used.add(id); });
+    ids = generateOutfit(useOcc, dayWeather(k), used, dayWx(k)?.rain || 0);
+  }
+  if (!ids.length) return { text: `Für ${vDayName(k).replace(/^am /, "")} finde ich gerade nichts Sauberes für ${OCC[useOcc]}. Vielleicht ist zu viel in der Wäsche?` };
+  const w = dayWx(k), dirty = ids.map(byId).filter(it => it && it.status !== "schrank");
+  const wx = w ? ` ${w.min} bis ${w.max} Grad${w.rain >= 50 ? `, Regen ${w.rain} Prozent` : ""}.` : "";
+  let text = `${vDayName(k).replace(/^./, c => c.toUpperCase())}, ${OCC[useOcc]}:${wx} ${vJoin(ids.map(id => byId(id)?.name).filter(Boolean))}.`;
+  if (dirty.length) text += ` Achtung: ${vJoin(dirty.map(i => i.name))} ${dirty.length === 1 ? "ist" : "sind"} gerade nicht im Schrank.`;
+  let html = vThumbs(ids) + '<div class="vc-acts">';
+  if (fresh) html += vBtn("In die Woche übernehmen", () => { day.items = ids; day.occ = useOcc; day.note = ""; savePlan(); render(); return { text: `Gespeichert. Du findest es unter Woche, ${vDayName(k)}.` }; }, "btn-primary");
+  html += vBtn("Anderer Vorschlag", () => vOutfit(k, useOcc, true)) + "</div>";
+  return { text, html };
+}
+
+/* Befehl verstehen. Gibt null zurück, wenn nichts passt. */
+function vParse(raw) {
+  const t = vLow(raw);
+  if (!t) return null;
+  if (V.pending && /^(ja|jap|jo|genau|ok|okay|passt|mach|bitte)\b/.test(t)) { const p = V.pending; V.pending = null; return () => p(); }
+  if (/^(nein|nee|abbrechen|stopp?|vergiss es)\b/.test(t)) return () => { V.pending = null; return { text: "Okay, nichts geändert." }; };
+  if (/hilfe|was kannst du|wie geht das|was kann ich (sagen|fragen)/.test(t)) return () => ({ text: "Frag mich nach einem Outfit, lege Teile in die Wäsche oder Reinigung, trag neue Teile ein oder frag, wo etwas ist. Zum Beispiel:", html: `<div class="chips wrap">${V_EXAMPLES.map(x => `<button class="chip chip-sm" data-act="v-say" data-v="${esc(x)}">${esc(x)}</button>`).join("")}</div>` });
+  if (/^(rückgängig|rueckgaengig|zurücknehmen|mach das rückgängig|das war falsch|undo)\b/.test(t)) return () => V.undo ? V.undo() : { text: "Da gibt es gerade nichts zum Rückgängigmachen." };
+  if (/^(danke|dankeschön|super|cool|toll|perfekt)\b/.test(t)) return () => ({ text: "Gern!" });
+  if (/^(hallo|hi|hey|guten (morgen|tag|abend))\b/.test(t) && t.split(" ").length <= 3) return () => ({ text: "Hallo! Was kann ich für dich tun?" });
+
+  // Navigation
+  const nav = /^(öffne|oeffne|zeig mir|zeige|zeig|geh zu|gehe zu|wechsel zu|wechsle zu)\b.*\b(schrank|woche|wochenplan|wäsche|waesche|verkaufen|vinted)\b/.exec(t);
+  if (nav && !/\bwas\b/.test(t)) return () => { const v = { schrank: "schrank", woche: "woche", wochenplan: "woche", "wäsche": "waesche", waesche: "waesche", verkaufen: "verkaufen", vinted: "verkaufen" }[nav[2]]; state.tab = v; render(); window.scrollTo({ top: 0 }); return { text: `Ich habe ${{ schrank: "den Schrank", woche: "die Woche", waesche: "die Wäsche", verkaufen: "Verkaufen" }[v]} geöffnet.`, close: true }; };
+
+  // Woche planen
+  if (/(plan|plane|planen|stell|füll|fuell).*\bwoche\b|\bwoche\b.*(plan|planen|zusammenstellen)/.test(t) && !/was ziehe/.test(t)) return () => { fillWeekLocal(); savePlan(); render(); return { text: "Ich habe deine Woche neu geplant, nur aus sauberen Teilen. Schau unter Woche.", html: '<div class="vc-acts">' + vBtn("Woche ansehen", () => { state.tab = "woche"; render(); window.scrollTo({ top: 0 }); return { text: "Hier ist deine Woche.", close: true }; }) + "</div>" }; };
+
+  // Wetter
+  if (/wetter|regnet|regen|schirm|wie (kalt|warm)|grad\b|temperatur/.test(t) && !/(was|welche).*(anziehen|ziehe|tragen)/.test(t)) {
+    const { k } = vDay(t);
+    return () => {
+      const w = dayWx(k);
+      if (!meta.city) return { text: "Ich kenne deinen Ort noch nicht. Stell ihn einmal ein, dann sage ich dir das Wetter.", html: '<div class="vc-acts">' + vBtn("Ort einstellen", () => { citySheet(); return null; }) + "</div>" };
+      if (!w) return { text: "Für diesen Tag habe ich noch keine Vorhersage." };
+      const umb = w.rain >= RAIN_UMB ? " Nimm lieber einen Schirm mit." : "";
+      return { text: `${vDayName(k).replace(/^./, c => c.toUpperCase())} in ${meta.city.name}: ${w.min} bis ${w.max} Grad, Regenrisiko ${w.rain} Prozent.${umb}` };
+    };
+  }
+
+  // Outfit-Frage
+  if (/(was|welches|welche).*(zieh|anzieh|tragen|trag ich|outfit|anhaben)|outfit für|outfit vorschlag|vorschlag.*outfit|was soll ich.*(an|tragen)/.test(t) && !/getragen|angezogen/.test(t)) {
+    const d = vDay(t), o = vOcc(t);
+    return () => vOutfit(d.k, o);
+  }
+
+  // Ganzes Outfit von heute getragen
+  if (/(outfit|alles).*(getragen|angezogen|an gehabt|angehabt)|^heute getragen$/.test(t)) return () => { wornToday(); return { text: "Ich trage dein geplantes Outfit von heute als getragen ein." }; };
+
+  // Wäsche oder Reinigung komplett zurück
+  const vNoItem = () => { const f = vFind(vStrip(raw)); return !f.found.length && !f.unsure.length; };
+  if (/^(die )?(wäsche|waesche) (ist )?(fertig|gewaschen|durch|trocken|sauber|erledigt)|(alles|ganze wäsche|ganze waesche).*(aus der wäsche|aus der waesche|gewaschen|sauber)|wäsche (ist )?fertig|waesche (ist )?fertig/.test(t) && vNoItem()) return () => { const n = state.items.filter(i => i.status === "waesche").length; if (!n) return { text: "Im Wäschekorb liegt gerade nichts." }; bulkBack("waesche"); return { text: `Super, ${vN(n, "Teil hängt", "Teile hängen")} wieder im Schrank.` }; };
+  if (/^(die )?reinigung (ist )?(abgeholt|fertig|zurück|da)|alles aus der reinigung|reinigung abgeholt/.test(t) && vNoItem()) return () => { const n = state.items.filter(i => i.status === "reinigung").length; if (!n) return { text: "In der Reinigung ist gerade nichts." }; bulkBack("reinigung"); return { text: `${vN(n, "Teil ist", "Teile sind")} aus der Reinigung zurück.` }; };
+
+  // Neues Teil eintragen
+  const add = /^(?:neues teil|neues kleidungsstück|neu|füge|fuege|füg|trag ein|trage ein|erfasse|speicher|speichere|hinzufügen|ich habe (?:mir )?(?:ein|eine|einen|neue|neuen|neues)|ich hab (?:mir )?(?:ein|eine|einen|neue|neuen|neues)|hab mir|ich habe mir)\b/.exec(t) || /\b(gekauft|hinzufügen|hinzu|eintragen|neu dazu)\b/.exec(t);
+  if (add && !/\b(gewaschen|getragen|wäsche|waesche|reinigung)\b/.test(t)) {
+    const rest = raw.replace(/^\s*(?:neues teil|neues kleidungsstück|neu|füge|fuege|füg|trag|trage|erfasse|speicher|speichere)\s*:?\s*/i, "")
+      .replace(/\b(?:ich habe|ich hab|hab|habe)\s+(?:mir\s+)?/i, "").replace(/\b(?:gekauft|hinzufügen|hinzu|eintragen|ein|zum schrank|in den schrank|zu meinem schrank|neu dazu|heute|gestern|bitte)\b/gi, " ")
+      .replace(/^\s*(?:ein|eine|einen|neue|neuen|neues|neuer)\s+/i, "").replace(/\s+/g, " ").trim();
+    const res = textItems(rest);
+    if (!res.out.length) return () => ({ text: res.under ? "Socken und Unterwäsche zählt die App nicht einzeln." : "Was für ein Teil? Sag zum Beispiel: Neues Teil, schwarzer Pullover." });
+    return async () => {
+      const before = new Set(state.items.map(i => i.id)), ex = state.usingExamples;
+      for (const d of res.out) await addItem(d);
+      const made = state.items.filter(i => !before.has(i.id));
+      count("type-import");
+      const desc = made.map(i => `${i.name}${i.type && !nrm(i.name).includes(nrm(i.type)) ? ` (${i.type})` : ""}`);
+      const html = vThumbs(made.map(i => i.id)) + vUndoBtn(async () => { for (const i of made) await removeItem(i.id); return { text: "Okay, wieder entfernt." }; }) + (made.length === 1 ? '<div class="vc-acts">' + vBtn("Foto und Details ergänzen", () => { itemSheet(made[0].id); return null; }) + "</div>" : "");
+      return { text: `Eingetragen: ${vJoin(desc)}.${ex ? " Die Beispielteile habe ich dafür ausgeräumt." : ""}${res.colorless ? " Die Farbe habe ich nicht verstanden, ich habe Grau genommen." : ""}`, html };
+    };
+  }
+
+  // Fragen: Wo ist …? Wem habe ich … geliehen?
+  if (/^(wo|wem|bei wem)\b/.test(t)) {
+    const f = vFind(vStrip(raw.replace(/^\s*(wo|wem|bei wem)\s+(ist|sind|liegt|liegen|hängt|habe|hab|hat)?\s*(ich)?/i, "")));
+    const all = [...f.found, ...f.unsure.flat()];
+    if (all.length) return () => ({ text: vJoin(all.slice(0, 5).map(it => `${it.name} ${vPlural(it.name) ? V_WHERE[it.status].replace(/^ist/, "sind").replace(/^liegt/, "liegen").replace(/^hängt/, "hängen") : V_WHERE[it.status]}${it.status === "verliehen" && it.lentTo ? ` an ${it.lentTo}` : ""}${it.status === "verliehen" && it.lentUntil ? `, bis ${fmtDate(it.lentUntil)}` : ""}`)) + ".", html: vThumbs(all.slice(0, 5).map(i => i.id)) });
+    if (/geliehen|verliehen/.test(t)) return () => { const l = state.items.filter(i => i.status === "verliehen"); return { text: l.length ? `Verliehen: ${vJoin(l.map(i => i.name + (i.lentTo ? ` an ${i.lentTo}` : "")))}.` : "Du hast gerade nichts verliehen.", html: l.length ? vThumbs(l.map(i => i.id)) : "" }; };
+  }
+
+  // Listen: Was ist in der Wäsche? Was habe ich verliehen? Was habe ich lange nicht getragen?
+  const ask = /^(was|welche|welches|zeig|liste|sag mir|wie ?viele?)\b/.test(t);
+  if (ask && /vergessen|lange nicht|nie getragen|selten|ewig nicht/.test(t)) return () => {
+    const l = sortItems(state.items.filter(isForgotten)).sort((a, b) => (a.lastWorn || a.createdAt || "").localeCompare(b.lastWorn || b.createdAt || ""));
+    return { text: l.length ? `${vN(l.length, "Teil hast", "Teile hast")} du über einen Monat nicht getragen, zum Beispiel ${vJoin(l.slice(0, 3).map(i => i.name))}. Vielleicht diese Woche?` : "Super, du trägst gerade alles regelmäßig.", html: l.length ? vThumbs(l.slice(0, 8).map(i => i.id)) : "" };
+  };
+  const stAsk = /wäsche|waesche|wäschekorb/.test(t) ? "waesche" : /reinigung/.test(t) ? "reinigung" : /verliehen|geliehen/.test(t) ? "verliehen" : /koffer/.test(t) ? "koffer" : /eingelagert|keller/.test(t) ? "eingelagert" : null;
+  if (ask && stAsk) return () => {
+    const l = sortItems(state.items.filter(i => i.status === stAsk)), lbl = STATUS[stAsk].label.replace(/^In der|^Im/, m => m.toLowerCase());
+    return { text: l.length ? `${lbl.replace(/^./, c => c.toUpperCase())}: ${vN(l.length, "Teil", "Teile")}. ${vJoin(l.slice(0, 6).map(i => i.name + (stAsk === "verliehen" && i.lentTo ? ` an ${i.lentTo}` : "")))}${l.length > 6 ? " und mehr" : ""}.` : `${lbl.replace(/^./, c => c.toUpperCase())} ist gerade nichts.`, html: l.length ? vThumbs(l.map(i => i.id)) : "" };
+  };
+  if (/^wie ?viele?\b/.test(t)) return () => {
+    const toks = vToks(t).filter(x => !V_STOP.has(x) && !/^(viele|vieles|wieviele|teile|sachen|kleidung|klamotten|stueck)$/.test(x));
+    const kind = toks.length ? textKind(toks) : null;
+    let color = null; for (const [k, c] of TEXT_COLORS) if (toks.some(x => x.startsWith(k))) { color = c; break; }
+    const l = state.items.filter(i => (!kind?.type || i.type === kind.type) && (!kind?.cat || kind.type || i.cat === kind.cat) && (!color || i.color === color));
+    const what = [color ? color.toLowerCase() + "e" : "", kind?.type || (kind?.cat ? CATS[kind.cat] : "Teile")].filter(Boolean).join(" ");
+    return { text: `Du hast ${l.length} ${what === "Teile" && l.length === 1 ? "Teil" : what} in der App${!kind && !color ? `, davon ${state.items.filter(i => i.status === "schrank").length} sauber im Schrank` : ""}.` };
+  };
+
+  // Status ändern
+  const to = /in die (wäsche|waesche)|in den wäschekorb|in den waeschekorb|(ist|sind) (dreckig|schmutzig)|muss gewaschen|waschen\b/.test(t) ? "waesche"
+    : /reinigung (bringen|gebracht|abgegeben)|in die reinigung|zur reinigung/.test(t) ? "reinigung"
+    : /(verliehen|geliehen|verleihe|ausgeliehen)\b/.test(t) ? "verliehen"
+    : /einlagern|eingelagert|in den keller|auf den dachboden|wegpacken|weggepackt/.test(t) ? "eingelagert"
+    : /in den koffer|eingepackt|gepackt/.test(t) ? "koffer"
+    : /sauber|gewaschen|zurück in den schrank|zurueck in den schrank|wieder im schrank|in den schrank|abgeholt|zurückbekommen|zurueckbekommen|zurückgegeben|zurueckgegeben|zurückgebracht|zurueckgebracht|wiederbekommen|wieder da|aus der (wäsche|waesche|reinigung)/.test(t) ? "schrank"
+    : /getragen|trage ich|trag ich|\bich trage\b|\btrage heute\b|hatte ich an|habe ich an|hab ich an|angezogen|anhabe/.test(t) ? "worn" : null;
+  if (to) {
+    let lentTo = null;
+    if (to === "verliehen") { const m = /\ban\s+([A-ZÄÖÜ][\wäöüß-]+)/.exec(raw) || /\b(?:habe|hab)\s+([A-ZÄÖÜ][\wäöüß-]+)\s+(?:mein|meine|meinen|die|den|das)\b/.exec(raw) || /\b(?:meiner|meinem)\s+(schwester|bruder|mutter|mama|vater|papa|freundin|freund|kollegin|kollege|nachbarin|nachbar)\b/i.exec(raw); if (m) lentTo = m[1].replace(/^./, c => c.toUpperCase()); }
+    const prefer = to === "worn" ? it => !wornAlready(it) : to === "schrank" ? it => it.status !== "schrank" : it => it.status !== to;
+    let phrase = vStrip(raw);
+    if (lentTo) phrase = phrase.replace(new RegExp("\\b" + lentTo + "\\b", "i"), " ");
+    const f = vFind(phrase, prefer);
+    const run = items => vApply(items, to, lentTo);
+    if (!f.found.length && !f.unsure.length) return () => ({ text: f.missing.length ? `${vJoin(f.missing)}: das finde ich nicht in deinem Schrank. Willst du es neu eintragen?` : "Welches Teil meinst du? Sag zum Beispiel: Blaue Jeans in die Wäsche.", html: f.missing.length ? '<div class="vc-acts">' + vBtn("Neu eintragen", () => vRun("Neues Teil " + f.missing.join(", "), true)) + "</div>" : "" });
+    if (f.unsure.length) return () => vAsk(f.unsure, have => run([...f.found, ...have]));
+    return () => run(f.found);
+  }
+
+  // Nur ein Teil genannt: zeigen und fragen, was passieren soll
+  const f = vFind(vStrip(raw));
+  const one = f.found.length === 1 && !f.unsure.length ? f.found[0] : null;
+  if (one) return () => ({ text: `${one.name} ${V_WHERE[one.status]}. Was soll ich damit machen?`, html: vThumbs([one.id]) + '<div class="vc-acts">' + ["waesche", "schrank", "worn", "reinigung"].filter(s => s !== one.status).map(s => vBtn({ waesche: "In die Wäsche", schrank: "Zurück in den Schrank", worn: "Heute getragen", reinigung: "In die Reinigung" }[s], () => vApply([one], s))).join("") + "</div>" });
+  return null;
+}
+
+/* Gespräch anzeigen */
+function vPush(who, text, html = "") {
+  V.log.push({ who, text, html }); if (V.log.length > 30) V.log.splice(0, V.log.length - 30);
+  const box = document.getElementById("vcLog"); if (!box) return;
+  const el = document.createElement("div"); el.className = "vc-msg vc-" + who;
+  el.innerHTML = `<p>${esc(text)}</p>${html}`;
+  box.append(el); box.querySelector(".vc-empty")?.remove();
+  requestAnimationFrame(() => el.scrollIntoView({ block: "end", behavior: "smooth" }));
+}
+async function vShow(res) {
+  if (!res) return;
+  if (res.close) closeSheet();
+  if (res.close || !document.getElementById("vcLog")) { toast(res.text); vSay(res.text); return; }
+  res.text = res.text.replace(/\.\.$/, ".");
+  vPush("app", res.text, res.html || ""); vSay(res.text);
+}
+async function vRun(text, silentUser) {
+  text = String(text || "").trim(); if (!text) return;
+  if (!silentUser) vPush("me", text);
+  let fn = vParse(text);
+  // Nur mit eigenem KI-Schlüssel (Einstellungen): unklare Sätze von Claude in einen einfachen Befehl übersetzen lassen
+  if (!fn && sample) {
+    try {
+      const r = await sample.json(`Du hilfst einer deutschen Kleiderschrank-App. Übersetze den Satz der Nutzerin in GENAU EINEN einfachen Befehl in einer dieser Formen:
+„Was ziehe ich <heute|morgen|am Wochentag> <für Büro|Alltag|Sport|Abend> an?“, „<Teil> in die Wäsche“, „<Teil> in die Reinigung“, „<Teil> ist sauber“, „<Teil> heute getragen“, „<Teil> verliehen an <Name>“, „Neues Teil: <Farbe> <Art> <Marke>“, „Wo ist <Teil>?“, „Was ist in der Wäsche?“, „Was habe ich lange nicht getragen?“, „Wäsche ist fertig“, „Plane meine Woche“, „Wie wird das Wetter morgen?“.
+Teile im Schrank: ${JSON.stringify(state.items.slice(0, 150).map(i => i.name))}
+Satz: ${JSON.stringify(text)}
+Antworte nur mit JSON: {"befehl":"..."} oder {"befehl":""}, wenn nichts passt.`, { cache: false });
+      if (r?.befehl && (fn = vParse(String(r.befehl)))) vPush("app", `Verstanden als: ${r.befehl}`);
+    } catch {}
+  }
+  if (!fn) { count("voice-miss"); return vShow({ text: "Das habe ich leider nicht verstanden. Probier es so:", html: `<div class="chips wrap">${V_EXAMPLES.slice(0, 4).map(x => `<button class="chip chip-sm" data-act="v-say" data-v="${esc(x)}">${esc(x)}</button>`).join("")}</div>` }); }
+  count("voice-cmd");
+  try { return vShow(await fn()); } catch (e) { console.warn(e); vShow({ text: "Da ist etwas schiefgegangen. Versuch es bitte nochmal." }); }
+}
+// Die Spracherkennung liefert oft mehrere Varianten: die erste nehmen, die die App versteht
+function vRunAlts(alts) {
+  const ok = alts.find(a => vParse(a)) || alts[0];
+  return vRun(ok);
+}
+
+function vListen() {
+  if (V.listening) { try { V.rec?.stop(); } catch {} return; }
+  if (!VSR) { vPush("app", "Dein Browser kann hier nicht zuhören. Tipp unten in das Feld, oder nutze das Mikrofon auf deiner Tastatur."); document.getElementById("vcInput")?.focus(); return; }
+  try { speechSynthesis?.cancel(); } catch {}
+  const r = new VSR(); V.rec = r;
+  r.lang = "de-DE"; r.interimResults = true; r.maxAlternatives = 3; r.continuous = false;
+  const live = document.getElementById("vcLive"), mic = document.getElementById("vcMic");
+  let final = null, heard = "";
+  r.onstart = () => { V.listening = true; mic?.classList.add("on"); mic?.setAttribute("aria-pressed", "true"); if (live) { live.hidden = false; live.textContent = "Ich höre zu …"; } };
+  r.onresult = e => {
+    let txt = "";
+    for (let i = 0; i < e.results.length; i++) {
+      const res = e.results[i];
+      if (res.isFinal) final = [...res].map(a => a.transcript.trim()).filter(Boolean);
+      txt += res[0].transcript;
+    }
+    heard = txt.trim(); if (live) live.textContent = heard || "Ich höre zu …";
+  };
+  r.onerror = e => {
+    V.err = e.error;
+    const msg = { "not-allowed": "Ich darf das Mikrofon nicht benutzen. Erlaube es in den Einstellungen deines Browsers, dann klappt es.", "service-not-allowed": "Dein Handy erlaubt hier keine Spracherkennung. Tipp stattdessen unten, oder nutze das Mikrofon auf deiner Tastatur.", "network": "Für die Spracherkennung brauchst du Internet.", "audio-capture": "Ich finde kein Mikrofon.", "language-not-supported": "Dein Browser versteht hier kein Deutsch." }[e.error];
+    if (msg) vPush("app", msg);
+  };
+  r.onend = () => {
+    V.listening = false; mic?.classList.remove("on"); mic?.setAttribute("aria-pressed", "false"); if (live) live.hidden = true;
+    if (final?.length) vRunAlts(final); else if (heard) vRun(heard);
+    else if (!V.err || V.err === "no-speech") vPush("app", "Ich habe nichts gehört. Tipp nochmal auf das Mikrofon und sprich gleich los.");
+    V.err = null;
+  };
+  try { r.start(); } catch { V.listening = false; }
+}
+
+function voiceSheet(autoListen) {
+  V.btns = [];
+  const intro = V.log.length ? "" : `<div class="vc-empty"><p class="sub">Tipp auf das Mikrofon und sag, was du brauchst. Zum Beispiel:</p><div class="chips wrap">${V_EXAMPLES.map(x => `<button class="chip chip-sm" data-act="v-say" data-v="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>`;
+  openSheet(`<h2>Sag es <em>einfach</em></h2>
+    <div class="vc-log" id="vcLog" aria-live="polite">${intro}${V.log.map(m => `<div class="vc-msg vc-${m.who}"><p>${esc(m.text)}</p></div>`).join("")}</div>
+    <p class="vc-live" id="vcLive" hidden></p>
+    <div class="vc-bar">
+      <button class="vc-mic" id="vcMic" data-act="v-mic" aria-pressed="false" aria-label="Sprechen">${ICON_MIC}</button>
+      <input type="text" id="vcInput" placeholder="${VSR ? "Oder hier tippen …" : "Hier tippen oder Tastatur-Mikrofon"}" enterkeyhint="send" autocomplete="off" aria-label="Befehl eintippen">
+      <button class="fab fab-soft vc-send" data-act="v-send" aria-label="Senden">${ICON_SEND}</button>
+    </div>
+    <label class="fb-check"><input type="checkbox" id="vcSpeak" ${meta.voiceMute ? "" : "checked"}><span>Antworten vorlesen</span></label>
+    <p class="hint">Die App versteht deine Befehle selbst, ohne KI-Dienst. Das Zuhören übernimmt dein Browser: Chrome und Safari schicken die Sprache dafür meist an Google bzw. Apple. Tippen geht immer ohne.</p>`);
+  const inp = document.getElementById("vcInput");
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); const v = inp.value; inp.value = ""; vRun(v); } });
+  document.getElementById("vcSpeak").addEventListener("change", e => { meta.voiceMute = !e.target.checked; saveMeta(); if (meta.voiceMute) try { speechSynthesis.cancel(); } catch {} });
+  const box = document.getElementById("vcLog"); box.lastElementChild?.scrollIntoView({ block: "end" });
+  if (autoListen && VSR) vListen();
+}
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const act = el.dataset.act;
+  if (act === "voice") voiceSheet(true);
+  else if (act === "v-mic") vListen();
+  else if (act === "v-send") { const i = document.getElementById("vcInput"); const v = i?.value; if (i) i.value = ""; vRun(v); }
+  else if (act === "v-say") vRun(el.dataset.v);
+  else if (act === "v-btn") {
+    const fn = V.btns[Number(el.dataset.v)]; if (!fn) return;
+    el.closest(".vc-acts, .vc-outfit")?.querySelectorAll("button").forEach(b => { b.disabled = true; });
+    try { vShow(await fn()); } catch (err) { console.warn(err); }
+  }
+});
+if ("speechSynthesis" in window) try { speechSynthesis.getVoices(); speechSynthesis.addEventListener?.("voiceschanged", () => { V.voice = null; }); } catch {}
+
 
 /* ---------- Einführung beim ersten Start: 3 Bildschirme, überspringbar ---------- */
 function showOnboarding() {
