@@ -2047,7 +2047,7 @@ function viewSchrank() {
   return `<div class="stack" style="gap:22px">
     ${filtered ? "" : todayCard}
     ${filtered ? "" : reviewCard()}
-    <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, all.length === 1 ? "Teil" : "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Vergessen")}</div>
+    <div class="stats" role="group" aria-label="Filter nach Zustand">${stat("all", all.length, all.length === 1 ? "Teil" : "Teile")}${stat("schrank", clean, "Sauber")}${stat("waesche", laundry, "Wäsche")}${stat("forgotten", forgotten, "Lange her")}</div>
     ${quickbar}
     ${tripbar}
     ${gymbar}
@@ -2111,8 +2111,8 @@ function statsTeaserFull() {
   const v = priced.length >= 3 ? wardrobeValue(state.items) : null;
   if (v) return `Schrankwert ${v.nEst ? "ca. " + roundEuro(v.total) : euro(v.total)}${e.n ? ` · ${e.n}× nochmal getragen statt gewaschen` : " · Kosten pro Tragen"}`;
   if (e.n) return `${e.n}× nochmal getragen statt gewaschen · ≈ ${e.liter} l Wasser gespart`;
-  if (priced.length) return "Kosten pro Tragen, Lieblingsteile, vergessene Teile";
-  return "Lieblingsteile, vergessene Teile, Wasser und Strom gespart";
+  if (priced.length) return "Kosten pro Tragen, Lieblingsteile, lange nicht Getragenes";
+  return "Lieblingsteile, lange nicht Getragenes, Wasser und Strom gespart";
 }
 
 function viewWoche() {
@@ -4139,7 +4139,7 @@ function probeSummary() {
   return out.length ? "Geld-Tests: " + out.join(" · ") : "";
 }
 
-const APP_VERSION = "0.34";
+const APP_VERSION = "0.35";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -4368,7 +4368,7 @@ function statsSheet() {
       <div class="kpi"><b>${s.n}</b><span>Teile im Schrank</span></div>
       <div class="kpi"><b>${s.activePct} %</b><span>in den letzten 30 Tagen getragen</span></div>
       <div class="kpi"><b>${s.wears}</b><span>Mal getragen, insgesamt</span></div>
-      <div class="kpi"><b>${s.forgotten.length}</b><span>vergessen (über 30 Tage nicht getragen)</span></div>
+      <div class="kpi"><b>${s.forgotten.length}</b><span>lange nicht getragen (über 30 Tage)</span></div>
     </div>
     ${s.worth ? valueBlock(s.worth) : `<p class="hint"><b>Schrankwert:</b> Trag bei ein paar Teilen den Kaufpreis ein, dann siehst du, was in deinem Schrank steckt.</p>`}
     <button class="cardlink" data-act="review"><div><b>Deine Woche im Rückblick</b><span>Was du in den letzten 7 Tagen getragen hast</span></div>${ICON_CHEV}</button>
@@ -4390,7 +4390,7 @@ Quellen: Utopia.de (Waschgang-Rechner Uni Bonn, EU-Datenbank EPREL), Umweltbunde
       ${(() => { const ex = s.priced.filter(x => !isRare(x.it) && x.it.status !== "verliehen").pop(); return s.priced.length > 3 && ex ? `<p class="hint">Am teuersten pro Tragen: ${esc(ex.it.name)} mit ${euro(ex.cpw)}. Vielleicht diese Woche anziehen oder verkaufen?</p>` : ""; })()}
 ` : `<p class="hint">Tipp ein Teil an und trag den Kaufpreis ein. Dann siehst du, was dich jedes Tragen kostet.</p>`}
     </div>
-    ${s.forgotten.length ? `<div class="set-group"><span class="eyebrow">Vergessen</span><p class="hint">${s.forgotten.slice(0, 4).map(i => esc(i.name)).join(", ")}${s.forgotten.length > 4 ? " …" : ""}. Diese Woche einplanen, verleihen oder verkaufen?</p></div>` : ""}
+    ${s.forgotten.length ? `<div class="set-group"><span class="eyebrow">Lange nicht getragen</span><p class="hint">${s.forgotten.slice(0, 4).map(i => esc(i.name)).join(", ")}${s.forgotten.length > 4 ? " …" : ""}. Diese Woche einplanen, verleihen oder verkaufen?</p></div>` : ""}
     ${plusProbe()}
     <button class="btn btn-primary btn-wide" data-act="stats-share">Als Bild teilen</button>
     <button class="btn btn-ghost btn-wide" data-act="invite">Freunde einladen</button>`);
@@ -4418,7 +4418,7 @@ async function shareStats() {
   x.font = '600 34px "Geist", sans-serif'; x.fillStyle = "#141413";
   if (s.top[0]) { x.fillText(fitText(x, `Lieblingsteil: ${s.top[0].name} (${s.top[0].wears}×)`, 936), 72, y); y += 60; }
   if (s.priced[0]) { x.fillText(fitText(x, `Am günstigsten pro Tragen: ${s.priced[0].it.name} (${euro(s.priced[0].cpw)})`, 936), 72, y); y += 60; }
-  if (s.forgotten.length) { x.fillText(fitText(x, `${s.forgotten.length} vergessene Teile warten auf ihren Einsatz`, 936), 72, y); }
+  if (s.forgotten.length) { x.fillText(fitText(x, `${s.forgotten.length} Teile warten auf ihren nächsten Einsatz`, 936), 72, y); }
   x.fillStyle = "#6c6c66"; x.font = '600 26px "Geist", sans-serif'; x.fillText("#NichtsAnzuziehen · tapir-app.github.io/app", 72, 1280);
   const blob = await new Promise(r => c.toBlob(b => r(b), "image/png"));
   try { await SB.downloads.save({ filename: "mein-schrank-in-zahlen.png", data: blob }); } catch (err) { if (err?.code !== "declined") toast("Bild teilen hat nicht geklappt."); }
@@ -4793,7 +4793,7 @@ function showOnboarding() {
         </div>
         <div class="onb-trust">${LOCK}<span>Alles bleibt auf deinem Handy. Kein Konto, keine Werbung.</span></div></div>`,
         eb: "Verkaufen & mehr", h: "Weniger Chaos, <em>mehr Platz</em>",
-        p: "Was du nicht mehr trägst, stellst du mit Titel, Beschreibung und Preisvorschlag auf Vinted. Dazu erinnert die App an Vergessenes und Verliehenes." }
+        p: "Was du nicht mehr trägst, stellst du mit Titel, Beschreibung und Preisvorschlag auf Vinted. Dazu erinnert die App an lange nicht Getragenes und Verliehenes." }
     ];
   };
   let slides = slideData();
