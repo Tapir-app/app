@@ -1,5 +1,5 @@
 // Tragfroh offline support: app files from cache, refreshed in the background.
-const VERSION = "sb-0.33";
+const VERSION = "sb-0.34";
 // Foto-Erkennung (Ordner ki/, ca. 73 MB) liegt in einem eigenen Speicher, der Updates überlebt.
 // Wenn sich Dateien in ki/ ändern, den Namen hochzählen (und in index.html bei "ki-remove").
 const KI_CACHE = "giyo-ki-1";
