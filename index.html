@@ -740,7 +740,13 @@ details.fb-more summary { font-size: 13px; color: var(--muted); cursor: pointer;
 .onb-dots i.on { width: 22px; background: var(--ink); }
 .onb-nav .btn { min-width: 132px; }
 .onb-end { display: flex; flex-direction: column; gap: 10px; }
-@media (max-height: 700px) { .onb-txt h2 { font-size: 29px; } .onb-txt p { font-size: 14.5px; } .onb-slide { gap: 14px; } .onb-row { padding: 9px 12px; } }
+.onb-picks { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.onb-pick { appearance: none; border: 0; font: inherit; color: var(--ink); background: var(--surface); border-radius: var(--r-lg); box-shadow: inset 0 0 0 1px var(--line); padding: 14px 12px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; cursor: pointer; }
+.onb-pick:active { transform: scale(.98); }
+.onb-pick b { font-size: 17px; font-weight: 600; }
+.onb-pick-art { display: grid; grid-template-columns: 1fr; gap: 6px; width: 100%; }
+.onb-pick-art .thumb { border-radius: 12px; aspect-ratio: 4 / 3; }
+@media (max-height: 700px) { .onb-pick-art .thumb { aspect-ratio: 16 / 9; } .onb-txt h2 { font-size: 29px; } .onb-txt p { font-size: 14.5px; } .onb-slide { gap: 14px; } .onb-row { padding: 9px 12px; } }
 @media (min-width: 600px) { .onb-slide, .onb-foot { padding-left: calc(50% - 220px); padding-right: calc(50% - 220px); } .onb-art > * { max-width: 440px; } }
 @media (prefers-reduced-motion: reduce) { .onb { animation: none; } }
 </style>
@@ -905,7 +911,9 @@ const EXAMPLES = [
   { id: "ex06", fit: "regular", type: "Chino", basic: true, name: "Beige Chino", cat: "bottom", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 11, lastWorn: daysAgo(5) },
   { id: "ex07", fit: "slim", type: "Stoffhose", name: "Schwarze Anzughose", cat: "bottom", color: "Schwarz", occasions: ["buero", "abend"], status: "schrank", wears: 8, lastWorn: daysAgo(12) },
   { id: "ex08", type: "Shorts", name: "Laufshorts", cat: "bottom", color: "Schwarz", occasions: ["sport"], status: "schrank", wears: 18, lastWorn: daysAgo(4) },
-  { id: "ex09", type: "Abendkleid", neck: "v", name: "Bordeaux Kleid", cat: "dress", color: "Bordeaux", occasions: ["abend"], status: "schrank", wears: 2, lastWorn: daysAgo(74), price: 120 },
+  { id: "ex09", type: "Mantel", name: "Grauer Wollmantel", cat: "jacket", color: "Grau", material: [{ m: "Wolle", p: 80, a: true }, { m: "Polyamid", p: 20 }], occasions: ["buero", "abend", "freizeit"], status: "schrank", wears: 12, lastWorn: daysAgo(5), price: 189 },
+  { id: "ex23", type: "Hemd", neck: "kragen", name: "Hellblaues Hemd", cat: "top", color: "Hellblau", occasions: ["buero", "abend"], status: "schrank", wears: 6, lastWorn: daysAgo(10) },
+  { id: "ex24", type: "Pullover", neck: "rolli", name: "Schwarzer Rollkragenpullover", cat: "top", color: "Schwarz", material: [{ m: "Wolle", p: 100, a: true }], occasions: ["buero", "abend", "freizeit"], status: "schrank", wears: 8, lastWorn: daysAgo(7) },
   { id: "ex10", type: "Blazer", brand: "Massimo Dutti", name: "Navy Blazer", cat: "jacket", color: "Navy", occasions: ["buero", "abend"], status: "reinigung", wears: 10, lastWorn: daysAgo(8) },
   { id: "ex11", type: "Jacke", name: "Olivgrüne Feldjacke", cat: "jacket", color: "Oliv", occasions: ["freizeit", "schule"], status: "schrank", wears: 16, lastWorn: daysAgo(3) },
   { id: "ex12", type: "Sneaker", basic: true, brand: "Veja", name: "Weiße Sneaker", cat: "shoes", color: "Weiß", occasions: ["freizeit", "schule", "buero"], status: "schrank", wears: 40, lastWorn: daysAgo(1), price: 99 },
@@ -921,6 +929,40 @@ const EXAMPLES = [
   { id: "ex22", type: "Anzug", fit: "slim", name: "Grauer Anzug", cat: "suit", color: "Grau", size: "50", material: [{ m: "Wolle", p: 100, a: true }], care: { wash: "no", bleach: "no", dry: "no", iron: "2", pro: "P" }, origin: "Italien", occasions: ["buero", "abend"], status: "schrank", wears: 5, lastWorn: daysAgo(18), price: 299 },
   { id: "ex18", type: "Armband", basic: true, name: "Silberarmband", cat: "jewelry", color: "Silber", occasions: ["buero", "freizeit", "abend"], status: "schrank", wears: 27, lastWorn: daysAgo(2) }
 ].map(it => ({ ...it, createdAt: daysAgo(120) }));
+/* Beispielschrank Damen (Standard für neue Nutzerinnen) */
+const EXAMPLES_W = [
+  { id: "ew01", type: "Bluse", neck: "kragen", basic: true, brand: "COS", size: "38", material: [{ m: "Baumwolle", p: 100, a: true }], care: { wash: "40", mode: "schon", bleach: "no", dry: "1", iron: "2" }, name: "Weiße Bluse", cat: "top", color: "Weiß", occasions: ["buero", "abend"], status: "schrank", wears: 12, lastWorn: daysAgo(6), price: 59 },
+  { id: "ew02", fit: "relaxed", type: "Pullover", neck: "rund", basic: true, brand: "Arket", material: [{ m: "Wolle", p: 100, a: true }], care: { wash: "hand", bleach: "no", dry: "no", iron: "1" }, name: "Beiger Strickpullover", cat: "top", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(3), rewears: 5 },
+  { id: "ew03", type: "T-Shirt", neck: "rund", basic: true, name: "Weißes T-Shirt", cat: "top", color: "Weiß", occasions: ["freizeit", "sport"], status: "waesche", wears: 24, lastWorn: daysAgo(1) },
+  { id: "ew04", type: "Longsleeve", neck: "rund", name: "Gestreiftes Longsleeve", cat: "top", color: "Weiß", pattern: "streifen", color2: "Navy", occasions: ["freizeit", "buero"], status: "schrank", wears: 8, lastWorn: daysAgo(9) },
+  { id: "ew05", type: "Bluse", neck: "kragen", name: "Hellblaue Bluse", cat: "top", color: "Hellblau", occasions: ["buero"], status: "schrank", wears: 6, lastWorn: daysAgo(11) },
+  { id: "ew06", type: "Pullover", neck: "rolli", name: "Schwarzer Rollkragenpullover", cat: "top", color: "Schwarz", material: [{ m: "Wolle", p: 70, a: true }, { m: "Polyamid", p: 30 }], occasions: ["buero", "abend", "freizeit"], status: "schrank", wears: 10, lastWorn: daysAgo(4) },
+  { id: "ew07", type: "Hoodie", neck: "kapuze", brand: "H&M", name: "Rosa Hoodie", cat: "top", color: "Rosa", occasions: ["freizeit"], status: "schrank", wears: 1, lastWorn: daysAgo(63), price: 35 },
+  { id: "ew08", fit: "straight", type: "Jeans", basic: true, brand: "Levi's", size: "W28/L32", material: [{ m: "Baumwolle", p: 98, a: true }, { m: "Elastan", p: 2 }], care: { wash: "30", bleach: "no", dry: "no", iron: "2" }, origin: "Türkei", name: "Dunkle Jeans", cat: "bottom", color: "Denim", occasions: ["freizeit", "buero"], status: "waesche", wears: 31, lastWorn: daysAgo(2), price: 99, rewears: 18 },
+  { id: "ew09", fit: "wide", type: "Stoffhose", name: "Schwarze Stoffhose", cat: "bottom", color: "Schwarz", occasions: ["buero", "abend"], status: "schrank", wears: 14, lastWorn: daysAgo(5) },
+  { id: "ew10", type: "Rock", name: "Beiger Midirock", cat: "bottom", color: "Beige", occasions: ["buero", "freizeit"], status: "schrank", wears: 7, lastWorn: daysAgo(8) },
+  { id: "ew11", type: "Abendkleid", neck: "v", name: "Bordeaux Kleid", cat: "dress", color: "Bordeaux", occasions: ["abend"], status: "schrank", wears: 2, lastWorn: daysAgo(74), price: 120 },
+  { id: "ew12", type: "Strickkleid", neck: "rund", name: "Graues Strickkleid", cat: "dress", color: "Grau", occasions: ["buero", "freizeit"], status: "schrank", wears: 5, lastWorn: daysAgo(14) },
+  { id: "ew13", type: "Blazer", brand: "Massimo Dutti", name: "Navy Blazer", cat: "jacket", color: "Navy", occasions: ["buero", "abend"], status: "reinigung", wears: 10, lastWorn: daysAgo(8) },
+  { id: "ew14", type: "Mantel", name: "Beiger Wollmantel", cat: "jacket", color: "Beige", material: [{ m: "Wolle", p: 80, a: true }, { m: "Polyamid", p: 20 }], occasions: ["buero", "freizeit", "abend"], status: "schrank", wears: 20, lastWorn: daysAgo(1), price: 179 },
+  { id: "ew15", type: "Lederjacke", name: "Schwarze Lederjacke", cat: "jacket", color: "Schwarz", occasions: ["freizeit", "abend"], status: "verliehen", wears: 15, lastWorn: daysAgo(30), lentTo: "Lea", lentUntil: daysAgo(2) },
+  { id: "ew16", type: "Sneaker", basic: true, brand: "Veja", name: "Weiße Sneaker", cat: "shoes", color: "Weiß", occasions: ["freizeit", "buero"], status: "schrank", wears: 40, lastWorn: daysAgo(1), price: 99 },
+  { id: "ew17", type: "Stiefeletten", name: "Schwarze Stiefeletten", cat: "shoes", color: "Schwarz", occasions: ["buero", "freizeit", "abend"], status: "schrank", wears: 22, lastWorn: daysAgo(3) },
+  { id: "ew18", type: "Pumps", name: "Beige Pumps", cat: "shoes", color: "Beige", occasions: ["buero", "abend"], status: "schrank", wears: 5, lastWorn: daysAgo(20) },
+  { id: "ew19", type: "Sportschuhe", brand: "Asics", name: "Laufschuhe", cat: "shoes", color: "Rosa", occasions: ["sport"], status: "schrank", wears: 25, lastWorn: daysAgo(4) },
+  { id: "ew20", type: "Leggings", name: "Schwarze Leggings", cat: "bottom", color: "Schwarz", occasions: ["sport"], status: "schrank", wears: 18, lastWorn: daysAgo(4) },
+  { id: "ew21", type: "Schal", name: "Karierter Schal", cat: "acc", color: "Beige", pattern: "karo", color2: "Bordeaux", material: [{ m: "Wolle", p: 100, a: true }], occasions: ["buero", "freizeit", "abend"], status: "schrank", wears: 6, lastWorn: daysAgo(15) },
+  { id: "ew22", type: "Strumpfhose", name: "Schwarze Strumpfhose", cat: "acc", color: "Schwarz", occasions: ["buero", "freizeit", "abend"], status: "schrank", wears: 9, lastWorn: daysAgo(14) },
+  { id: "ew23", type: "Sonnenbrille", name: "Schwarze Sonnenbrille", cat: "acc", color: "Schwarz", occasions: ["freizeit"], status: "schrank", wears: 9, lastWorn: daysAgo(60) },
+  { id: "ew24", type: "Tasche", name: "Braune Ledertasche", cat: "bag", color: "Braun", material: [{ m: "Leder", p: 100, a: true }], occasions: ["buero", "freizeit", "abend"], status: "schrank", wears: 30, lastWorn: daysAgo(1), price: 149 },
+  { id: "ew25", type: "Sommerkleid", name: "Geblümtes Sommerkleid", cat: "dress", color: "Blau", pattern: "blumen", color2: "Weiß", occasions: ["freizeit"], status: "eingelagert", wears: 8, lastWorn: daysAgo(80) },
+  { id: "ew26", type: "Kette", basic: true, name: "Goldkette", cat: "jewelry", color: "Gold", occasions: ["buero", "freizeit", "abend"], status: "schrank", wears: 27, lastWorn: daysAgo(2) }
+].map(it => ({ ...it, createdAt: daysAgo(120) }));
+/* Welche Beispielteile die Einführung zeigt: 6 im Raster, 4 im Outfit, 3 in der Liste (vergessen, verliehen, öfter getragen) */
+const EX_ROLES = {
+  damen: { grid: [["ew08", "schrank"], ["ew01", "schrank"], ["ew03", "waesche"], ["ew14", "schrank"], ["ew11", "schrank"], ["ew16", "schrank"]], outfit: ["ew02", "ew10", "ew14", "ew17"], forgot: "ew07", lent: "ew15", rewear: "ew08" },
+  herren: { grid: [["ex05", "schrank"], ["ex01", "schrank"], ["ex03", "waesche"], ["ex11", "schrank"], ["ex22", "schrank"], ["ex12", "schrank"]], outfit: ["ex02", "ex06", "ex11", "ex13"], forgot: "ex16", lent: "ex15", rewear: "ex05" }
+};
 
 function emptyPlan() {
   const days = {};
@@ -962,6 +1004,10 @@ const meta = (() => {
   return Object.assign({ firstOpen: null, opens: 0, days: 0, lastDay: null, counts: {}, lastBackupAt: null, changes: 0, backupSnooze: null, fbAsked: null, fbSent: null, waitlist: null, lastOcc: null }, m);
 })();
 function saveMeta() { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch {} }
+// Beispielschrank Damen oder Herren. Wer die Einführung schon vor 0.33 gesehen hat, behält den bisherigen (Herren).
+const closet = () => meta.closet === "herren" || meta.closet === "damen" ? meta.closet : (meta.onboarded ? "herren" : "damen");
+const exampleItems = () => (closet() === "herren" ? EXAMPLES : EXAMPLES_W).map(x => ({ ...x }));
+state.items = exampleItems();
 function count(ev) { meta.counts[ev] = (meta.counts[ev] || 0) + 1; saveMeta(); }
 function noteChange() { meta.changes = (meta.changes || 0) + 1; saveMeta(); }
 (() => {
@@ -1506,7 +1552,7 @@ const AV_GLASSES = [["none", "Keine"], ["rund", "Rund"], ["eckig", "Eckig"]];
 const AV_BUILD = [["schmal", "Schmal", .92], ["normal", "Normal", 1], ["kraeftig", "Kräftig", 1.1]];
 const AV_OPTS = { skin: AV_SKIN, hair: AV_HAIR, hairColor: AV_HAIR_COLOR, beard: AV_BEARD, glasses: AV_GLASSES, build: AV_BUILD };
 const AV_DEFAULT = { skin: "neutral", hair: "none", hairColor: "braun", beard: "none", glasses: "none", build: "normal" };
-const avatar = () => { const a = { ...AV_DEFAULT }, m = meta.avatar || {}; for (const k in AV_OPTS) if (AV_OPTS[k].some(o => o[0] === m[k])) a[k] = m[k]; return a; };
+const avatar = () => { const a = { ...AV_DEFAULT, ...(closet() === "damen" ? { hair: "lang" } : {}) }, m = meta.avatar || {}; for (const k in AV_OPTS) if (AV_OPTS[k].some(o => o[0] === m[k])) a[k] = m[k]; return a; };
 const avOpt = (k, v) => AV_OPTS[k].find(o => o[0] === v);
 // Haare: [hinter dem Kopf, über Kopf und Kleidung]
 const FIG_HAIR = {
@@ -1678,7 +1724,8 @@ function dbErrorText(e) {
 }
 
 /* ---------- outfit logic ---------- */
-function generateOutfit(occ, weather, used, rain = 0) {
+function generateOutfit(occ, weather, used, rain = 0, prev = new Set()) {
+  const uses = id => (used instanceof Map ? used.get(id) : used.has(id) ? 1 : 0) || 0;
   const pool = state.items.filter(i => i.status === "schrank" && (!i.occasions?.length || i.occasions.includes(occ)) && ((i.type !== "Skihose" && !SPORT_ONLY.has(i.type)) || occ === "sport"));
   const pick = (cat, pref) => {
     let c = pool.filter(i => i.cat === cat);
@@ -1688,7 +1735,7 @@ function generateOutfit(occ, weather, used, rain = 0) {
     if (fit.length) c = fit;
     // Höchstens ein gemustertes Kleidungsstück pro Outfit, sonst wird es unruhig
     if (ids.some(id => PATTERNS[byId(id)?.pattern])) { const plain = c.filter(i => !PATTERNS[i.pattern]); if (plain.length) c = plain; }
-    c.sort((a, b) => (used.has(a.id) - used.has(b.id)) || (a.wears || 0) - (b.wears || 0) || Math.random() - 0.5);
+    c.sort((a, b) => (uses(a.id) - uses(b.id)) || (prev.has(a.id) - prev.has(b.id)) || (a.wears || 0) - (b.wears || 0) || Math.random() - 0.5);
     const top3 = c.slice(0, Math.min(3, c.length)).filter(i => !used.has(i.id));
     const choice = (top3.length ? top3 : c)[Math.floor(Math.random() * (top3.length || 1))];
     return choice.id;
@@ -1707,7 +1754,7 @@ function generateOutfit(occ, weather, used, rain = 0) {
   const tights = pool.filter(i => i.type === "Strumpfhose");
   if (tights.length && weather !== "warm" && ids.some(id => { const x = byId(id); return x && (x.cat === "dress" || x.type === "Rock" || x.type === "Kostüm"); }))
     ids.push(tights[Math.floor(Math.random() * tights.length)].id);
-  const accPool = pool.filter(i => i.cat === "acc" && i.type !== "Strumpfhose" && i.type !== "Regenschirm" && (ACC_WEATHER[i.type] ? ACC_WEATHER[i.type] === weather || (ACC_WEATHER[i.type] === "warm" && rain < 30 && weather === "mild") : true));
+  const accPool = pool.filter(i => i.cat === "acc" && i.type !== "Strumpfhose" && i.type !== "Regenschirm" && (ACC_WEATHER[i.type] ? ACC_WEATHER[i.type] === weather || (ACC_WEATHER[i.type] === "warm" && rain < 30 && weather === "mild" && [3, 4, 5, 6, 7, 8].includes(new Date().getMonth())) : true));
   const seasonal = accPool.filter(i => ACC_WEATHER[i.type] === weather);
   const accFrom = seasonal.length ? seasonal : accPool;
   if (accFrom.length && Math.random() < (seasonal.length ? .85 : .5)) ids.push(accFrom[Math.floor(Math.random() * accFrom.length)].id);
@@ -1718,13 +1765,17 @@ function generateOutfit(occ, weather, used, rain = 0) {
   return ids.filter(Boolean);
 }
 function fillWeekLocal(onlyDay) {
-  const used = new Set();
+  const used = new Map();
+  const mark = ids => ids.forEach(i => { if (!NOT_USED_UP.has(byId(i)?.cat)) used.set(i, (used.get(i) || 0) + 1); });
+  let prev = new Set();
   for (const [k] of daysFromToday()) {
     const day = state.plan.days[k];
-    if (onlyDay && k !== onlyDay) { day.items.forEach(i => { if (!NOT_USED_UP.has(byId(i)?.cat)) used.add(i); }); continue; }
-    day.items = generateOutfit(day.occ, dayWeather(k), used, dayWx(k)?.rain || 0);
-    day.items.forEach(i => { if (!NOT_USED_UP.has(byId(i)?.cat)) used.add(i); });
-    day.note = "";
+    if (onlyDay && k !== onlyDay) { mark(day.items); prev = new Set(day.items); continue; }
+    day.items = generateOutfit(day.occ, dayWeather(k), used, dayWx(k)?.rain || 0, prev);
+    // Ehrlich sagen, wenn sich etwas wiederholt, weil saubere Teile fehlen
+    const again = day.items.map(byId).filter(x => x && ["top", "bottom", "dress"].includes(x.cat) && used.get(x.id) && used.get(x.id) >= (washEvery(x) || 2));
+    day.note = again.length ? `${again[0].name} kommt diese Woche nochmal dran. Für ${OCC[day.occ]} fehlen gerade saubere ${again[0].cat === "bottom" ? "Hosen oder Röcke" : again[0].cat === "dress" ? "Kleider" : "Oberteile"}.` : "";
+    mark(day.items); prev = new Set(day.items);
   }
 }
 
@@ -1808,6 +1859,7 @@ function render() {
 
 function renderBanner() {
   const b = document.getElementById("banner");
+  if (!state.usingExamples && state.mode === "db" && state.items.length >= 10 && !meta.goalDone) { const seen = meta.goalSeen; meta.goalDone = todayIso(); saveMeta(); if (seen) setTimeout(() => toast("10 Teile geschafft! Deine Woche ist jetzt geplant."), 300); if (seen && state.plan && Object.values(state.plan.days).every(d => !d.items.length)) { fillWeekLocal(); savePlan(); } }
   if (state.tab === "verkaufen") { b.innerHTML = ""; return; }
   if (state.usingExamples) {
     const canSave = state.mode === "db";
@@ -1822,6 +1874,10 @@ function renderBanner() {
       const it = od[0], d = daysSince(it.lentUntil);
       b.innerHTML = `<div class="banner"><p><b>${esc(it.name)}</b> ${it.lentTo ? `bei ${esc(it.lentTo)} ` : ""}sollte seit ${d === 1 ? "gestern" : d + " Tagen"} zurück sein.${od.length > 1 ? ` Dazu ${od.length - 1} weitere${od.length === 2 ? "s Teil" : " Teile"}.` : ""}</p>
       <div class="row"><button class="btn btn-primary" data-act="lend-remind" data-v="${it.id}">Freundlich erinnern</button><button class="btn btn-ghost" data-act="set-status" data-v="${it.id}" data-s="schrank">Ist zurück</button></div></div>`;
+    } else if (n < 10 && !meta.goalDone) {
+      const left = 10 - n; if (!meta.goalSeen) { meta.goalSeen = true; saveMeta(); }
+      b.innerHTML = `<div class="banner"><p><b>Noch ${left} ${left === 1 ? "Teil" : "Teile"} bis zu deiner ersten Woche.</b> Mit etwa 10 Teilen (Oberteile, Hosen oder Röcke, Schuhe) plant die App dir echte Outfits. Am schnellsten: mehrere Fotos auf einmal wählen.</p>
+      <div class="row"><button class="btn btn-primary" data-act="open-add">Weitere Teile eintragen</button></div></div>`;
     } else if (r === "backup") b.innerHTML = `<div class="banner"><p><b>Zeit für eine Sicherung.</b> ${meta.lastBackupAt ? `Deine letzte ist ${daysSince(meta.lastBackupAt)} Tage alt.` : `Deine ${n} Teile liegen bisher nur auf diesem Handy.`} Wenn du den Browserverlauf löschst oder das Handy wechselst, wären sie weg. Speichere die Datei z. B. in iCloud, Google Drive oder schick sie dir selbst.</p>
       <div class="row"><button class="btn btn-primary" data-act="backup">Jetzt sichern</button><button class="btn btn-ghost" data-act="backup-later">Später</button></div></div>`;
     else if (r === "install") b.innerHTML = `<div class="banner"><p><b>Leg Tragfroh auf deinen Home-Bildschirm.</b> Dann startet sie wie eine App und funktioniert auch offline.${/iPhone|iPad|iPod/.test(navigator.userAgent || "") ? " Wichtig beim iPhone: Im Safari-Browser können deine Teile gelöscht werden, wenn du die Seite eine Woche nicht öffnest." : ""}</p>
@@ -2702,6 +2758,7 @@ async function addSellPhotos(files) {
   }
   if (d.check) d.check.stale = true;
   sell.busy = null; render();
+  saveListing(true);
 }
 
 async function checkPhotos() {
@@ -2757,7 +2814,7 @@ function localCheck(d) {
 function localParse(d, t) {
   const A = d.answers, low = t.toLowerCase();
   const kind = t.match(/\b(strickjacke|strickpullover|pullover|pulli|hoodie|sweatshirt|t-shirt|shirt|hemd|bluse|top|jeans|hose|chino|shorts|rock|kleid|jacke|mantel|blazer|weste|sneaker|stiefel|schuhe|tasche|gürtel|schal|mütze)\b/i);
-  if (kind && !d.name) d.name = kind[1].charAt(0).toUpperCase() + kind[1].slice(1).toLowerCase();
+  if (kind && !d.name) d.name = kind[1].toLowerCase().split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join("-");
   const size = t.match(/\b(XXS|XS|S|M|L|XL|XXL|3XL)\b/) || t.match(/gr(?:ö|oe)(?:ß|ss)e\s*:?\s*([\w\/]+)/i) || t.match(/\bW\d{2}\s*\/?\s*L\d{2}\b/i);
   if (size && !A.size) A.size = (size[1] || size[0]).toUpperCase().slice(0, 12);
   const price = t.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:€|euro|eur)\b/i) || t.match(/(?:€)\s*(\d+(?:[.,]\d{1,2})?)/);
@@ -2765,10 +2822,16 @@ function localParse(d, t) {
   const brand = t.match(/\b(?:von|marke)\s+([A-ZÄÖÜ0-9][\w&.\-]*(?:\s[A-ZÄÖÜ][\w&.\-]*)?)/);
   if (brand && !A.brand) A.brand = brand[1].slice(0, 40);
   if (!A.condition) {
-    if (/mit etikett|etikett (noch )?dran/.test(low)) A.condition = "neu_etikett";
-    else if (/nie getragen|ungetragen|neu\b/.test(low)) A.condition = "neu";
-    else if (/kaum getragen|ein(mal)?|zweimal|wenig getragen|wie neu/.test(low)) A.condition = "sehr_gut";
-    else if (/getragen|gebrauchsspur/.test(low)) A.condition = "gut";
+    // "neu" nur als Zustand, nicht beim Neupreis ("neu 19,95 €", "neu für 30 Euro", "Neupreis")
+    const isNew = /\b(brand)?neu\b(?!\s*(?:für|fuer|ca\.?|um|war|hat|kostet|gekostet|\d|€))/.test(low) && !/wie neu|neuwertig/.test(low);
+    const neverWorn = /nie getragen|ungetragen|noch nie an/.test(low);
+    const worn = /(?<!nie |un)getragen|angehabt|\b\d+\s*(?:x|mal)\b|einmal|zweimal|dreimal|gebrauchsspur/.test(low.replace(/nie getragen|ungetragen/g, ""));
+    const defect = /fleck|loch|riss|pilling|knötchen|verfärb|fehlt|kaputt|ausgeleiert|verwaschen/.test(low);
+    if (defect) A.condition = /deutlich|stark|mehrere|einige/.test(low) ? "ok" : "gut";
+    else if (/mit etikett|etikett (noch )?dran/.test(low) && !/ohne etikett/.test(low) && !worn) A.condition = "neu_etikett";
+    else if ((neverWorn || isNew) && !worn) A.condition = "neu";
+    else if (/kaum getragen|einmal|zweimal|1\s*(?:x|mal)|2\s*(?:x|mal)|wenig getragen|wie neu|neuwertig/.test(low)) A.condition = "sehr_gut";
+    else if (worn) A.condition = "gut";
   }
   const def = t.match(/[^.,;]*(fleck|loch|riss|pilling|knötchen|verfärb|fehlt|kaputt)[^.,;]*/i);
   if (def && !A.defects) A.defects = def[0].trim().slice(0, 200);
@@ -2777,6 +2840,7 @@ function localParse(d, t) {
 }
 function localListing(d) {
   const A = d.answers;
+  if ((A.condition === "neu" || A.condition === "neu_etikett") && A.defects && A.defects !== "Keine Mängel") A.condition = "gut";
   const art = d.name || "Teil";
   const cond = COND[A.condition] || "";
   const parts = [A.brand, art, d.color, A.size && "Gr. " + A.size, cond];
@@ -2795,7 +2859,7 @@ function localListing(d) {
   const tags = ["#" + (A.brand || "secondhand").replace(/\s+/g, "").toLowerCase(), "#" + art.split(" ").pop().toLowerCase(), d.color ? "#" + d.color.toLowerCase() : "", "#preloved", "#nachhaltig"].filter(Boolean).join(" ");
   return {
     titel,
-    beschreibung: `${art}${A.brand ? " von " + A.brand : ""}${d.color ? " in " + d.color : ""}. Ein schönes Teil, das bei mir leider zu selten getragen wird.\n\n${details}\n\nSchneller Versand, Bündelrabatt möglich. Fragen gern per Nachricht.\n\n${tags}`,
+    beschreibung: `${art}${A.brand ? " von " + A.brand : ""}${d.color ? " in " + d.color : ""}. ${A.condition === "neu_etikett" || A.condition === "neu" ? "Nie getragen, ich habe leider keine Verwendung dafür." : A.condition === "ok" ? "Getragen, mit sichtbaren Mängeln (siehe unten und Fotos)." : A.condition === "gut" ? "Getragen und gepflegt, leichte Gebrauchsspuren." : "Kaum getragen und gut gepflegt."}\n\n${details}\n\nSchneller Versand, Bündelrabatt möglich. Fragen gern per Nachricht.\n\n${tags}`,
     kategorie: "",
     preis: { inserat, ziel, schnell },
     begruendung: (A.originalPrice ? `Faustregel: etwa ${Math.round(share * 100)} % vom Neupreis bei Zustand „${cond || "gut"}“, mit etwas Luft zum Verhandeln.` : "Ohne Neupreis geschätzt. Trag den Neupreis ein, dann wird der Vorschlag genauer.")
@@ -2908,7 +2972,7 @@ async function saveCollage() {
 async function parseFreeText() {
   const d = sell.draft, t = (d.freeText || "").trim();
   if (!t) return toast("Schreib oder sprich zuerst ein paar Sätze zum Teil.");
-  if (!sample) { localParse(d, t); render(); return toast("Angaben übernommen. Prüf kurz, ob alles stimmt."); }
+  if (!sample) { localParse(d, t); render(); saveListing(true); return toast("Angaben übernommen. Prüf kurz, ob alles stimmt."); }
   sell.busy = "parse"; render();
   try {
     const r = await sample.json(`Jemand beschreibt ein Kleidungsstück, das er auf Vinted verkaufen will. Der Text ist eventuell per Spracheingabe diktiert und enthält Tippfehler.
@@ -3348,7 +3412,7 @@ document.addEventListener("click", async e => {
     case "sell-item": closeSheet(); newDraft(v); break;
     case "open-listing": openListing(v); break;
     case "s-back": sell.draft = null; render(); window.scrollTo({ top: 0 }); break;
-    case "s-step": sell.step = Number(v) || 1; sell.armDel = sell.armRm = false; render(); window.scrollTo({ top: 0 }); break;
+    case "s-step": sell.step = Number(v) || 1; sell.armDel = sell.armRm = false; render(); window.scrollTo({ top: 0 }); if (sell.draft && (sell.draft.photos.some(p => !p.shared) || sell.draft.freeText || Object.values(sell.draft.answers).some(Boolean))) saveListing(true); break;
     case "s-delphoto": {
       const d = sell.draft; d.photos = d.photos.filter(p => p.k !== v);
       if (photoUrls.has(v) && !(d.collage && d.collage.k === v)) { URL.revokeObjectURL(photoUrls.get(v)); photoUrls.delete(v); photoBlobs.delete(v); }
@@ -3403,6 +3467,8 @@ document.addEventListener("input", e => {
   } else if (t.dataset.p && d.result) { const n = parseFloat(t.value.replace(",", ".")); if (!isNaN(n)) d.result.preis[t.dataset.p] = n; }
 });
 document.addEventListener("change", e => { if (e.target.id === "sellPhotos") { addSellPhotos(e.target.files); } });
+// Inserat nicht verlieren, wenn die App in den Hintergrund geht (Galerie, Kamera, Anruf)
+document.addEventListener("visibilitychange", () => { const d = sell.draft; if (document.visibilityState === "hidden" && d && (d.photos.some(p => !p.shared) || d.freeText || d.result)) saveListing(true); });
 
 /* ---------- boot ---------- */
 fillWeekLocal();
@@ -3445,7 +3511,8 @@ function settingsSheet(msg) {
         <button class="btn btn-ghost" data-act="csv-export">Als Liste speichern</button>
       </div>
       <div class="set-row">
-        <button class="btn btn-soft" data-act="load-examples">Beispielschrank zeigen</button>
+        <button class="btn btn-soft" data-act="load-examples" data-v="damen">Beispielschrank Damen</button>
+        <button class="btn btn-soft" data-act="load-examples" data-v="herren">Beispielschrank Herren</button>
         <button class="btn btn-soft" data-act="onb-show">Einführung ansehen</button>
         <button class="btn btn-danger${state.armedWipe ? " armed" : ""}" data-act="wipe">${state.armedWipe ? "Wirklich alles löschen? Nochmal tippen" : "Alles löschen"}</button>
       </div></div>
@@ -3483,7 +3550,7 @@ function avatarSheet() {
   const av = avatar(), name = k => avOpt(k, av[k])[1];
   const sw = k => `<div class="swatches">${AV_OPTS[k].map(([v, l, h]) => `<button type="button" class="sw${h ? "" : " sw-neutral"}" style="background-color:${h || "var(--fig-skin)"}" data-act="av-set" data-k="${k}" data-v="${v}" aria-pressed="${av[k] === v}" aria-label="${l}" title="${l}"></button>`).join("")}</div>`;
   const chips = k => `<div class="chips wrap">${AV_OPTS[k].map(([v, l]) => `<button type="button" class="chip" data-act="av-set" data-k="${k}" data-v="${v}" aria-pressed="${av[k] === v}">${l}</button>`).join("")}</div>`;
-  const changed = Object.keys(AV_DEFAULT).some(k => av[k] !== AV_DEFAULT[k]);
+  const changed = !!meta.avatar;
   openSheet(`<h2>Deine <em>Figur</em></h2>
     <p class="hint">So sieht die Figur aus, die dein Outfit zeigt. Bleibt nur auf diesem Gerät.</p>
     <div class="av-pick"><div class="av-fig">${figureSvg(avPreview())}</div>
@@ -3999,7 +4066,7 @@ function probeSummary() {
   return out.length ? "Geld-Tests: " + out.join(" · ") : "";
 }
 
-const APP_VERSION = "0.32";
+const APP_VERSION = "0.33";
 document.addEventListener("click", async e => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   switch (el.dataset.act) {
@@ -4042,10 +4109,11 @@ document.addEventListener("click", async e => {
     case "onb-show": closeSheet(); showOnboarding(); break;
     case "load-examples":
       if (SB.hasData()) { toast("Du hast schon eigene Teile. Lösch erst alles, um den Beispielschrank zu sehen."); break; }
-      state.items = EXAMPLES.map(x => ({ ...x })); state.usingExamples = true; fillWeekLocal(); closeSheet(); state.tab = "schrank"; render(); break;
+      if (v === "damen" || v === "herren") { meta.closet = v; saveMeta(); }
+      state.items = exampleItems(); state.usingExamples = true; state.plan = emptyPlan(); fillWeekLocal(); closeSheet(); state.tab = "schrank"; render(); break;
     case "wipe":
       if (!state.armedWipe) { state.armedWipe = true; settingsSheet(); break; }
-      state.armedWipe = false; await SB.wipe(); state.items = EXAMPLES.map(x => ({ ...x })); state.usingExamples = true; state.plan = emptyPlan(); fillWeekLocal(); state.listings = []; sell.draft = null;
+      state.armedWipe = false; await SB.wipe(); state.items = exampleItems(); state.usingExamples = true; state.plan = emptyPlan(); fillWeekLocal(); state.listings = []; sell.draft = null;
       closeSheet(); render(); toast("Alles gelöscht. Du siehst wieder den Beispielschrank."); break;
     case "save-key": {
       const v = document.getElementById("aiKeyInput").value.trim();
@@ -4625,44 +4693,57 @@ async function saveQuick() {
 /* ---------- Einführung beim ersten Start: 3 Bildschirme, überspringbar ---------- */
 function showOnboarding() {
   if (document.getElementById("onb")) return;
-  const ex = id => EXAMPLES.find(x => x.id === id) || EXAMPLES[0];
-  const t = (id, st) => { const it = { ...ex(id), photo: null }; return `<div class="thumb">${garmentSvg(it)}${st ? pill(st) : ""}</div>`; };
   const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="d" x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg>';
-  const slides = [
-    { art: `<div class="onb-grid">${t("ex05", "schrank")}${t("ex01", "schrank")}${t("ex03", "waesche")}${t("ex11", "schrank")}${t("ex09", "schrank")}${t("ex12", "schrank")}</div>`,
-      eb: "Überblick", h: "Dein Schrank <em>auf einen Blick</em>",
-      p: "Trag deine Kleidung ein, mit Foto oder ohne. Du siehst sofort, was sauber im Schrank hängt und was gerade in der Wäsche ist." },
-    { art: `<div class="today"><div class="today-top"><div><span class="eyebrow">Morgen · ${DAYS[new Date().getDay()][1]} · ${[0, 6].includes((new Date().getDay() + 1) % 7) ? "Alltag" : "Büro"}</span><h2>Dein <em>Outfit</em></h2></div></div>
-        <div class="wx"><span>☁︎</span><span><b>14 °C</b> · Regen 60 %, also lieber die Jacke</span></div>
-        <div class="outfit">${["ex02", "ex06", "ex11", "ex13"].map(id => `<div class="mini"><div class="thumb">${garmentSvg(ex(id))}</div><span>${esc(ex(id).name)}</span></div>`).join("")}</div>
+  const pool = () => closet() === "herren" ? EXAMPLES : EXAMPLES_W;
+  const ex = id => pool().find(x => x.id === id) || pool()[0];
+  const t = (id, st) => { const it = { ...ex(id), photo: null }; return `<div class="thumb">${garmentSvg(it)}${st ? pill(st) : ""}</div>`; };
+  const pickCard = (v, ids, label) => `<button class="onb-pick" data-onb="pick" data-v="${v}"><span class="onb-pick-art">${ids.map(id => `<span class="thumb">${garmentSvg({ ...(EXAMPLES_W.find(x => x.id === id) || EXAMPLES.find(x => x.id === id)), photo: null })}</span>`).join("")}</span><b>${label}</b></button>`;
+  const slideData = () => {
+    const R = EX_ROLES[closet()], lent = ex(R.lent);
+    return [
+      { art: `<div class="onb-picks">${pickCard("damen", ["ew01", "ew10", "ew18"], "Damen")}${pickCard("herren", ["ex01", "ex06", "ex13"], "Herren")}</div>`,
+        eb: "Willkommen", h: "Wessen Schrank <em>ziehen wir ein?</em>",
+        p: "Danach zeigt dir die App einen passenden Beispielschrank. Dein eigener Schrank kann natürlich alles enthalten." },
+      { art: `<div class="onb-grid">${R.grid.map(([id, st]) => t(id, st)).join("")}</div>`,
+        eb: "Überblick", h: "Dein Schrank <em>auf einen Blick</em>",
+        p: "Trag deine Kleidung ein, mit Foto oder ohne. Du siehst sofort, was sauber im Schrank hängt und was gerade in der Wäsche ist." },
+      { art: `<div class="today"><div class="today-top"><div><span class="eyebrow">Morgen · ${DAYS[new Date().getDay()][1]} · ${[0, 6].includes((new Date().getDay() + 1) % 7) ? "Alltag" : "Büro"}</span><h2>Dein <em>Outfit</em></h2></div></div>
+        <div class="wx"><span>☁︎</span><span><b>8 °C</b> · Regen 60 %, also lieber der Mantel</span></div>
+        <div class="outfit">${R.outfit.map(id => `<div class="mini"><div class="thumb">${garmentSvg(ex(id))}</div><span>${esc(ex(id).name)}</span></div>`).join("")}</div>
         <div class="btn btn-inv btn-wide" aria-hidden="true">Heute getragen</div></div>`,
-      eb: "Jeden Morgen", h: "Ein Outfit, <em>ohne Grübeln</em>",
-      p: "Die App stellt deine Woche aus sauberen Teilen zusammen, passend zu Wetter und Anlass. Nach dem Tragen ein Tipp auf „Heute getragen“, fertig." },
-    { art: `<div><div class="onb-list">
-          <div class="onb-row">${t("ex16")}<div><b>Gelber Hoodie</b><span>Seit 40 Tagen nicht getragen</span></div></div>
-          <div class="onb-row">${t("ex15")}<div><b>Ledergürtel</b><span>An Lea verliehen, zurück am Samstag</span></div></div>
-          <div class="onb-row">${t("ex05")}<div><b>Dunkle Jeans</b><span>3× nochmal getragen statt gewaschen · <span class="eco" style="display:inline">Wasser und Strom gespart</span></span></div></div>
+        eb: "Jeden Morgen", h: "Ein Outfit, <em>ohne Grübeln</em>",
+        p: "Die App stellt deine Woche aus sauberen Teilen zusammen, passend zu Wetter und Anlass. Nach dem Tragen ein Tipp auf „Heute getragen“, fertig." },
+      { art: `<div><div class="onb-list">
+          <div class="onb-row">${t(R.forgot)}<div><b>${esc(ex(R.forgot).name)}</b><span>Seit 63 Tagen nicht getragen · <span class="eco" style="display:inline">fertiges Vinted-Inserat in 2 Minuten</span></span></div></div>
+          <div class="onb-row">${t(R.lent)}<div><b>${esc(lent.name)}</b><span>An ${esc(lent.lentTo || "Lea")} verliehen, sollte seit 2 Tagen zurück sein</span></div></div>
+          <div class="onb-row">${t(R.rewear)}<div><b>${esc(ex(R.rewear).name)}</b><span>3× nochmal getragen statt gewaschen · <span class="eco" style="display:inline">Wasser und Strom gespart</span></span></div></div>
         </div>
         <div class="onb-trust">${LOCK}<span>Alles bleibt auf deinem Handy. Kein Konto, keine Werbung.</span></div></div>`,
-      eb: "Länger Freude", h: "Mehr tragen, <em>weniger waschen</em>",
-      p: "Die App erinnert dich an vergessene Teile, behält Verliehenes im Blick und zeigt, was du sparst. Was du nicht mehr trägst, verkaufst du mit wenigen Tipps." }
-  ];
+        eb: "Verkaufen & mehr", h: "Weniger Chaos, <em>mehr Platz</em>",
+        p: "Was du nicht mehr trägst, stellst du mit Titel, Beschreibung und Preisvorschlag auf Vinted. Dazu erinnert die App an Vergessenes und Verliehenes." }
+    ];
+  };
+  let slides = slideData();
   const el = document.createElement("div");
   el.className = "onb"; el.id = "onb"; el.tabIndex = -1;
   el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Einführung in Tragfroh");
   el.innerHTML = `<div class="onb-top"><span class="brand-sm" aria-hidden="true"><svg class="logo-mark" aria-hidden="true"><use href="#giyo-mark"/></svg>Trag<em>froh</em></span><button class="linkbtn" data-onb="skip">Überspringen</button></div>
-    <div class="onb-track" id="onbTrack">${slides.map((x, i) => `<section class="onb-slide" aria-label="${i + 1} von ${slides.length}"><div class="onb-art">${x.art}</div>
-      <div class="onb-txt"><span class="eyebrow">${i + 1} von ${slides.length} · ${x.eb}</span><h2>${x.h}</h2><p>${x.p}</p></div></section>`).join("")}</div>
+    <div class="onb-track" id="onbTrack"></div>
     <div class="onb-foot" id="onbFoot"></div>`;
   document.body.appendChild(el);
   document.documentElement.style.overflow = "hidden";
   count("onb:start");
   const track = el.querySelector("#onbTrack"), foot = el.querySelector("#onbFoot");
+  const drawSlides = () => { slides = slideData(); track.innerHTML = slides.map((x, i) => `<section class="onb-slide" aria-label="${i + 1} von ${slides.length}"><div class="onb-art">${x.art}</div>
+      <div class="onb-txt"><span class="eyebrow">${i + 1} von ${slides.length} · ${x.eb}</span><h2>${x.h}</h2><p>${x.p}</p></div></section>`).join(""); };
+  drawSlides();
   let idx = -1;
   const drawFoot = i => {
     if (i === idx) return; idx = i;
     const dots = `<div class="onb-dots" aria-hidden="true">${slides.map((_, k) => `<i class="${k === i ? "on" : ""}"></i>`).join("")}</div>`;
-    foot.innerHTML = i < slides.length - 1
+    foot.innerHTML = i === 0
+      ? `<div class="onb-nav">${dots}<span class="hint">Tippe auf eine Auswahl</span></div>`
+      : i < slides.length - 1
       ? `<div class="onb-nav">${dots}<button class="btn btn-primary" data-onb="next">Weiter</button></div>`
       : `<div class="onb-end"><button class="btn btn-primary btn-wide" data-onb="add">${ICON_PLUS} Erstes Teil eintragen</button><button class="btn btn-ghost btn-wide" data-onb="examples">Erst den Beispielschrank ansehen</button></div>`;
   };
@@ -4671,6 +4752,7 @@ function showOnboarding() {
   track.addEventListener("scroll", () => drawFoot(cur()), { passive: true });
   drawFoot(0);
   const close = how => {
+    if (!meta.closet) meta.closet = closet();
     meta.onboarded = todayIso(); saveMeta(); count("onb:" + how);
     document.removeEventListener("keydown", onKey);
     document.documentElement.style.overflow = "";
@@ -4686,7 +4768,13 @@ function showOnboarding() {
     const b = e.target.closest("[data-onb]"); if (!b) return;
     e.stopPropagation();
     const a = b.dataset.onb;
-    if (a === "next") go(cur() + 1);
+    if (a === "pick") {
+      meta.closet = b.dataset.v === "herren" ? "herren" : "damen"; saveMeta(); count("onb:" + meta.closet);
+      if (state.usingExamples) { state.items = exampleItems(); state.plan = emptyPlan(); fillWeekLocal(); render(); }
+      drawSlides(); idx = -1; drawFoot(0);
+      requestAnimationFrame(() => go(1));
+    }
+    else if (a === "next") go(cur() + 1);
     else if (a === "skip") close("skip");
     else if (a === "examples") { close("examples"); window.scrollTo({ top: 0 }); }
     else if (a === "add") { close("add"); addSheet(); }
